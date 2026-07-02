@@ -1,0 +1,95 @@
+[versions]
+agp_version = "9.2.1"
+
+#kotlin
+kotlin_version = "2.4.0"
+ksp_version = "2.3.9"
+coreKtx_version = "1.19.0"
+lifecycleRuntimeKtx_version = "2.11.0"
+kotlinx_serialization_json_version = "1.11.0"
+
+#compose
+composeBom_version = "2026.06.01"
+activityCompose_version = "1.13.0"
+fragmentComposeVersion = "1.8.9"
+constraintlayoutComposeVersion = "1.1.1"
+hilt_navigation_compose_version = "1.4.0"
+coil3ComposeVersion = "3.5.0"
+
+hilt_version = "2.60"
+nav_version = "2.9.8"
+room_version = "2.8.4"
+retrofit_version = "3.0.0"
+okhttp_version = "5.4.0"
+lottieVersion = "6.7.1"
+materialVersion = "1.14.0"
+constraintlayoutVersion = "2.2.1"
+googleGmsGoogleServicesVersion = "4.5.0"
+firebaseCrashlyticsVersion = "20.0.6"
+googleFirebaseCrashlyticsVersion = "3.0.7"
+firebaseBomVersion = "34.15.0"
+
+#testing
+junit_version = "4.13.2"
+android_junit_version = "1.3.0"
+espressoCore_version = "3.7.0"
+
+[libraries]
+#kotlin
+androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx_version" }
+androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx_version" }
+kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx_serialization_json_version" }
+
+#compose
+androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom_version" }
+androidx-compose-foundation = { group = "androidx.compose.foundation", name = "foundation" }
+androidx-compose-ui = { group = "androidx.compose.ui", name = "ui" }
+androidx-compose-ui-graphics = { group = "androidx.compose.ui", name = "ui-graphics" }
+androidx-compose-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling" }
+androidx-compose-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview" }
+androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3" }
+androidx-compose-material-icons-core = { group = "androidx.compose.material", name = "material-icons-core" }
+androidx-compose-material-icons-extended = { group = "androidx.compose.material", name = "material-icons-extended" }
+androidx-activity-compose = { group = "androidx.activity", name = "activity-compose", version.ref = "activityCompose_version" }
+androidx-fragment-compose = { group = "androidx.fragment", name = "fragment-compose", version.ref = "fragmentComposeVersion" }
+androidx-constraintlayout-compose = { group = "androidx.constraintlayout", name = "constraintlayout-compose", version.ref = "constraintlayoutComposeVersion" }
+androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "nav_version" }
+androidx-hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt_navigation_compose_version" }
+
+androidx-constraintlayout = { module = "androidx.constraintlayout:constraintlayout", version.ref = "constraintlayoutVersion" }
+material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
+hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref = "hilt_version" }
+hilt-compiler = { group = "com.google.dagger", name = "hilt-android-compiler", version.ref = "hilt_version" }
+hilt-test = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt_version" }
+androidx-room-runtime = { group = "androidx.room", name = "room-runtime", version.ref = "room_version" }
+androidx-room-ktx = { group = "androidx.room", name = "room-ktx", version.ref = "room_version" }
+androidx-room-compiler = { group = "androidx.room", name = "room-compiler", version.ref = "room_version" }
+androidx-room-testing = { group = "androidx.room", name = "room-testing", version.ref = "room_version" }
+retrofit-core = { group = "com.squareup.retrofit2", name = "retrofit", version.ref = "retrofit_version" }
+retrofit-gson = { group = "com.squareup.retrofit2", name = "converter-gson", version.ref = "retrofit_version" }
+okhttp = { group = "com.squareup.okhttp3", name = "okhttp", version.ref = "okhttp_version" }
+okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor", version.ref = "okhttp_version" }
+okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp_version" }
+okhttp-tls = { group = "com.squareup.okhttp3", name = "okhttp-tls", version.ref = "okhttp_version" }
+lottie = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottieVersion" }
+coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil3ComposeVersion" }
+coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil3ComposeVersion" }
+firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBomVersion" }
+firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlyticsVersion" }
+
+#testing
+androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
+androidx-compose-ui-test-junit4 = { group = "androidx.compose.ui", name = "ui-test-junit4" }
+junit = { group = "junit", name = "junit", version.ref = "junit_version" }
+androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "android_junit_version" }
+androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-core", version.ref = "espressoCore_version" }
+
+[plugins]
+android-application = { id = "com.android.application", version.ref = "agp_version" }
+kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin_version" }
+kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin_version" }
+kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin_version" }
+ksp = { id = "com.google.devtools.ksp", version.ref = "ksp_version" }
+hilt = { id = "com.google.dagger.hilt.android", version.ref = "hilt_version" }
+google-gms-google-services = { id = "com.google.gms.google-services", version.ref = "googleGmsGoogleServicesVersion" }
+google-firebase-crashlytics = { id = "com.google.firebase.crashlytics", version.ref = "googleFirebaseCrashlyticsVersion" }
