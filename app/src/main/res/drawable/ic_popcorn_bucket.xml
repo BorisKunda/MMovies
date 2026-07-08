@@ -1,0 +1,36 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Popcorn pieces -->
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M7.5,8.5C6.4,8.5 5.5,7.6 5.5,6.5C5.5,5.4 6.4,4.5 7.5,4.5C7.8,3.4 8.8,2.6 10,2.6C10.8,2.6 11.5,3 12,3.6C12.5,3 13.2,2.6 14,2.6C15.2,2.6 16.2,3.4 16.5,4.5C17.6,4.5 18.5,5.4 18.5,6.5C18.5,7.6 17.6,8.5 16.5,8.5H7.5Z" />
+
+    <!-- Bucket outline -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.7"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:pathData="M6.8,9.5H17.2L15.8,21H8.2L6.8,9.5Z" />
+
+    <!-- Bucket stripes -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.3"
+        android:strokeLineCap="round"
+        android:pathData="M10,11.5L10.5,19" />
+
+    <path
+        android:fillColor="@android:color/transparent"
+        android:strokeColor="#FFFFFFFF"
+        android:strokeWidth="1.3"
+        android:strokeLineCap="round"
+        android:pathData="M14,11.5L13.5,19" />
+
+</vector>
