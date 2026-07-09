@@ -3,9 +3,9 @@ package com.bk.mmovies.db
 import android.content.Context
 import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
-import com.bk.mmovies.data.source.local.MovieDb
+import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.local.dao.MovieDao
-import com.bk.mmovies.data.source.local.dbmodel.entity.MovieEntity
+import com.bk.mmovies.data.source.local.entity.MovieEntity
 import junit.framework.TestCase.assertEquals
 import kotlinx.coroutines.test.runTest
 import org.junit.Before

@@ -3,8 +3,9 @@ package com.bk.mmovies.app
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
-import coil3.SingletonImageLoader
 import com.bk.mmovies.BuildConfig
+import com.bk.mmovies.util.MAIN_ACTIVITY_TAG
+import com.bk.mmovies.util.logDebug
 import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp

@@ -4,8 +4,8 @@ package com.bk.mmovies.di
 import android.content.Context
 import androidx.room.Room
 import com.bk.mmovies.data.source.local.DbManager
-import com.bk.mmovies.data.source.local.MOVIE_DATABASE_NAME
-import com.bk.mmovies.data.source.local.MovieDb
+import com.bk.mmovies.data.source.local.db.MOVIE_DATABASE_NAME
+import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.local.dao.MovieDao
 import dagger.Module
 import dagger.Provides

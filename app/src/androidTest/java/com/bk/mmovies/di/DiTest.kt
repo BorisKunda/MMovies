@@ -1,6 +1,6 @@
 package com.bk.mmovies.di
 
-import com.bk.mmovies.data.MovieRepository
+import com.bk.mmovies.domain.repository.MovieRepository
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.junit.Assert.assertNotNull

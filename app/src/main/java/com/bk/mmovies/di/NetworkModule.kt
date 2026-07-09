@@ -2,12 +2,12 @@ package com.bk.mmovies.di
 
 
 import com.bk.mmovies.BuildConfig
-import com.bk.mmovies.app.logDebug
+import com.bk.mmovies.util.logDebug
 import com.bk.mmovies.data.source.remote.NETWORK_TAG
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import com.bk.mmovies.data.source.remote.TMDB_BASE_URL
-import com.bk.mmovies.data.source.remote.TmdbApi
+import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides

@@ -6,4 +6,3 @@ import javax.inject.Inject
 class NetworkManager @Inject constructor(val gson: Gson) {
 
 }
-
