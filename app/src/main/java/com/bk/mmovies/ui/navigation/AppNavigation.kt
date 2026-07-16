@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.bk.mmovies.ui.screen.details.MovieDetailsScreen
+import com.bk.mmovies.ui.screen.mock.MockScreen
 import com.bk.mmovies.ui.screen.movies.MoviesScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
 
@@ -31,6 +32,7 @@ fun AppNavigation(
         Modifier.padding(paddingValues = padding),
         builder = {
             composable<AppDestination.SplashDestination>(content = {
+                //MockScreen()
                 SplashScreen() {
                     navController.navigate(AppDestination.MoviesDestination) {
                         popUpTo<AppDestination.SplashDestination> {
