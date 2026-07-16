@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="48dp"
+    android:height="48dp"
+    android:viewportWidth="960"
+    android:viewportHeight="960"
+    android:tint="?attr/colorControlNormal">
+
+    <!-- Connection-lost badge. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M243,138A105,105 0,1 1,243 348A105,105 0,1 1,243 138"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="27" />
+
+    <!-- X inside the badge. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M204,204L282,282M282,204L204,282"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="34.5" />
+
+    <!-- Satellite dish bowl. -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M348,321C301.5,444 349.5,588 468,657C567,715.5 691.5,712.5 786,651C678,666 562.5,622.5 478.5,538.5C406.5,466.5 361.5,385.5 348,321ZM382.5,355.5C354,463.5 396,565.5 484.5,616.5C565.5,664.5 666,669 745.5,633C661.5,636 573,597 504,528C447,471 406.5,412.5 382.5,355.5Z" />
+
+    <!-- Feed arm. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M510,510L625.5,394.5"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="39" />
+
+    <!-- Receiver. -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M625.5,358.5A36,36 0,1 1,625.5 430.5A36,36 0,1 1,625.5 358.5" />
+
+    <!-- Inner connection wave. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M697.5,321C751.5,339 793.5,381 811.5,435"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="36" />
+
+    <!-- Outer connection wave. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M727.5,250.5C814.5,276 882,343.5 906,430.5"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round"
+        android:strokeWidth="36" />
+
+    <!-- Dish support. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M445.5,648L427.5,756"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeWidth="45" />
+
+    <!-- Dish base. -->
+    <path
+        android:fillColor="@android:color/transparent"
+        android:pathData="M372,765L522,765"
+        android:strokeColor="@android:color/white"
+        android:strokeLineCap="round"
+        android:strokeWidth="45" />
+
+</vector>

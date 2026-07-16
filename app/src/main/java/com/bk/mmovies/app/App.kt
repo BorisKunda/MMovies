@@ -4,18 +4,24 @@ import android.app.Activity
 import android.app.Application
 import android.os.Bundle
 import com.bk.mmovies.BuildConfig
+import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.util.MAIN_ACTIVITY_TAG
 import com.bk.mmovies.util.logDebug
 import dagger.hilt.android.HiltAndroidApp
+import javax.inject.Inject
 
 @HiltAndroidApp
 class App : Application(), Application.ActivityLifecycleCallbacks {
+
+    @Inject
+    lateinit var internetMonitor: InternetMonitor
 
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             registerActivityLifecycleCallbacks(this)
         }
+        internetMonitor.start()
     }
 
     override fun onActivityCreated(
