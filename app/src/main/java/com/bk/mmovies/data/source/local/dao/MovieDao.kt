@@ -25,9 +25,9 @@ interface MovieDao {
 
     @Query("UPDATE movies SET isFavorite=:isFavorite WHERE movieId=:movieId")
     suspend fun updateMovieIsFavorite(
-        movieId: Int,
-        isFavorite: Boolean
-    )
+            movieId: Int,
+            isFavorite: Boolean
+                                     )
 
     @Query("DELETE FROM movies WHERE movieId = :movieId")
     suspend fun deleteMovieById(movieId: Int)

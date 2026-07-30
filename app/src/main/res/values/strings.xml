@@ -1,3 +1,27 @@
 <resources>
     <string name="app_name">MMovies</string>
+
+    <!--ERRORS-->
+    <string name="error_no_internet_connection_title">No internet connection</string>
+    <string name="error_no_internet_connection_message">Check your Wi-Fi or mobile data.\nWe’ll continue automatically once you’re back online.</string>
+    <string name="error_no_internet_action">Open network settings</string>
+
+    <string name="error_missing_api_key_title">Missing API key</string>
+    <string name="error_missing_api_key_message">The user has not entered a key yet.</string>
+    <string name="error_invalid_api_key_title">Invalid API key</string>
+    <string name="error_invalid_api_key_message">Your API key is invalid or has expired. Get a new key to continue.</string>
+    <string name="get_your_api_key">Get your API key</string>
+    <string name="open_tmdb_api_settings">Open TMDB API settings</string>
+    <string name="how_to_get_api_key">How do I get an API key?</string>
+    <string name="enter_your_api_key">Enter your API key</string>
+    <string name="api_key">API key</string>
+    <string name="paste_your_api_key">Paste your API key</string>
+    <string name="save_and_continue">Save and continue</string>
+
+    <string name="generic_error_title">Error</string>
+    <string name="generic_error_message">Something went wrong</string>
+
+    <string name="lorem_ipsum_short">Lorem ipsum..</string>
+    <string name="lorem_ipsum_medium">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+    <string name="lorem_ipsum_long">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean elementum ligula eu dui imperdiet scelerisque. Nulla vulputate non neque ac vestibulum. Sed sed feugiat lacus, ac varius erat. </string>
 </resources>

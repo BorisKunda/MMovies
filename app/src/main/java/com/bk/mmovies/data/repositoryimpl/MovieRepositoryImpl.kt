@@ -1,4 +1,4 @@
-package com.bk.mmovies.data.repository
+package com.bk.mmovies.data.repositoryimpl
 
 import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.db.MovieDb
@@ -8,9 +8,10 @@ import com.bk.mmovies.domain.repository.MovieRepository
 import javax.inject.Inject
 
 class MovieRepositoryImpl @Inject constructor(
-    private val api: TmdbApi,
-    private val db: MovieDb,
-    private val networkManager: NetworkManager,
-    private val dbManager: DbManager
-) : MovieRepository {
+        private val api: TmdbApi,
+        private val db: MovieDb,
+        private val networkManager: NetworkManager,
+        private val dbManager: DbManager
+                                             ) : MovieRepository {
+
 }

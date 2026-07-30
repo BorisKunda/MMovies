@@ -1,6 +1,6 @@
 package com.bk.mmovies.ui.screen.mock
 
-import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,8 +15,10 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 fun MockScreen() {
     val context = LocalContext.current
     val viewModel: MockViewModel = hiltViewModel()
-    Column(Modifier.fillMaxSize(), content = {
-        Text("Mock Screen")
-    })
+    Box(
+            Modifier.fillMaxSize(),
+            content = {
+                Text("Mock Screen")
+            })
 }
 

@@ -5,20 +5,33 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.core.net.toUri
 
 fun openDeviceInternetSettings(context: Context) {
     val intent =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
-        } else {
-            Intent(Settings.ACTION_WIFI_SETTINGS)
-        }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                Intent(Settings.Panel.ACTION_INTERNET_CONNECTIVITY)
+            } else {
+                Intent(Settings.ACTION_WIFI_SETTINGS)
+            }
 
     try {
         context.startActivity(intent)
     } catch (exception: ActivityNotFoundException) {
         context.startActivity(
-            Intent(Settings.ACTION_SETTINGS)
-        )
+                Intent(Settings.ACTION_SETTINGS)
+                             )
     }
+}
+
+fun openWebPage(
+        context: Context,
+        url: String
+               ) {
+    val intent = Intent(
+            Intent.ACTION_VIEW,
+            url.toUri()
+                       )
+
+    context.startActivity(intent)
 }

@@ -23,10 +23,13 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController()
             MMoviesTheme {
                 Scaffold(
-                    modifier = Modifier.fillMaxSize(),
-                    containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-                    AppNavigation(innerPadding, navController) {
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.background
+                        ) { innerPadding ->
+                    AppNavigation(
+                            innerPadding,
+                            navController
+                                 ) {
                         finish()
                     }
                 }

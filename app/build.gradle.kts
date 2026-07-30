@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -24,12 +22,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "com.bk.mmovies.di.HiltTestRunner"
-
-        buildConfigField(
-            "String",
-            "TMDB_API_KEY",
-            "\"${getRequiredLocalProperty("TMDB_API_KEY")}\""
-        )
     }
 
     buildTypes {
@@ -134,14 +126,3 @@ fun DependencyHandler.coil() {
     implementation(libs.coil.network.okhttp)
 }
 
-fun getRequiredLocalProperty(key: String): String {
-    val properties = Properties()
-    val localPropertiesFile = rootProject.file("local.properties")
-
-    if (localPropertiesFile.exists()) {
-        localPropertiesFile.inputStream().use { properties.load(it) }
-    }
-
-    return properties.getProperty(key)
-           ?: throw GradleException("Missing $key in local.properties")
-}

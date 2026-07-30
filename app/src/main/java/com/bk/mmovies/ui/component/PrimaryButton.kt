@@ -1,64 +1,102 @@
 package com.bk.mmovies.ui.component
 
-import androidx.compose.foundation.layout.Spacer
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
+import com.bk.mmovies.R
+import com.bk.mmovies.ui.theme.MMoviesTheme
+import com.bk.mmovies.ui.theme.primaryButtonContentColor
+import com.bk.mmovies.ui.theme.primaryButtonCornerSize
+import com.bk.mmovies.ui.theme.primaryButtonDisabledContainerColor
+import com.bk.mmovies.ui.theme.primaryButtonDisabledContentColor
+import com.bk.mmovies.ui.theme.primaryButtonHeight
+import com.bk.mmovies.ui.theme.primaryButtonIconPadding
+import com.bk.mmovies.ui.theme.primaryButtonIconSize
+import com.bk.mmovies.util.logDebug
+
 
 @Composable
 fun PrimaryButton(
-    imageVector: ImageVector?,
-    label: String,
-    onClick: () -> Unit
-) {
-    ElevatedButton(
-        onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(48.dp),
-        colors = ButtonDefaults.elevatedButtonColors(
-            containerColor =
-                Color.White,
-            contentColor = Color.Black
-        )
-    ) {
-        imageVector?.let {
+        @DrawableRes imageResId: Int?,
+        label: String,
+        onClick: () -> Unit,
+        isEnabled: Boolean
+                 ) {
+    Button(
+            onClick = onClick,
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .height(
+                            primaryButtonHeight
+                           ),
+            colors = ButtonDefaults.buttonColors(
+                    containerColor = Color.White,
+                    contentColor = Color(primaryButtonContentColor),
+                    disabledContainerColor = primaryButtonDisabledContainerColor,
+                    disabledContentColor = primaryButtonDisabledContentColor
+                                                ),
+            enabled = isEnabled,
+            shape = RoundedCornerShape(primaryButtonCornerSize),
+          ) {
+        imageResId?.let {
             Icon(
-                imageVector = it,
-                contentDescription = null,
-                modifier = Modifier.size(18.dp)
-            )
-            Spacer(
-                modifier = Modifier.width(8.dp)
-            )
+                    painter = painterResource(
+                            imageResId
+                                             ),
+                    contentDescription = null,
+                    modifier = Modifier
+                            .size(primaryButtonIconSize)
+                            .padding(horizontal = primaryButtonIconPadding)
+                )
         }
-
         Text(
-            text = label,
-            style = MaterialTheme.typography.labelLarge
-        )
+                text = label,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold
+            )
     }
 }
 
 @Composable
-@Preview
+@Preview(showBackground = true)
 fun PrimaryButtonPreview() {
-    PrimaryButton(
-        imageVector = Icons.Outlined.Settings,
-        label = "Open network settings"
-    ) { }
+    MMoviesTheme {
+        Box(
+                modifier = Modifier
+                        .fillMaxSize()
+                        .background(MaterialTheme.colorScheme.background),
+                contentAlignment = Alignment.Center,
+                content = {
+                    PrimaryButton(
+                            imageResId = R.drawable.ic_settings,
+                            label = "Open network settings",
+                            {
+                                logDebug(
+                                        "PrimaryButtonPreview",
+                                        "Open network settings clicked"
+                                        )
+                            },
+                            true
+                                 )
+                }
+           )
+    }
 }
