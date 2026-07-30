@@ -1,0 +1,66 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+
+    <!-- Browser window -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.4"
+        android:strokeLineJoin="round"
+        android:pathData="M4,2H20C21.1,2 22,2.9 22,4V20C22,21.1 21.1,22 20,22H4C2.9,22 2,21.1 2,20V4C2,2.9 2.9,2 4,2Z" />
+
+    <!-- Browser header divider -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.4"
+        android:pathData="M2,7H22" />
+
+    <!-- Three control dots -->
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M4.2,4A0.65,0.65 0,1 0,4.2,5.3A0.65,0.65 0,1 0,4.2,4Z" />
+
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M6.3,4A0.65,0.65 0,1 0,6.3,5.3A0.65,0.65 0,1 0,6.3,4Z" />
+
+    <path
+        android:fillColor="#FF000000"
+        android:pathData="M8.4,4A0.65,0.65 0,1 0,8.4,5.3A0.65,0.65 0,1 0,8.4,4Z" />
+
+    <!-- Address bar -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.4"
+        android:strokeLineCap="round"
+        android:pathData="M11,4.65H18.5" />
+
+    <!-- Globe outline -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.4"
+        android:pathData="M12,9A5,5 0,1 0,12,19A5,5 0,1 0,12,9Z" />
+
+    <!-- Globe longitude -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M12,9C9.7,11.2 9.7,16.8 12,19M12,9C14.3,11.2 14.3,16.8 12,19" />
+
+    <!-- Globe latitude -->
+    <path
+        android:fillColor="#00000000"
+        android:strokeColor="#FF000000"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round"
+        android:pathData="M7.5,12H16.5M7.5,16H16.5" />
+
+</vector>

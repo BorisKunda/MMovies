@@ -1,19 +1,18 @@
 package com.bk.mmovies.di
 
-
 import com.bk.mmovies.BuildConfig
-import com.bk.mmovies.util.logDebug
 import com.bk.mmovies.data.source.remote.NETWORK_TAG
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import com.bk.mmovies.data.source.remote.TMDB_BASE_URL
 import com.bk.mmovies.data.source.remote.api.TmdbApi
+import com.bk.mmovies.data.source.remote.interceptor.ApiKeyInterceptor
+import com.bk.mmovies.util.logDebug
 import com.google.gson.Gson
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.logging.HttpLoggingInterceptor.Level
@@ -32,56 +31,60 @@ object NetworkModule {
     }
 
     @Provides
-    fun provideInterceptor(): Interceptor {
-        return Interceptor { chain ->
-            val originalRequest = chain.request()
-            val tmdbKey = BuildConfig.TMDB_API_KEY
-            val newUrl = originalRequest.url.newBuilder()
-                .addQueryParameter(QUERY_PARAM_API_KEY, tmdbKey)
+    @Singleton
+    fun provideOkHttpClient(
+            apiKeyInterceptor: ApiKeyInterceptor
+                           ): OkHttpClient {
+        return OkHttpClient.Builder()
+                .addInterceptor(apiKeyInterceptor)
+                .apply {
+                    if (BuildConfig.DEBUG) {
+                        addInterceptor(
+                                HttpLoggingInterceptor { message ->
+                                    logDebug(
+                                            NETWORK_TAG,
+                                            message
+                                            )
+                                }.apply {
+                                    level = Level.BODY
+                                    redactQueryParams(
+                                            QUERY_PARAM_API_KEY
+                                                     )
+                                }
+                                      )
+                    }
+                }
                 .build()
-
-            val newRequest = originalRequest.newBuilder()
-                .url(newUrl)
-                .build()
-
-            chain.proceed(newRequest)
-        }
     }
 
     @Provides
     @Singleton
-    fun provideOkHttpClient(interceptor: Interceptor): OkHttpClient {
-        val okHttpBuilder = OkHttpClient.Builder()
-        okHttpBuilder.addInterceptor(interceptor)
-        if (BuildConfig.DEBUG) {
-            val loggingInterceptor = HttpLoggingInterceptor(logger = { message: String ->
-                logDebug(NETWORK_TAG, message)
-            })
-            loggingInterceptor.level = Level.BODY
-            okHttpBuilder.addInterceptor(loggingInterceptor)
-        }
-        return okHttpBuilder.build()
-    }
-
-    @Provides
-    @Singleton
-    fun provideNetworkManager(gson: Gson): NetworkManager {
+    fun provideNetworkManager(
+            gson: Gson
+                             ): NetworkManager {
         return NetworkManager(gson)
     }
 
     @Provides
     @Singleton
-    fun provideRetrofit(okHttpClient: OkHttpClient, gson: Gson): Retrofit {
+    fun provideRetrofit(
+            okHttpClient: OkHttpClient,
+            gson: Gson
+                       ): Retrofit {
         return Retrofit.Builder()
-            .baseUrl(TMDB_BASE_URL)
-            .client(okHttpClient)
-            .addConverterFactory(GsonConverterFactory.create(gson))
-            .build()
+                .baseUrl(TMDB_BASE_URL)
+                .client(okHttpClient)
+                .addConverterFactory(
+                        GsonConverterFactory.create(gson)
+                                    )
+                .build()
     }
 
     @Provides
     @Singleton
-    fun provideTmdbApi(retrofit: Retrofit): TmdbApi {
+    fun provideTmdbApi(
+            retrofit: Retrofit
+                      ): TmdbApi {
         return retrofit.create(TmdbApi::class.java)
     }
 }
