@@ -43,7 +43,7 @@ fun SplashScreen(
                 }
             }
 
-            is SplashScreenState.InvalidApiKey -> {
+            SplashScreenState.MissingApiKey, is SplashScreenState.InvalidApiKey -> {
                 InvalidApiKeyView(
                         onOpenTmdbSettingsClicked = {
                             openWebPage(
@@ -64,32 +64,7 @@ fun SplashScreen(
                                     "onSaveClicked key: $key"
                                     )
                         },
-                        false
-                                 )
-            }
-
-            SplashScreenState.MissingApiKey    -> {
-                InvalidApiKeyView(
-                        onOpenTmdbSettingsClicked = {
-                            openWebPage(
-                                    context,
-                                    "https://www.themoviedb.org/settings/api"
-                                       )
-                        },
-                        onApiKeyHelpClicked = {
-                            openWebPage(
-                                    context,
-                                    "https://developer.themoviedb.org/docs/getting-started"
-                                       )
-                        },
-                        onSaveClicked = { key: String ->
-                            viewModel.saveApiKey(key)
-                            logDebug(
-                                    TAG,
-                                    "onSaveClicked key: $key"
-                                    )
-                        },
-                        true
+                        missingKey = screenState is SplashScreenState.MissingApiKey
                                  )
             }
         }
