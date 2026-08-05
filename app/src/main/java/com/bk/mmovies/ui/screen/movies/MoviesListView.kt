@@ -39,6 +39,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,7 @@ import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.UserScoreView
+import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.bk.mmovies.util.logDebug
 import com.bk.mmovies.util.logError
 
@@ -66,6 +68,12 @@ private val posterWidth = 92.dp
 private val posterHeight = 130.dp
 private val posterCornerShape = 8.dp
 private val ratingBadgeSize = 28.dp
+
+// New: styling for the score caption under the badge.
+private val scoreLabelTopSpacing = 6.dp
+private val scoreLabelFontSize = 8.sp
+private val scoreLabelLetterSpacing = 0.5.sp
+private val scoreLabelAlpha = 0.45f
 
 @Composable
 fun MoviesListView(
@@ -105,14 +113,13 @@ fun MoviesListView(
     }
 }
 
-@Preview
 @Composable
-fun MoviesLoadingList() {
+fun MovieRowLoadingPlaceholderList() {
     LazyColumn(
             userScrollEnabled = false,
             content = {
                 items(4) { position ->
-                    MovieRowLoadingInProcess()
+                    MovieRowLoadingPlaceholder()
                 }
             },
             contentPadding = PaddingValues(
@@ -212,16 +219,33 @@ fun MovieRow(
             Spacer(modifier = Modifier.width(spacerPadding))
             Row(
                     modifier = Modifier.weight(1f),
-                    verticalAlignment = Alignment.CenterVertically
+                    verticalAlignment = Alignment.Top
                ) {
-                UserScoreView(
-                        score = movieModel.rating,
-                        size = ratingBadgeSize,
+                // Score badge + caption grouped in a Column so the label
+                // sits directly under the ring instead of competing with
+                // the title text next to it.
+                Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
                         modifier = Modifier.padding(
-                                top = 5.dp,
+                                top = 10.dp,
                                 end = 5.dp
                                                    )
-                             )
+                      ) {
+                    UserScoreView(
+                            score = movieModel.rating,
+                            size = ratingBadgeSize
+                                 )
+                    Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
+                    Text(
+                            text = "USER\nSCORE",
+                            color = Color.White.copy(alpha = scoreLabelAlpha),
+                            fontSize = scoreLabelFontSize,
+                            lineHeight = scoreLabelFontSize,
+                            letterSpacing = scoreLabelLetterSpacing,
+                            fontWeight = FontWeight.Medium,
+                            textAlign = TextAlign.Center
+                        )
+                }
                 Spacer(modifier = Modifier.width(badgeSpacerPadding))
                 Column(
                         modifier = Modifier.weight(1f),
@@ -248,9 +272,8 @@ fun MovieRow(
     }
 }
 
-@Preview
 @Composable
-fun MovieRowLoadingInProcess() {
+fun MovieRowLoadingPlaceholder() {
     val transition = rememberInfiniteTransition(label = "loading")
 
     val loadingAlpha by transition.animateFloat(
@@ -321,7 +344,23 @@ fun MovieRowLoadingInProcess() {
 
 @Preview
 @Composable
-fun MoviesListViewPreview() {
+private fun MovieRowLoadingPlaceholderListPreview(){
+    MMoviesTheme {
+        MovieRowLoadingPlaceholderList()
+    }
+}
+
+@Preview
+@Composable
+private fun MovieRowLoadingPlaceholderPreview() {
+    MMoviesTheme {
+        MovieRowLoadingPlaceholder()
+    }
+}
+
+@Preview
+@Composable
+private fun MoviesListViewPreview() {
     val sampleMovies = listOf(
             MovieModel(
                     id = 1,
@@ -346,7 +385,8 @@ fun MoviesListViewPreview() {
                     imageUrl = "https://image.tmdb.org/t/p/w342/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
                     releaseDate = "November 7, 2014",
                     rating = 85
-                      ))
+                      )
+                             )
     MoviesListView(
             movies = sampleMovies,
             onMovieClicked = {}

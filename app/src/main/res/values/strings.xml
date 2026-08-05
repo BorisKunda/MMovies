@@ -18,6 +18,8 @@
     <string name="paste_your_api_key">Paste your API key</string>
     <string name="save_and_continue">Save and continue</string>
 
+    <string name="error_movies_load_failed">Couldn\'t load movies right now. Please try again later.</string>
+
     <string name="generic_error_title">Error</string>
     <string name="generic_error_message">Something went wrong</string>
 

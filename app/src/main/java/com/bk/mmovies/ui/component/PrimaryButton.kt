@@ -77,7 +77,7 @@ fun PrimaryButton(
 
 @Composable
 @Preview(showBackground = true)
-fun PrimaryButtonPreview() {
+private fun PrimaryButtonPreview() {
     MMoviesTheme {
         Box(
                 modifier = Modifier

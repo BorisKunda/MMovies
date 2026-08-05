@@ -72,7 +72,7 @@ private fun scoreColor(score: Int): Color = when {
 
 @Preview
 @Composable
-fun UserScoreViewPreview() {
+private fun UserScoreViewPreview() {
     Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
         UserScoreView(score = 50)
     }
