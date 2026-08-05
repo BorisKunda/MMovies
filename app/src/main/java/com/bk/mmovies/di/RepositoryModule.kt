@@ -1,5 +1,7 @@
 package com.bk.mmovies.di
 
+import android.content.Context
+import com.bk.mmovies.data.mapper.MovieMapper
 import com.bk.mmovies.data.repositoryimpl.ApiKeyRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.MovieRepositoryImpl
 import com.bk.mmovies.data.source.local.DbManager
@@ -12,6 +14,7 @@ import com.bk.mmovies.domain.repository.MovieRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import javax.inject.Singleton
 
@@ -25,12 +28,16 @@ object RepositoryModule {
             db: MovieDb,
             networkManager: NetworkManager,
             dbManager: DbManager,
+            movieMapper: MovieMapper,
+            @ApplicationContext context: Context,
                               ): MovieRepository =
             MovieRepositoryImpl(
                     api,
                     db,
                     networkManager,
-                    dbManager
+                    dbManager,
+                    movieMapper,
+                    context
                                )
 
     @Provides
