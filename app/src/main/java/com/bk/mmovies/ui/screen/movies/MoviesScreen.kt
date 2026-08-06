@@ -45,15 +45,15 @@ import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.bk.mmovies.util.logDebug
 import kotlinx.coroutines.launch
 
-private val categoryIconEndPadding = 10.dp
-private val categorySelectorCornerShape = 14.dp
+private val categoryIconEndPadding = 6.dp
+private val categorySelectorCornerShape = 18.dp
 private val categorySelectorBorderWidth = 1.dp
 private val categorySelectorVerticalMargin = 12.dp
-private val categorySelectorContentHorizontalPadding = 14.dp
-private val categorySelectorContentVerticalPadding = 10.dp
-private val categoryIconSize = 20.dp
-private val categoryArrowSize = 20.dp
-private val categoryArrowStartPadding = 6.dp
+private val categorySelectorContentHorizontalPadding = 12.dp
+private val categorySelectorContentVerticalPadding = 6.dp
+private val categoryIconSize = 16.dp
+private val categoryArrowSize = 18.dp
+private val categoryArrowStartPadding = 4.dp
 
 // Matches the poster's start margin in MovieRow: cardPaddingHorizontal (12dp) + rowPaddingHorizontal (16dp).
 private val categorySelectorStartPadding = 28.dp
@@ -61,6 +61,8 @@ private val categorySelectorStartPadding = 28.dp
 // Ensures the gap below the selector never shrinks below the normal card-to-card gap
 // once the list is scrolled past its own top content padding.
 private val categorySelectorListSpacing = 12.dp
+
+private val categorySelectorTopMargin = 12.dp
 
 private const val CATEGORY_SELECTOR_CONTAINER_ALPHA = 0.06f
 private const val CATEGORY_SELECTOR_BORDER_ALPHA = 0.18f
@@ -113,7 +115,9 @@ private fun MoviesScreenContent(
     val coroutineScope = rememberCoroutineScope()
 
     Column(
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier
+                    .fillMaxSize()
+                    .padding(top = categorySelectorTopMargin),
             verticalArrangement = Arrangement.Top,
             horizontalAlignment = Alignment.Start
           ) {
@@ -194,14 +198,14 @@ private fun CategorySelector(
         Icon(
                 painter = painterResource(selectedCategory.drawableRes),
                 contentDescription = null,
-                tint = MaterialTheme.colorScheme.primary,
+                tint = MaterialTheme.colorScheme.onSurface,
                 modifier = Modifier.size(categoryIconSize)
             )
         Spacer(modifier = Modifier.width(categoryIconEndPadding))
         Text(
                 text = selectedCategory.label,
                 color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
             )
         Icon(

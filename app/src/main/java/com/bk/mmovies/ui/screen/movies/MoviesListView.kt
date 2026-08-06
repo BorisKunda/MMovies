@@ -5,16 +5,20 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -30,6 +34,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -44,10 +51,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.bk.mmovies.R
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.MMoviesTheme
@@ -90,8 +101,7 @@ fun MoviesListView(
                 }
             },
             contentPadding = PaddingValues(
-                    bottom = listTopBottomPadding,
-                    top = listTopBottomPadding
+                    bottom = listTopBottomPadding
                                           ),
             modifier = Modifier
                     .fillMaxHeight()
@@ -123,8 +133,7 @@ fun MovieRowLoadingPlaceholderList() {
                 }
             },
             contentPadding = PaddingValues(
-                    bottom = listTopBottomPadding,
-                    top = listTopBottomPadding
+                    bottom = listTopBottomPadding
                                           ),
             modifier = Modifier
                     .fillMaxHeight()
@@ -146,11 +155,13 @@ fun MovieRowLoadingPlaceholderList() {
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MovieRow(
         movieModel: MovieModel,
         onMovieClicked: (Int) -> Unit
             ) {
+    var isPosterZoomed by remember { mutableStateOf(false) }
 
     Card(
             modifier = Modifier
@@ -196,7 +207,11 @@ fun MovieRow(
                                     width = posterWidth,
                                     height = posterHeight
                                  )
-                            .clip(RoundedCornerShape(posterCornerShape)),
+                            .clip(RoundedCornerShape(posterCornerShape))
+                            .combinedClickable(
+                                    onClick = { onMovieClicked(movieModel.id) },
+                                    onLongClick = { isPosterZoomed = true }
+                                              ),
                     onLoading = {
                         logDebug(
                                 "MOVIE_ROW",
@@ -267,6 +282,42 @@ fun MovieRow(
                             fontSize = 15.sp
                         )
                 }
+            }
+        }
+    }
+
+    if (isPosterZoomed) {
+        Dialog(
+                onDismissRequest = { isPosterZoomed = false },
+                properties = DialogProperties(usePlatformDefaultWidth = false)
+              ) {
+            Box(
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .background(Color.Black.copy(alpha = 0.9f))
+                            .clickable { isPosterZoomed = false },
+                    contentAlignment = Alignment.Center
+               ) {
+                AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                                .data(
+                                        movieModel.imageUrl.replace(
+                                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
+                                                POSTER_PATH_SIZE_SEGMENT_ZOOM
+                                                                    )
+                                     )
+                                .crossfade(true)
+                                .build(),
+                        placeholder = painterResource(R.drawable.placeholder),
+                        error = painterResource(R.drawable.error_placeholder),
+                        contentDescription = movieModel.title,
+                        contentScale = ContentScale.Fit,
+                        modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(24.dp)
+                                .aspectRatio(posterWidth / posterHeight)
+                                .clip(RoundedCornerShape(posterCornerShape))
+                          )
             }
         }
     }

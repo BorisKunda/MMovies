@@ -120,7 +120,7 @@ private fun CategoryRow(
         onClick: () -> Unit
 ) {
     val itemShape = RoundedCornerShape(itemCornerShape)
-    val accentColor = MaterialTheme.colorScheme.primary
+    val accentColor = MaterialTheme.colorScheme.onSurface
     val onSurfaceColor = MaterialTheme.colorScheme.onSurface
 
     val containerColor by animateColorAsState(
