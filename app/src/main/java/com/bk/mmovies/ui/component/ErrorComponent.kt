@@ -61,6 +61,7 @@ import com.bk.mmovies.util.logDebug
 
 private val errorViewPaddingStart = 28.dp
 private val errorViewPaddingTop = 64.dp
+private val errorViewEmbeddedPaddingTop = 24.dp
 private val errorViewPaddingEnd = 28.dp
 private val errorViewPaddingBottom = 32.dp
 private val errorViewVerticalSpacing = 48.dp
@@ -87,16 +88,23 @@ private fun ErrorView(
         errorMessage: String,
         actions: (@Composable ColumnScope.() -> Unit)? = null,
         useSpaceBetween: Boolean = false,
-        tag: String = "ErrorView"
+        tag: String = "ErrorView",
+        // Full-screen hosts (the splash flow) own their insets. When this view
+        // is embedded below an app bar or a category chip the NavHost has
+        // already applied them, and re-applying pushes the content far down.
+        isEmbedded: Boolean = false
                      ) {
     LazyColumn(
             modifier = modifier
                     .background(MaterialTheme.colorScheme.background)
-                    .windowInsetsPadding(WindowInsets.safeDrawing)
+                    .then(
+                            if (isEmbedded) Modifier
+                            else Modifier.windowInsetsPadding(WindowInsets.safeDrawing)
+                         )
                     .imePadding(),
             contentPadding = PaddingValues(
                     start = errorViewPaddingStart,
-                    top = errorViewPaddingTop,
+                    top = if (isEmbedded) errorViewEmbeddedPaddingTop else errorViewPaddingTop,
                     end = errorViewPaddingEnd,
                     bottom = errorViewPaddingBottom
                                           ),
@@ -406,16 +414,16 @@ private fun ErrorTitleMessage(
 }
 
 @Composable
-fun GenericErrorScreen(errorMessageText:String, onTryAgainClicked: () -> Unit) {
+fun GenericErrorScreen(errorMessageText: String, onTryAgainClicked: () -> Unit) {
     ErrorView(
             modifier = Modifier.fillMaxSize(),
             errorImageResId = R.drawable.ic_error,
-            errorTitle = "Error",
+            errorTitle = stringResource(R.string.generic_error_title),
             errorMessage = errorMessageText,
             {
                 PrimaryButton(
                         imageResId = null,
-                        label = "Try again",
+                        label = stringResource(R.string.try_again),
                         {
                             onTryAgainClicked()
                         },
@@ -423,7 +431,9 @@ fun GenericErrorScreen(errorMessageText:String, onTryAgainClicked: () -> Unit) {
                              )
             },
             useSpaceBetween = true,
-            tag = "GenericErrorView"
+            tag = "GenericErrorView",
+            // Both callers render this inside an already-inset NavHost screen.
+            isEmbedded = true
              )
 }
 

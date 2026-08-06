@@ -19,9 +19,39 @@
     <string name="save_and_continue">Save and continue</string>
 
     <string name="error_movies_load_failed">Couldn\'t load movies right now. Please try again later.</string>
+    <string name="error_movie_details_load_failed">Couldn\'t load movie details right now. Please try again later.</string>
 
     <string name="generic_error_title">Error</string>
     <string name="generic_error_message">Something went wrong</string>
+    <string name="try_again">Try again</string>
+
+    <!--CATEGORIES-->
+    <string name="categories_title">Categories</string>
+    <string name="category_popular">Popular</string>
+    <string name="category_upcoming">Upcoming</string>
+    <string name="category_now_playing">Now Playing</string>
+    <string name="category_top_rated">Top Rated</string>
+    <string name="category_favorites">Favorites</string>
+    <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
+    <string name="category_selector_description">Category: %1$s</string>
+    <string name="category_selector_action">Change category</string>
+
+    <!--EMPTY STATES-->
+    <string name="empty_favorites_title">No favorites yet</string>
+    <string name="empty_favorites_message">Movies you mark as a favorite will show up here.</string>
+    <string name="empty_movies_title">Nothing to show</string>
+    <string name="empty_movies_message">There are no movies in this category right now.</string>
+
+    <!--MOVIE LIST-->
+    <string name="movie_poster_zoom_action">Zoom poster</string>
+    <string name="movie_open_details_action">Open details</string>
+
+    <!--MOVIE DETAILS-->
+    <string name="details_overview_label">OVERVIEW</string>
+    <string name="details_back">Back</string>
+
+    <!--Shared by the movies list badge and the details header.-->
+    <string name="user_score_label">USER\nSCORE</string>
 
     <string name="lorem_ipsum_short">Lorem ipsum..</string>
     <string name="lorem_ipsum_medium">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>

@@ -24,15 +24,16 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,10 +46,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -62,11 +65,14 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.UserScoreView
+import com.bk.mmovies.ui.theme.CardSurface
 import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.bk.mmovies.util.logDebug
 import com.bk.mmovies.util.logError
 
-private val listTopBottomPadding = 8.dp
+private const val TAG = "MoviesListView"
+
+private val listBottomPadding = 8.dp
 private val cardPaddingHorizontal = 12.dp
 private val cardPaddingVertical = 6.dp
 private val cardCornerShape = 12.dp
@@ -81,11 +87,25 @@ private val posterHeight = 130.dp
 private val posterCornerShape = 8.dp
 private val ratingBadgeSize = 28.dp
 
-// New: styling for the score caption under the badge.
+// Styling for the score caption under the badge.
 private val scoreLabelTopSpacing = 6.dp
 private val scoreLabelFontSize = 8.sp
 private val scoreLabelLetterSpacing = 0.5.sp
-private val scoreLabelAlpha = 0.45f
+private const val SCORE_LABEL_ALPHA = 0.45f
+
+// The title has to win: the date is supporting metadata and was previously
+// rendered at the same size and full opacity as the title.
+private val titleFontSize = 15.sp
+private val metadataFontSize = 13.sp
+private const val TITLE_MAX_LINES = 2
+private const val DATE_ALPHA = 0.6f
+
+// Skeleton bars, sized to echo the real row rather than a single grey block.
+private val placeholderLineHeight = 16.dp
+private val placeholderShortLineHeight = 12.dp
+private const val PLACEHOLDER_TITLE_WIDTH_FRACTION = 0.9f
+private const val PLACEHOLDER_DATE_WIDTH_FRACTION = 0.5f
+private val placeholderCornerShape = 8.dp
 
 @Composable
 fun MoviesListView(
@@ -93,35 +113,36 @@ fun MoviesListView(
         selectedCategory: MovieCategory,
         onMovieClicked: (movieId: Int) -> Unit
                   ) {
+    // Upcoming titles have no votes yet, and frequently no poster art either,
+    // so they get a neutral placeholder instead of the error artwork.
+    val isUpcoming = selectedCategory == MovieCategory.UpcomingMovieCategory
+
     LazyColumn(
             content = {
-                items(movies.size) { position ->
+                items(
+                        items = movies,
+                        key = { movie -> movie.id }
+                     ) { movie ->
                     MovieRow(
-                            movies[position],
-                            showUserScore = selectedCategory != MovieCategory.UpcomingMovieCategory,
-                            onMovieClicked
+                            movieModel = movie,
+                            showUserScore = !isUpcoming,
+                            useNeutralImageFallback = isUpcoming,
+                            onMovieClicked = onMovieClicked
                             )
                 }
             },
             contentPadding = PaddingValues(
-                    bottom = listTopBottomPadding
+                    bottom = listBottomPadding
                                           ),
             modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(),
               )
-    LaunchedEffect(Unit) {
-        logDebug(
-                "MoviesListView",
-                "LAUNCHED"
-                )
-    }
+
     DisposableEffect(Unit) {
+        logDebug(TAG, "LAUNCHED")
         onDispose {
-            logDebug(
-                    "MoviesListView",
-                    "DISPOSED"
-                    )
+            logDebug(TAG, "DISPOSED")
         }
     }
 }
@@ -131,29 +152,22 @@ fun MovieRowLoadingPlaceholderList() {
     LazyColumn(
             userScrollEnabled = false,
             content = {
-                items(4) { position ->
+                items(4) {
                     MovieRowLoadingPlaceholder()
                 }
             },
             contentPadding = PaddingValues(
-                    bottom = listTopBottomPadding
+                    bottom = listBottomPadding
                                           ),
             modifier = Modifier
                     .fillMaxHeight()
                     .fillMaxWidth(),
               )
-    LaunchedEffect(Unit) {
-        logDebug(
-                "MoviesLoadingList",
-                "LAUNCHED"
-                )
-    }
+
     DisposableEffect(Unit) {
+        logDebug("MoviesLoadingList", "LAUNCHED")
         onDispose {
-            logDebug(
-                    "MoviesLoadingList",
-                    "DISPOSED"
-                    )
+            logDebug("MoviesLoadingList", "DISPOSED")
         }
     }
 }
@@ -163,6 +177,7 @@ fun MovieRowLoadingPlaceholderList() {
 fun MovieRow(
         movieModel: MovieModel,
         showUserScore: Boolean = true,
+        useNeutralImageFallback: Boolean = false,
         onMovieClicked: (Int) -> Unit
             ) {
     var isPosterZoomed by remember { mutableStateOf(false) }
@@ -174,13 +189,15 @@ fun MovieRow(
                             horizontal = cardPaddingHorizontal,
                             vertical = cardPaddingVertical
                             )
-                    .clickable {
+                    .clickable(
+                            onClickLabel = stringResource(R.string.movie_open_details_action)
+                              ) {
                         onMovieClicked(movieModel.id)
                     },
             shape = RoundedCornerShape(cardCornerShape),
 
             colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF1A1A1A)
+                    containerColor = CardSurface
                                             ),
 
             elevation = CardDefaults.cardElevation(
@@ -204,9 +221,12 @@ fun MovieRow(
                             .build(),
                     placeholder = painterResource(R.drawable.placeholder),
                     error = painterResource(
-                            if (showUserScore) R.drawable.error_placeholder else R.drawable.placeholder
+                            if (useNeutralImageFallback) R.drawable.placeholder
+                            else R.drawable.error_placeholder
                                             ),
-                    contentDescription = movieModel.title,
+                    // The title is already announced by the Text beside it, so
+                    // labelling the poster too made TalkBack repeat every row.
+                    contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                             .size(
@@ -215,24 +235,20 @@ fun MovieRow(
                                  )
                             .clip(RoundedCornerShape(posterCornerShape))
                             .combinedClickable(
+                                    onClickLabel = stringResource(
+                                            R.string.movie_open_details_action
+                                                                 ),
+                                    // Surfaces the long-press zoom as a TalkBack
+                                    // custom action; it was unreachable before.
+                                    onLongClickLabel = stringResource(
+                                            R.string.movie_poster_zoom_action
+                                                                     ),
                                     onClick = { onMovieClicked(movieModel.id) },
                                     onLongClick = { isPosterZoomed = true }
                                               ),
-                    onLoading = {
-                        logDebug(
-                                "MOVIE_ROW",
-                                "loading image from url: ${movieModel.imageUrl}"
-                                )
-                    },
-                    onSuccess = {
-                        logDebug(
-                                "MOVIE_ROW",
-                                "success - loading image from url: ${movieModel.imageUrl}"
-                                )
-                    },
                     onError = { state ->
                         logError(
-                                "MOVIE_ROW_TAG",
+                                TAG,
                                 "error - loading image from url: ${movieModel.imageUrl} cause: ${state.result.throwable}"
                                 )
                     },
@@ -259,8 +275,10 @@ fun MovieRow(
                                      )
                         Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
                         Text(
-                                text = "USER\nSCORE",
-                                color = Color.White.copy(alpha = scoreLabelAlpha),
+                                text = stringResource(R.string.user_score_label),
+                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = SCORE_LABEL_ALPHA
+                                                                                ),
                                 fontSize = scoreLabelFontSize,
                                 lineHeight = scoreLabelFontSize,
                                 letterSpacing = scoreLabelLetterSpacing,
@@ -277,18 +295,23 @@ fun MovieRow(
                     Text(
                             modifier = Modifier.fillMaxWidth(),
                             text = movieModel.title,
-                            color = Color.White,
-                            fontSize = 15.sp,
+                            color = MaterialTheme.colorScheme.onSurface,
+                            fontSize = titleFontSize,
                             fontWeight = FontWeight.Bold,
-                            maxLines = 2,
+                            maxLines = TITLE_MAX_LINES,
                             overflow = TextOverflow.Ellipsis
                         )
-                    Text(
-                            modifier = Modifier.wrapContentSize(),
-                            text = movieModel.releaseDate,
-                            color = Color.White,
-                            fontSize = 15.sp
-                        )
+                    // The mapper yields "" for a missing date; rendering it
+                    // anyway left an unexplained gap under the title.
+                    if (movieModel.releaseDate.isNotBlank()) {
+                        Text(
+                                text = movieModel.releaseDate,
+                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = DATE_ALPHA
+                                                                                ),
+                                fontSize = metadataFontSize
+                            )
+                    }
                 }
             }
         }
@@ -356,7 +379,7 @@ fun MovieRowLoadingPlaceholder() {
             shape = RoundedCornerShape(cardCornerShape),
 
             colors = CardDefaults.cardColors(
-                    containerColor = Color(0xFF1A1A1A)
+                    containerColor = CardSurface
                                             ),
 
             elevation = CardDefaults.cardElevation(
@@ -386,24 +409,59 @@ fun MovieRowLoadingPlaceholder() {
                             .alpha(loadingAlpha)
                  )
             Spacer(modifier = Modifier.width(spacerPadding))
+            // Mirrors the real row (badge + three text lines) so the content
+            // does not visibly jump when loading finishes.
             Box(
                     modifier = Modifier
-                            .padding(top = textPadding)
-                            .fillMaxWidth()
-                            .height(24.dp)
+                            .padding(top = 10.dp)
+                            .size(ratingBadgeSize)
                             .alpha(loadingAlpha)
                             .background(
                                     color = Color.Gray,
-                                    shape = RoundedCornerShape(8.dp)
+                                    shape = CircleShape
                                        )
                )
+            Spacer(modifier = Modifier.width(badgeSpacerPadding))
+            Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(textPadding)
+                  ) {
+                PlaceholderLine(
+                        widthFraction = PLACEHOLDER_TITLE_WIDTH_FRACTION,
+                        height = placeholderLineHeight,
+                        alpha = loadingAlpha
+                               )
+                PlaceholderLine(
+                        widthFraction = PLACEHOLDER_DATE_WIDTH_FRACTION,
+                        height = placeholderShortLineHeight,
+                        alpha = loadingAlpha
+                               )
+            }
         }
     }
 }
 
+@Composable
+private fun PlaceholderLine(
+        widthFraction: Float,
+        height: Dp,
+        alpha: Float
+                           ) {
+    Box(
+            modifier = Modifier
+                    .fillMaxWidth(widthFraction)
+                    .height(height)
+                    .alpha(alpha)
+                    .background(
+                            color = Color.Gray,
+                            shape = RoundedCornerShape(placeholderCornerShape)
+                               )
+       )
+}
+
 @Preview
 @Composable
-private fun MovieRowLoadingPlaceholderListPreview(){
+private fun MovieRowLoadingPlaceholderListPreview() {
     MMoviesTheme {
         MovieRowLoadingPlaceholderList()
     }
@@ -437,18 +495,23 @@ private fun MoviesListViewPreview() {
                     releaseDate = "July 16, 2010",
                     rating = 91
                       ),
+            // No date and no description: both blocks must simply not render.
             MovieModel(
                     id = 3,
-                    title = "Interstellar",
-                    desc = "A team of explorers travel through a wormhole in space.",
-                    imageUrl = "https://image.tmdb.org/t/p/w342/yQvGrMoipbRoddT0ZR8tPoR7NfX.jpg",
-                    releaseDate = "November 7, 2014",
-                    rating = 85
+                    title = "An Untitled Film With A Very Long Name That Has To Truncate",
+                    desc = "",
+                    imageUrl = "",
+                    releaseDate = "",
+                    rating = 0
                       )
                              )
-    MoviesListView(
-            movies = sampleMovies,
-            selectedCategory = MovieCategory.PopularMovieCategory,
-            onMovieClicked = {}
-                  )
+    // Wrapping in the theme: without it this previewed in light Material
+    // colours for an app that only ships a dark scheme.
+    MMoviesTheme {
+        MoviesListView(
+                movies = sampleMovies,
+                selectedCategory = MovieCategory.PopularMovieCategory,
+                onMovieClicked = {}
+                      )
+    }
 }

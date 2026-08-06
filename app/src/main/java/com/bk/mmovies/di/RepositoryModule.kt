@@ -1,6 +1,7 @@
 package com.bk.mmovies.di
 
 import android.content.Context
+import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
 import com.bk.mmovies.data.repositoryimpl.ApiKeyRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.MovieRepositoryImpl
@@ -29,6 +30,7 @@ object RepositoryModule {
             networkManager: NetworkManager,
             dbManager: DbManager,
             movieMapper: MovieMapper,
+            movieDetailsMapper: MovieDetailsMapper,
             @ApplicationContext context: Context,
                               ): MovieRepository =
             MovieRepositoryImpl(
@@ -37,6 +39,7 @@ object RepositoryModule {
                     networkManager,
                     dbManager,
                     movieMapper,
+                    movieDetailsMapper,
                     context
                                )
 
