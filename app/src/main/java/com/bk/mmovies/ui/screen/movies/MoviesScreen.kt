@@ -134,7 +134,11 @@ private fun MoviesScreenContent(
             }
 
             is MoviesScreenState.Content -> {
-                MoviesListView(state.movies, onMovieClicked = onMovieClicked)
+                MoviesListView(
+                        movies = state.movies,
+                        selectedCategory = selectedCategory,
+                        onMovieClicked = onMovieClicked
+                              )
             }
 
             is MoviesScreenState.Error -> {

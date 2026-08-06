@@ -59,6 +59,7 @@ import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.MMoviesTheme
@@ -89,6 +90,7 @@ private val scoreLabelAlpha = 0.45f
 @Composable
 fun MoviesListView(
         movies: List<MovieModel>,
+        selectedCategory: MovieCategory,
         onMovieClicked: (movieId: Int) -> Unit
                   ) {
     LazyColumn(
@@ -96,6 +98,7 @@ fun MoviesListView(
                 items(movies.size) { position ->
                     MovieRow(
                             movies[position],
+                            showUserScore = selectedCategory != MovieCategory.UpcomingMovieCategory,
                             onMovieClicked
                             )
                 }
@@ -159,6 +162,7 @@ fun MovieRowLoadingPlaceholderList() {
 @Composable
 fun MovieRow(
         movieModel: MovieModel,
+        showUserScore: Boolean = true,
         onMovieClicked: (Int) -> Unit
             ) {
     var isPosterZoomed by remember { mutableStateOf(false) }
@@ -199,7 +203,9 @@ fun MovieRow(
                             .crossfade(true)
                             .build(),
                     placeholder = painterResource(R.drawable.placeholder),
-                    error = painterResource(R.drawable.error_placeholder),
+                    error = painterResource(
+                            if (showUserScore) R.drawable.error_placeholder else R.drawable.placeholder
+                                            ),
                     contentDescription = movieModel.title,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
@@ -236,32 +242,34 @@ fun MovieRow(
                     modifier = Modifier.weight(1f),
                     verticalAlignment = Alignment.Top
                ) {
-                // Score badge + caption grouped in a Column so the label
-                // sits directly under the ring instead of competing with
-                // the title text next to it.
-                Column(
-                        horizontalAlignment = Alignment.CenterHorizontally,
-                        modifier = Modifier.padding(
-                                top = 10.dp,
-                                end = 5.dp
-                                                   )
-                      ) {
-                    UserScoreView(
-                            score = movieModel.rating,
-                            size = ratingBadgeSize
-                                 )
-                    Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
-                    Text(
-                            text = "USER\nSCORE",
-                            color = Color.White.copy(alpha = scoreLabelAlpha),
-                            fontSize = scoreLabelFontSize,
-                            lineHeight = scoreLabelFontSize,
-                            letterSpacing = scoreLabelLetterSpacing,
-                            fontWeight = FontWeight.Medium,
-                            textAlign = TextAlign.Center
-                        )
+                if (showUserScore) {
+                    // Score badge + caption grouped in a Column so the label
+                    // sits directly under the ring instead of competing with
+                    // the title text next to it.
+                    Column(
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            modifier = Modifier.padding(
+                                    top = 10.dp,
+                                    end = 5.dp
+                                                       )
+                          ) {
+                        UserScoreView(
+                                score = movieModel.rating,
+                                size = ratingBadgeSize
+                                     )
+                        Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
+                        Text(
+                                text = "USER\nSCORE",
+                                color = Color.White.copy(alpha = scoreLabelAlpha),
+                                fontSize = scoreLabelFontSize,
+                                lineHeight = scoreLabelFontSize,
+                                letterSpacing = scoreLabelLetterSpacing,
+                                fontWeight = FontWeight.Medium,
+                                textAlign = TextAlign.Center
+                            )
+                    }
+                    Spacer(modifier = Modifier.width(badgeSpacerPadding))
                 }
-                Spacer(modifier = Modifier.width(badgeSpacerPadding))
                 Column(
                         modifier = Modifier.weight(1f),
                         verticalArrangement = Arrangement.spacedBy(textPadding)
@@ -440,6 +448,7 @@ private fun MoviesListViewPreview() {
                              )
     MoviesListView(
             movies = sampleMovies,
+            selectedCategory = MovieCategory.PopularMovieCategory,
             onMovieClicked = {}
                   )
 }

@@ -17,6 +17,9 @@ import com.bk.mmovies.domain.repository.MovieRepository
 import com.bk.mmovies.util.logDebug
 import com.bk.mmovies.util.logError
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Locale
 import javax.inject.Inject
 
 class MovieRepositoryImpl @Inject constructor(
@@ -31,6 +34,12 @@ class MovieRepositoryImpl @Inject constructor(
     private val failureMessage =
             context.getString(R.string.error_movies_load_failed)
 
+    private fun tomorrowDate(): String {
+        val calendar = Calendar.getInstance()
+        calendar.add(Calendar.DAY_OF_YEAR, 1)
+        return SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(calendar.time)
+    }
+
     override suspend fun getMoviesByCategory(category: MovieCategory): MoviesResult {
         var apiCallResult: ApiCallResult<MovieListDto>? = null
         when (category) {
@@ -43,8 +52,7 @@ class MovieRepositoryImpl @Inject constructor(
             MovieCategory.UpcomingMovieCategory -> {
                 apiCallResult = networkManager.executeApiCall(
                         "GetUpcomingMovies",
-                        apiCall = { -> api.getUpcomingMovies() })
-
+                        apiCall = { -> api.getUpcomingMovies(primaryReleaseDateGte = tomorrowDate()) })
             }
 
             MovieCategory.NowPlayingMovieCategory -> {
@@ -67,7 +75,12 @@ class MovieRepositoryImpl @Inject constructor(
             is ApiCallResult.Success<MovieListDto> -> {
                 val movies = apiCallResult.data.movies
                 if (!movies.isNullOrEmpty()) {
-                    MoviesResult.Success(movieMapper.toModels(movies))
+                    val sortedMovies = if (category == MovieCategory.UpcomingMovieCategory) {
+                        movies.sortedBy { it.releaseDate }
+                    } else {
+                        movies
+                    }
+                    MoviesResult.Success(movieMapper.toModels(sortedMovies))
                 } else {
                     MoviesResult.Failure(failureMessage)
                 }
