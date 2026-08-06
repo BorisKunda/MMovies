@@ -101,8 +101,7 @@ fun MoviesListView(
                 }
             },
             contentPadding = PaddingValues(
-                    bottom = listTopBottomPadding,
-                    top = listTopBottomPadding
+                    bottom = listTopBottomPadding
                                           ),
             modifier = Modifier
                     .fillMaxHeight()
@@ -134,8 +133,7 @@ fun MovieRowLoadingPlaceholderList() {
                 }
             },
             contentPadding = PaddingValues(
-                    bottom = listTopBottomPadding,
-                    top = listTopBottomPadding
+                    bottom = listTopBottomPadding
                                           ),
             modifier = Modifier
                     .fillMaxHeight()

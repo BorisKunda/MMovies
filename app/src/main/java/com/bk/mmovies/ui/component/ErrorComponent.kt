@@ -40,7 +40,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -53,8 +52,6 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
 import com.bk.mmovies.ui.theme.MMoviesTheme
-import com.bk.mmovies.ui.theme.focusedOutlinedTextFieldColor
-import com.bk.mmovies.ui.theme.linkTextColor
 import com.bk.mmovies.ui.theme.primaryButtonCornerSize
 import com.bk.mmovies.ui.theme.primaryButtonHeight
 import com.bk.mmovies.ui.theme.primaryButtonIconPadding
@@ -74,19 +71,12 @@ private val errorMessagePaddingTop: Dp = 20.dp
 private val apikeyStepIndicatorSize = 44.dp
 private val apikeyStepHeaderPaddingBottom = 20.dp
 private val apiKeyStepHeaderTextPadding = 16.dp
-private val apiKeyStepIndicatorColor =
-        Color(0xFFB388FF)
-private val apiKeyStepNumberColor =
-        Color(0xFF1C1B1F)
-
 
 private val linkTextStartEndTopPadding = 10.dp
 private val linkTextBottomPadding = 36.dp
 
 
 private val outlineButtonBorderStrokeWidth = 1.dp
-private val outlinedButtonBorderStrokeColor =
-        Color.White.copy(alpha = 0.4f)
 private val outlinedTextFieldPaddingBottom = 28.dp
 
 @Composable
@@ -219,10 +209,10 @@ fun InvalidApiKeyView(
                         shape = RoundedCornerShape(primaryButtonCornerSize),
                         border = BorderStroke(
                                 width = outlineButtonBorderStrokeWidth,
-                                color = outlinedButtonBorderStrokeColor
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
                                              ),
                         colors = ButtonDefaults.outlinedButtonColors(
-                                contentColor = Color.White
+                                contentColor = MaterialTheme.colorScheme.onSurface
                                                                     )
                               ) {
                     Image(
@@ -257,7 +247,7 @@ fun InvalidApiKeyView(
                             text = stringResource(
                                     R.string.how_to_get_api_key
                                                  ),
-                            color = linkTextColor,
+                            color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.bodyLarge,
                             textDecoration = TextDecoration.Underline
                         )
@@ -297,21 +287,21 @@ fun InvalidApiKeyView(
                                                          ),
                         shape = RoundedCornerShape(primaryButtonCornerSize),
                         colors = OutlinedTextFieldDefaults.colors(
-                                focusedTextColor = Color.White,
-                                unfocusedTextColor = Color.White,
-                                focusedPlaceholderColor = Color.White.copy(
+                                focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                                focusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(
                                         alpha = 0.55f
                                                                           ),
-                                unfocusedPlaceholderColor = Color.White.copy(
+                                unfocusedPlaceholderColor = MaterialTheme.colorScheme.onSurface.copy(
                                         alpha = 0.55f
                                                                             ),
-                                focusedLabelColor = focusedOutlinedTextFieldColor,
-                                unfocusedLabelColor = Color.White.copy(
+                                focusedLabelColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedLabelColor = MaterialTheme.colorScheme.onSurface.copy(
                                         alpha = 0.65f
                                                                       ),
-                                cursorColor = focusedOutlinedTextFieldColor,
-                                focusedBorderColor = focusedOutlinedTextFieldColor,
-                                unfocusedBorderColor = Color.White.copy(
+                                cursorColor = MaterialTheme.colorScheme.onSurface,
+                                focusedBorderColor = MaterialTheme.colorScheme.onSurface,
+                                unfocusedBorderColor = MaterialTheme.colorScheme.onSurface.copy(
                                         alpha = 0.4f
                                                                        )
                                                                  )
@@ -346,14 +336,14 @@ private fun ApiKeyStepHeader(
                 modifier = Modifier
                         .size(apikeyStepIndicatorSize)
                         .background(
-                                color = apiKeyStepIndicatorColor,
+                                color = MaterialTheme.colorScheme.onSurface,
                                 shape = CircleShape
                                    ),
                 contentAlignment = Alignment.Center
            ) {
             Text(
                     text = stepNumber.toString(),
-                    color = apiKeyStepNumberColor,
+                    color = MaterialTheme.colorScheme.background,
                     style = MaterialTheme.typography.titleLarge,
                     fontWeight = FontWeight.Bold
                 )
@@ -362,7 +352,7 @@ private fun ApiKeyStepHeader(
         Text(
                 modifier = Modifier.padding(start = apiKeyStepHeaderTextPadding),
                 text = title,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.titleLarge,
                 fontWeight = FontWeight.Bold
             )
@@ -399,7 +389,7 @@ private fun ErrorTitleMessage(
         Text(
                 modifier = Modifier.padding(top = errorTitlePaddingTop),
                 text = errorTitle,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.headlineSmall,
                 fontWeight = FontWeight.SemiBold,
                 textAlign = TextAlign.Center
@@ -408,7 +398,7 @@ private fun ErrorTitleMessage(
         Text(
                 modifier = Modifier.padding(top = errorMessagePaddingTop),
                 text = errorMessage,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.bodyLarge,
                 textAlign = TextAlign.Center
             )
