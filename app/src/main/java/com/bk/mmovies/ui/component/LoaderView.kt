@@ -47,6 +47,6 @@ fun LoaderView() {
 
 @Preview
 @Composable
-fun LoaderViewPreview() {
+private fun LoaderViewPreview() {
     LoaderView()
 }

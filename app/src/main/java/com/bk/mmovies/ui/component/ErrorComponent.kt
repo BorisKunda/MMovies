@@ -415,13 +415,35 @@ private fun ErrorTitleMessage(
     }
 }
 
+@Composable
+fun GenericErrorScreen(errorMessageText:String, onTryAgainClicked: () -> Unit) {
+    ErrorView(
+            modifier = Modifier.fillMaxSize(),
+            errorImageResId = R.drawable.ic_error,
+            errorTitle = "Error",
+            errorMessage = errorMessageText,
+            {
+                PrimaryButton(
+                        imageResId = null,
+                        label = "Try again",
+                        {
+                            onTryAgainClicked()
+                        },
+                        true
+                             )
+            },
+            useSpaceBetween = true,
+            tag = "GenericErrorView"
+             )
+}
+
 /**
  * PREVIEWS
  */
 
 @Composable
 @Preview(showBackground = true)
-fun InvalidApiKeyViewPreview() {
+private fun InvalidApiKeyViewPreview() {
     MMoviesTheme {
         InvalidApiKeyView(
                 onOpenTmdbSettingsClicked = {
@@ -450,7 +472,7 @@ fun InvalidApiKeyViewPreview() {
 
 @Composable
 @Preview(showBackground = true)
-fun MissingApiKeyViewPreview() {
+private fun MissingApiKeyViewPreview() {
     MMoviesTheme {
         InvalidApiKeyView(
                 onOpenTmdbSettingsClicked = {
@@ -479,7 +501,7 @@ fun MissingApiKeyViewPreview() {
 
 @Composable
 @Preview(showBackground = true)
-fun NoInternetViewPreview() {
+private fun NoInternetViewPreview() {
     MMoviesTheme {
         NoInternetView {
             logDebug(
@@ -493,7 +515,7 @@ fun NoInternetViewPreview() {
 
 @Composable
 @Preview(showBackground = true)
-fun GenericErrorViewPreview() {
+private fun GenericErrorViewPreview() {
     MMoviesTheme {
         ErrorView(
                 modifier = Modifier.fillMaxSize(),

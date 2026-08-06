@@ -2,7 +2,10 @@ package com.bk.mmovies.app
 
 import android.app.Activity
 import android.app.Application
+import android.content.Context
 import android.os.Bundle
+import coil3.ImageLoader
+import coil3.SingletonImageLoader
 import com.bk.mmovies.BuildConfig
 import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.util.MAIN_ACTIVITY_TAG
@@ -11,7 +14,7 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 @HiltAndroidApp
-class App : Application(), Application.ActivityLifecycleCallbacks {
+class App : Application(), Application.ActivityLifecycleCallbacks, SingletonImageLoader.Factory {
 
     @Inject
     lateinit var internetMonitor: InternetMonitor
@@ -77,6 +80,10 @@ class App : Application(), Application.ActivityLifecycleCallbacks {
                 MAIN_ACTIVITY_TAG,
                 "onDestroy: ${activity.localClassName}"
                 )
+    }
+
+    override fun newImageLoader(context: Context): ImageLoader {
+        return CoilImageLoaderFactory.create(context)
     }
 
 }
