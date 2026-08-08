@@ -8,6 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.toRoute
 import com.bk.mmovies.ui.screen.details.MovieDetailsScreen
 import com.bk.mmovies.ui.screen.movies.MoviesScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
@@ -47,8 +48,12 @@ fun AppNavigation(
                             }
                                 )
                 })
-                composable<AppDestination.MovieDetailsDestination>(content = {
-                    MovieDetailsScreen()
+                composable<AppDestination.MovieDetailsDestination>(content = { backStackEntry ->
+                    val destination: AppDestination.MovieDetailsDestination = backStackEntry.toRoute()
+                    MovieDetailsScreen(
+                            movieId = destination.movieId,
+                            onBack = { navController.popBackStack() }
+                                      )
                 })
             },
            )

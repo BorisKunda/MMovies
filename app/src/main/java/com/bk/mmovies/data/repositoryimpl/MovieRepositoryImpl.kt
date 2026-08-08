@@ -4,14 +4,17 @@ package com.bk.mmovies.data.repositoryimpl
 import android.content.Context
 import coil3.util.CoilUtils.result
 import com.bk.mmovies.R
+import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
 import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.TmdbApi
+import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
 import com.bk.mmovies.data.source.remote.dto.MovieListDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.result.MovieDetailsResult
 import com.bk.mmovies.domain.model.result.MoviesResult
 import com.bk.mmovies.domain.repository.MovieRepository
 import com.bk.mmovies.util.logDebug
@@ -28,11 +31,14 @@ class MovieRepositoryImpl @Inject constructor(
         private val networkManager: NetworkManager,
         private val dbManager: DbManager,
         private val movieMapper: MovieMapper,
+        private val movieDetailsMapper: MovieDetailsMapper,
         @ApplicationContext private val context: Context
                                              ) : MovieRepository {
     private val TAG = "MovieRepositoryImpl"
     private val failureMessage =
             context.getString(R.string.error_movies_load_failed)
+    private val detailsFailureMessage =
+            context.getString(R.string.error_movie_details_load_failed)
 
     private fun tomorrowDate(): String {
         val calendar = Calendar.getInstance()
@@ -68,27 +74,42 @@ class MovieRepositoryImpl @Inject constructor(
             }
 
             MovieCategory.FavoritesMovieCategory -> {
-                return MoviesResult.Failure("no favorites")
+                // Not implemented yet: an empty success lets the UI show a
+                // proper empty state instead of a load-failure screen.
+                return MoviesResult.Success(emptyList())
             }
         }
        return  when (apiCallResult) {
             is ApiCallResult.Success<MovieListDto> -> {
-                val movies = apiCallResult.data.movies
-                if (!movies.isNullOrEmpty()) {
-                    val sortedMovies = if (category == MovieCategory.UpcomingMovieCategory) {
-                        movies.sortedBy { it.releaseDate }
-                    } else {
-                        movies
-                    }
-                    MoviesResult.Success(movieMapper.toModels(sortedMovies))
+                // An empty page is a successful response, not a failure — the
+                // caller decides how to present "nothing here".
+                val movies = apiCallResult.data.movies.orEmpty()
+                val sortedMovies = if (category == MovieCategory.UpcomingMovieCategory) {
+                    movies.sortedBy { it.releaseDate }
                 } else {
-                    MoviesResult.Failure(failureMessage)
+                    movies
                 }
+                MoviesResult.Success(movieMapper.toModels(sortedMovies))
             }
             is ApiCallResult.Failure               -> {
                 MoviesResult.Failure(failureMessage)
             }
        }
+    }
+
+    override suspend fun getMovieDetails(movieId: Int): MovieDetailsResult {
+        val apiCallResult: ApiCallResult<MovieDetailsDto> = networkManager.executeApiCall(
+                "GetMovieDetails",
+                apiCall = { -> api.getMovieDetails(movieId) })
+
+        return when (apiCallResult) {
+            is ApiCallResult.Success<MovieDetailsDto> -> {
+                MovieDetailsResult.Success(movieDetailsMapper.toModel(apiCallResult.data))
+            }
+            is ApiCallResult.Failure                  -> {
+                MovieDetailsResult.Failure(detailsFailureMessage)
+            }
+        }
     }
 
 }

@@ -1,0 +1,52 @@
+package com.bk.mmovies.data.mapper
+
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
+import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
+import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
+import com.bk.mmovies.domain.model.MovieDetailsModel
+import java.text.ParseException
+import java.text.SimpleDateFormat
+import java.util.Locale
+import javax.inject.Inject
+
+class MovieDetailsMapper @Inject constructor() {
+
+    fun toModel(dto: MovieDetailsDto): MovieDetailsModel = MovieDetailsModel(
+            id = dto.id ?: 0,
+            title = dto.title ?: "",
+            posterUrl = dto.posterPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM) } ?: "",
+            backdropUrl = dto.backdropPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_ZOOM) } ?: "",
+            releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
+            runtime = dto.runtime.toFormattedRuntime(),
+            userScore = dto.voteAverage.toRatingPercent(),
+            genres = dto.genres?.mapNotNull { it.name } ?: emptyList(),
+            overview = dto.overview ?: ""
+                                                                          )
+
+    private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
+
+    private fun Int?.toFormattedRuntime(): String {
+        val totalMinutes = this ?: return ""
+        val hours = totalMinutes / 60
+        val minutes = totalMinutes % 60
+        return "${hours}h ${minutes}m"
+    }
+
+    private fun getFormattedDate(releaseDate: String): String = try {
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)
+        date?.let { SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).format(it) } ?: releaseDate
+    } catch (e: ParseException) {
+        releaseDate
+    }
+
+    private fun getFullImageUrl(imagePath: String, sizeSegment: String): String {
+        val stringBuilder = StringBuilder()
+        stringBuilder.apply {
+            append(TMDB_IMAGE_BASE_URL)
+            append(sizeSegment)
+            append(imagePath)
+        }
+        return stringBuilder.toString()
+    }
+}

@@ -17,6 +17,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.minimumInteractiveComponentSize
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -30,6 +31,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -40,10 +45,13 @@ import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.CategoryListPopupView
+import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.bk.mmovies.util.logDebug
 import kotlinx.coroutines.launch
+
+private const val TAG = "MoviesScreen"
 
 private val categoryIconEndPadding = 6.dp
 private val categorySelectorCornerShape = 18.dp
@@ -72,8 +80,6 @@ private const val CATEGORY_SELECTOR_ARROW_ALPHA = 0.7f
 @Composable
 fun MoviesScreen(
         onNavigateToMovieDetails: (id: Int) -> Unit) {
-    val TAG = "MoviesScreen"
-    logDebug(TAG, "Composed")
     val lifecycleOwner = LocalLifecycleOwner.current
     val moviesViewModel = hiltViewModel<MoviesViewModel>()
     val state by moviesViewModel.moviesScreenState.collectAsStateWithLifecycle()
@@ -83,16 +89,22 @@ fun MoviesScreen(
             state = state,
             selectedCategory = selectedCategory,
             onMovieClicked = { id -> moviesViewModel.handleMovieClick(id) },
-            onCategorySelected = { category -> moviesViewModel.handleCategorySelected(category) }
+            onCategorySelected = { category -> moviesViewModel.handleCategorySelected(category) },
+            onRetry = { moviesViewModel.retry() }
                         )
 
     LaunchedEffect(Unit) {
-//        moviesViewModel.goToMovieDetailsWithIdNavEvent.collect { movieId: Int ->
-//            onNavigateToMovieDetails(movieId)
-//        }
-
+        moviesViewModel.goToMovieDetailsWithIdNavEvent.collect { movieId: Int ->
+            onNavigateToMovieDetails(movieId)
+        }
     }
     DisposableEffect(lifecycleOwner) {
+        // Composed/Disposed rather than a log on every recomposition, which is
+        // what a bare logDebug in the composable body produced.
+        logDebug(
+                TAG,
+                "Composed"
+                )
         onDispose {
             logDebug(
                     TAG,
@@ -108,7 +120,8 @@ private fun MoviesScreenContent(
         state: MoviesScreenState,
         selectedCategory: MovieCategory,
         onMovieClicked: (id: Int) -> Unit,
-        onCategorySelected: (category: MovieCategory) -> Unit
+        onCategorySelected: (category: MovieCategory) -> Unit,
+        onRetry: () -> Unit
                                 ) {
     var isCategoryPopupVisible by remember { mutableStateOf(false) }
     val categorySheetState = rememberModalBottomSheetState()
@@ -141,8 +154,27 @@ private fun MoviesScreenContent(
                               )
             }
 
+            is MoviesScreenState.Empty -> {
+                val isFavorites = selectedCategory == MovieCategory.FavoritesMovieCategory
+                EmptyStateView(
+                        imageResId = if (isFavorites) R.drawable.ic_star_filled_large
+                        else R.drawable.ic_popcorn_bucket,
+                        title = stringResource(
+                                if (isFavorites) R.string.empty_favorites_title
+                                else R.string.empty_movies_title
+                                              ),
+                        message = stringResource(
+                                if (isFavorites) R.string.empty_favorites_message
+                                else R.string.empty_movies_message
+                                                )
+                              )
+            }
+
             is MoviesScreenState.Error -> {
-                GenericErrorScreen(state.errorMessage, {})
+                GenericErrorScreen(
+                        state.errorMessage,
+                        onTryAgainClicked = onRetry
+                                  )
             }
         }
     }
@@ -165,12 +197,20 @@ private fun MoviesScreenContent(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun CategorySelector(
         selectedCategory: MovieCategory,
         onClick: () -> Unit
                              ) {
     val categorySelectorShape = RoundedCornerShape(categorySelectorCornerShape)
+    val categoryLabel = stringResource(selectedCategory.labelRes)
+    // Without this the chip announces only "Popular" — no hint that it is a
+    // control, or that activating it opens the category picker.
+    val selectorDescription = stringResource(
+            R.string.category_selector_description,
+            categoryLabel
+                                            )
 
     Row(
             modifier = Modifier
@@ -179,6 +219,9 @@ private fun CategorySelector(
                             top = categorySelectorVerticalMargin,
                             bottom = categorySelectorVerticalMargin
                             )
+                    // Keeps the chip visually small (as designed) while giving
+                    // it the 48dp minimum touch target.
+                    .minimumInteractiveComponentSize()
                     .clip(categorySelectorShape)
                     .background(
                             MaterialTheme.colorScheme.onSurface.copy(
@@ -192,11 +235,19 @@ private fun CategorySelector(
                                                                             ),
                             shape = categorySelectorShape
                            )
-                    .clickable { onClick() }
+                    .clickable(
+                            role = Role.Button,
+                            onClickLabel = stringResource(R.string.category_selector_action)
+                              ) { onClick() }
                     .padding(
                             horizontal = categorySelectorContentHorizontalPadding,
                             vertical = categorySelectorContentVerticalPadding
-                            ),
+                            )
+                    // Merged into one node so TalkBack reads the whole chip as
+                    // a single control rather than icon / label / arrow.
+                    .semantics(mergeDescendants = true) {
+                        contentDescription = selectorDescription
+                    },
             verticalAlignment = Alignment.CenterVertically
        ) {
         Icon(
@@ -207,7 +258,7 @@ private fun CategorySelector(
             )
         Spacer(modifier = Modifier.width(categoryIconEndPadding))
         Text(
-                text = selectedCategory.label,
+                text = categoryLabel,
                 color = MaterialTheme.colorScheme.onSurface,
                 style = MaterialTheme.typography.labelLarge,
                 fontWeight = FontWeight.SemiBold
@@ -247,38 +298,51 @@ private val previewMovies = listOf(
 @Preview(showBackground = true)
 @Composable
 private fun MoviesScreenContentPreview() {
-    MMoviesTheme {
-        MoviesScreenContent(
-                state = MoviesScreenState.Content(previewMovies),
-                selectedCategory = MovieCategory.PopularMovieCategory,
-                onMovieClicked = {},
-                onCategorySelected = {}
-                            )
-    }
+    MoviesScreenPreviewFrame(MoviesScreenState.Content(previewMovies))
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun MoviesScreenLoadingPreview() {
-    MMoviesTheme {
-        MoviesScreenContent(
-                state = MoviesScreenState.Loading,
-                selectedCategory = MovieCategory.PopularMovieCategory,
-                onMovieClicked = {},
-                onCategorySelected = {}
-                            )
-    }
+    MoviesScreenPreviewFrame(MoviesScreenState.Loading)
 }
 
 @Preview(showBackground = true)
 @Composable
 private fun MoviesScreenErrorPreview() {
+    MoviesScreenPreviewFrame(
+            MoviesScreenState.Error("Couldn't load movies right now. Please try again later.")
+                            )
+}
+
+@Preview(showBackground = true, name = "Empty - favorites")
+@Composable
+private fun MoviesScreenEmptyFavoritesPreview() {
+    MoviesScreenPreviewFrame(
+            state = MoviesScreenState.Empty,
+            selectedCategory = MovieCategory.FavoritesMovieCategory
+                            )
+}
+
+@Preview(showBackground = true, name = "Empty - category")
+@Composable
+private fun MoviesScreenEmptyPreview() {
+    MoviesScreenPreviewFrame(MoviesScreenState.Empty)
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun MoviesScreenPreviewFrame(
+        state: MoviesScreenState,
+        selectedCategory: MovieCategory = MovieCategory.PopularMovieCategory
+                                    ) {
     MMoviesTheme {
         MoviesScreenContent(
-                state = MoviesScreenState.Error("Couldn't load movies right now. Please try again later."),
-                selectedCategory = MovieCategory.PopularMovieCategory,
+                state = state,
+                selectedCategory = selectedCategory,
                 onMovieClicked = {},
-                onCategorySelected = {}
+                onCategorySelected = {},
+                onRetry = {}
                             )
     }
 }
