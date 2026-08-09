@@ -7,6 +7,7 @@ import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import com.bk.mmovies.data.source.remote.TMDB_BASE_URL
 import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.bk.mmovies.data.source.remote.interceptor.ApiKeyInterceptor
+import com.bk.mmovies.data.source.remote.interceptor.LanguageInterceptor
 import com.bk.mmovies.util.logDebug
 import com.google.gson.Gson
 import dagger.Module
@@ -33,10 +34,12 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideOkHttpClient(
-            apiKeyInterceptor: ApiKeyInterceptor
+            apiKeyInterceptor: ApiKeyInterceptor,
+            languageInterceptor: LanguageInterceptor
                            ): OkHttpClient {
         return OkHttpClient.Builder()
                 .addInterceptor(apiKeyInterceptor)
+                .addInterceptor(languageInterceptor)
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(

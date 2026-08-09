@@ -35,10 +35,10 @@ class MovieRepositoryImpl @Inject constructor(
         @ApplicationContext private val context: Context
                                              ) : MovieRepository {
     private val TAG = "MovieRepositoryImpl"
-    private val failureMessage =
-            context.getString(R.string.error_movies_load_failed)
-    private val detailsFailureMessage =
-            context.getString(R.string.error_movie_details_load_failed)
+    private val failureMessage: String
+        get() = context.getString(R.string.error_movies_load_failed)
+    private val detailsFailureMessage: String
+        get() = context.getString(R.string.error_movie_details_load_failed)
 
     private fun tomorrowDate(): String {
         val calendar = Calendar.getInstance()

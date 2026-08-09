@@ -4,12 +4,15 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.MovieDto
 import com.bk.mmovies.domain.model.MovieModel
+import com.bk.mmovies.locale.LocaleMonitor
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
 
-class MovieMapper @Inject constructor() {
+class MovieMapper @Inject constructor(
+        private val localeMonitor: LocaleMonitor
+                                     ) {
 
     fun toModels(dtos: List<MovieDto>): List<MovieModel> = dtos.map { toModel(it) }
 
@@ -25,7 +28,9 @@ class MovieMapper @Inject constructor() {
 
     private fun getFormattedDate(releaseDate: String): String = try {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)
-        date?.let { SimpleDateFormat("MMMM d, yyyy", Locale.ENGLISH).format(it) } ?: releaseDate
+        date?.let {
+            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
+        } ?: releaseDate
     } catch (e: ParseException) {
         releaseDate
     }
