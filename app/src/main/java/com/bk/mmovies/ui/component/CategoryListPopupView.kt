@@ -212,3 +212,17 @@ private fun CategoryListPopupViewPreview() {
                              )
     }
 }
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(locale = "iw", name = "Hebrew (RTL)")
+@Composable
+private fun CategoryListPopupViewPreviewHebrew() {
+    MMoviesTheme {
+        CategoryListPopupView(
+                lastSelectedCategory = MovieCategory.TopRatedMovieCategory,
+                onNewCategorySelected = {},
+                onDismiss = {},
+                state = rememberModalBottomSheetState()
+                             )
+    }
+}

@@ -8,6 +8,7 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import com.bk.mmovies.BuildConfig
 import com.bk.mmovies.connectivity.InternetMonitor
+import com.bk.mmovies.locale.LocaleMonitor
 import com.bk.mmovies.util.MAIN_ACTIVITY_TAG
 import com.bk.mmovies.util.logDebug
 import dagger.hilt.android.HiltAndroidApp
@@ -19,12 +20,16 @@ class App : Application(), Application.ActivityLifecycleCallbacks, SingletonImag
     @Inject
     lateinit var internetMonitor: InternetMonitor
 
+    @Inject
+    lateinit var localeMonitor: LocaleMonitor
+
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) {
             registerActivityLifecycleCallbacks(this)
         }
         internetMonitor.start()
+        localeMonitor.start()
     }
 
     override fun onActivityCreated(

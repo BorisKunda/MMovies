@@ -53,7 +53,7 @@
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">USER\nSCORE</string>
 
-    <string name="lorem_ipsum_short">Lorem ipsum..</string>
-    <string name="lorem_ipsum_medium">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
-    <string name="lorem_ipsum_long">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean elementum ligula eu dui imperdiet scelerisque. Nulla vulputate non neque ac vestibulum. Sed sed feugiat lacus, ac varius erat. </string>
+    <string name="lorem_ipsum_short" translatable="false">Lorem ipsum..</string>
+    <string name="lorem_ipsum_medium" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
+    <string name="lorem_ipsum_long" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Aenean elementum ligula eu dui imperdiet scelerisque. Nulla vulputate non neque ac vestibulum. Sed sed feugiat lacus, ac varius erat. </string>
 </resources>

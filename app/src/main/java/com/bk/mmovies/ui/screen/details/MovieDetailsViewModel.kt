@@ -2,19 +2,28 @@ package com.bk.mmovies.ui.screen.details
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.domain.model.result.MovieDetailsResult
 import com.bk.mmovies.domain.repository.MovieRepository
+import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MovieDetailsViewModel @Inject constructor(private val movieRepository: MovieRepository) :
+class MovieDetailsViewModel @Inject constructor(
+        private val movieRepository: MovieRepository,
+        localeMonitor: LocaleMonitor,
+        internetMonitor: InternetMonitor
+                                                ) :
         ViewModel() {
 
     private val _movieDetailsScreenState = MutableStateFlow<MovieDetailsScreenState>(
@@ -25,6 +34,23 @@ class MovieDetailsViewModel @Inject constructor(private val movieRepository: Mov
 
     private var movieId: Int? = null
     private var loadMovieDetailsJob: Job? = null
+
+    init {
+        // Reload the currently displayed movie in the new language whenever
+        // the device/app language changes, including while the app is backgrounded.
+        // A locale change often lands right as the OS is mid-reconnect (seen as
+        // an immediate UnknownHostException), so wait for connectivity before firing.
+        viewModelScope.launch {
+            localeMonitor.currentLanguage
+                    .drop(1)
+                    .collectLatest {
+                        val currentMovieId = movieId ?: return@collectLatest
+                        internetMonitor.isInternetAvailable.first { it }
+                        _movieDetailsScreenState.value = MovieDetailsScreenState.Loading
+                        fetchMovieDetails(currentMovieId)
+                    }
+        }
+    }
 
     fun loadMovieDetails(movieId: Int) {
         if (this.movieId == movieId) return

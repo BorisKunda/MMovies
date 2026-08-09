@@ -295,6 +295,42 @@ private val previewMovies = listOf(
                   )
                                    )
 
+// Hebrew content too (not just the UI chrome) so the preview exercises real
+// RTL text shaping and bidi mixing with the Latin release dates/ratings.
+private val previewMoviesHebrew = listOf(
+        MovieModel(
+                id = 1,
+                title = "המטריקס",
+                desc = "פורץ מחשבים מגלה את טבעה האמיתי של המציאות.",
+                imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
+                releaseDate = "31 במרץ 1999",
+                rating = 83
+                  ),
+        MovieModel(
+                id = 2,
+                title = "התחלה",
+                desc = "גנב הגונב סודות תאגידיים באמצעות טכנולוגיית שיתוף חלומות.",
+                imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+                releaseDate = "16 ביולי 2010",
+                rating = 91
+                  )
+                                         )
+
+@Preview(showBackground = true, locale = "iw", name = "Hebrew (RTL)")
+@Composable
+private fun MoviesScreenContentPreviewHebrew() {
+    MoviesScreenPreviewFrame(MoviesScreenState.Content(previewMoviesHebrew))
+}
+
+@Preview(showBackground = true, locale = "iw", name = "Hebrew (RTL) - Empty favorites")
+@Composable
+private fun MoviesScreenEmptyFavoritesPreviewHebrew() {
+    MoviesScreenPreviewFrame(
+            state = MoviesScreenState.Empty,
+            selectedCategory = MovieCategory.FavoritesMovieCategory
+                            )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun MoviesScreenContentPreview() {

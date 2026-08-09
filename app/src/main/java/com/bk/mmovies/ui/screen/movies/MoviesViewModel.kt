@@ -2,10 +2,12 @@ package com.bk.mmovies.ui.screen.movies
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.domain.model.result.MoviesResult
 import com.bk.mmovies.domain.repository.MovieRepository
+import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -14,11 +16,18 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MoviesViewModel @Inject constructor(private val movieRepository: MovieRepository) :
+class MoviesViewModel @Inject constructor(
+        private val movieRepository: MovieRepository,
+        localeMonitor: LocaleMonitor,
+        internetMonitor: InternetMonitor
+                                         ) :
         ViewModel() {
 
     private val _moviesScreenState = MutableStateFlow<MoviesScreenState>(
@@ -41,6 +50,19 @@ class MoviesViewModel @Inject constructor(private val movieRepository: MovieRepo
 
     init {
         startLoad(_selectedCategory.value)
+
+        // Reload the current category in the new language whenever the
+        // device/app language changes, including while the app is backgrounded.
+        // A locale change often lands right as the OS is mid-reconnect (seen as
+        // an immediate UnknownHostException), so wait for connectivity before firing.
+        viewModelScope.launch {
+            localeMonitor.currentLanguage
+                    .drop(1)
+                    .collectLatest {
+                        internetMonitor.isInternetAvailable.first { it }
+                        startLoad(_selectedCategory.value)
+                    }
+        }
     }
 
     fun handleCategorySelected(category: MovieCategory) {

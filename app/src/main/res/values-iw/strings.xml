@@ -1,0 +1,55 @@
+<resources>
+    <string name="app_name">MMovies</string>
+
+    <!--ERRORS-->
+    <string name="error_no_internet_connection_title">אין חיבור לאינטרנט</string>
+    <string name="error_no_internet_connection_message">כדאי לבדוק את ה-Wi-Fi או הנתונים הסלולריים שלך.\nנמשיך אוטומטית כשתחזור/י להיות מחובר/ת.</string>
+    <string name="error_no_internet_action">פתח הגדרות רשת</string>
+
+    <string name="error_missing_api_key_title">מפתח API חסר</string>
+    <string name="error_missing_api_key_message">המשתמש טרם הזין מפתח.</string>
+    <string name="error_invalid_api_key_title">מפתח API לא תקין</string>
+    <string name="error_invalid_api_key_message">מפתח ה-API שלך אינו תקין או שפג תוקפו. קבל מפתח חדש כדי להמשיך.</string>
+    <string name="get_your_api_key">קבל את מפתח ה-API שלך</string>
+    <string name="open_tmdb_api_settings">פתח הגדרות API של TMDB</string>
+    <string name="how_to_get_api_key">כיצד אוכל לקבל מפתח API?</string>
+    <string name="enter_your_api_key">הזן את מפתח ה-API שלך</string>
+    <string name="api_key">מפתח API</string>
+    <string name="paste_your_api_key">הדבק את מפתח ה-API שלך</string>
+    <string name="save_and_continue">שמור והמשך</string>
+
+    <string name="error_movies_load_failed">לא ניתן היה לטעון סרטים כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_movie_details_load_failed">לא ניתן היה לטעון את פרטי הסרט כרגע. אנא נסה שוב מאוחר יותר.</string>
+
+    <string name="generic_error_title">שגיאה</string>
+    <string name="generic_error_message">משהו השתבש</string>
+    <string name="try_again">נסה שוב</string>
+
+    <!--CATEGORIES-->
+    <string name="categories_title">קטגוריות</string>
+    <string name="category_popular">פופולריים</string>
+    <string name="category_upcoming">בקרוב</string>
+    <string name="category_now_playing">בקולנוע עכשיו</string>
+    <string name="category_top_rated">המדורגים ביותר</string>
+    <string name="category_favorites">מועדפים</string>
+    <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
+    <string name="category_selector_description">קטגוריה: %1$s</string>
+    <string name="category_selector_action">שנה קטגוריה</string>
+
+    <!--EMPTY STATES-->
+    <string name="empty_favorites_title">אין עדיין מועדפים</string>
+    <string name="empty_favorites_message">סרטים שתסמן/י כמועדפים יופיעו כאן.</string>
+    <string name="empty_movies_title">אין מה להציג</string>
+    <string name="empty_movies_message">אין סרטים בקטגוריה זו כרגע.</string>
+
+    <!--MOVIE LIST-->
+    <string name="movie_poster_zoom_action">הגדל פוסטר</string>
+    <string name="movie_open_details_action">פתח פרטים</string>
+
+    <!--MOVIE DETAILS-->
+    <string name="details_overview_label">תקציר</string>
+    <string name="details_back">חזור</string>
+
+    <!--Shared by the movies list badge and the details' header.-->
+    <string name="user_score_label">דירוג\nמשתמשים</string>
+</resources>

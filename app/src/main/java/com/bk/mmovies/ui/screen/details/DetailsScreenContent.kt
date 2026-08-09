@@ -60,7 +60,7 @@ private val infoColumnStartPadding = 20.dp
 private val metaIconSize = 18.dp
 private val metaIconTextSpacing = 8.dp
 private val userScoreRingSize =
-        52.dp     // UserScoreView scales its numeral and ring with this
+        32.dp     // UserScoreView scales its numeral and ring with this
 private val userScoreRowSpacing = 12.dp
 
 // A long title must not out-grow the poster it sits beside, or the Row's
@@ -345,6 +345,31 @@ private val previewMovieDetails = MovieDetailsModel(
 @Composable
 private fun DetailsScreenContentPreview() {
     DetailsScreenContentPreviewFrame(previewMovieDetails)
+}
+
+// Hebrew content too (not just the UI chrome) so the preview exercises real
+// RTL text shaping and bidi mixing with the Latin runtime/score numerals.
+private val previewMovieDetailsHebrew = MovieDetailsModel(
+        id = 1,
+        title = "החדרים האחוריים",
+        posterUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
+        backdropUrl = "https://image.tmdb.org/t/p/w780/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+        releaseDate = "28 במאי 2026",
+        runtime = "1ש 51ד",
+        userScore = 85,
+        genres = listOf(
+                "אימה",
+                "מסתורין",
+                "מדע בדיוני",
+                "מותחן"
+                       ),
+        overview = "דלת מוזרה מופיעה במרתף של חנות רהיטים."
+                                                          )
+
+@Preview(showBackground = true, locale = "iw", name = "Hebrew (RTL)")
+@Composable
+private fun DetailsScreenContentPreviewHebrew() {
+    DetailsScreenContentPreviewFrame(previewMovieDetailsHebrew)
 }
 
 /**
