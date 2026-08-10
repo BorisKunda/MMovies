@@ -41,10 +41,10 @@ class MoviesViewModel @Inject constructor(
                                                                    )
     val selectedCategory: StateFlow<MovieCategory> = _selectedCategory.asStateFlow()
 
-    private val _goToMovieDetailsWithIdNavEvent: MutableSharedFlow<Int> =
+    private val _goToMovieDetailsNavEvent: MutableSharedFlow<Pair<Int, MovieCategory>> =
             MutableSharedFlow(extraBufferCapacity = 1)
-    val goToMovieDetailsWithIdNavEvent: SharedFlow<Int> =
-            _goToMovieDetailsWithIdNavEvent.asSharedFlow()
+    val goToMovieDetailsNavEvent: SharedFlow<Pair<Int, MovieCategory>> =
+            _goToMovieDetailsNavEvent.asSharedFlow()
 
     private var loadMoviesJob: Job? = null
 
@@ -109,7 +109,7 @@ class MoviesViewModel @Inject constructor(
     }
 
     fun handleMovieClick(movieId: Int) {
-        _goToMovieDetailsWithIdNavEvent.tryEmit(movieId)
+        _goToMovieDetailsNavEvent.tryEmit(movieId to _selectedCategory.value)
     }
 
 }

@@ -49,6 +49,9 @@
     <!--MOVIE DETAILS-->
     <string name="details_overview_label">תקציר</string>
     <string name="details_back">חזור</string>
+    <string name="details_date_tba">תאריך: טרם נקבע</string>
+    <string name="details_runtime_tba">משך: טרם ידוע</string>
+    <string name="details_overview_tba">יפורסם בקרוב</string>
 
     <!--Shared by the movies list badge and the details' header.-->
     <string name="user_score_label">דירוג\nמשתמשים</string>

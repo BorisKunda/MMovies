@@ -38,6 +38,19 @@ sealed class MovieCategory(
             R.drawable.ic_star_filled,
             FAVORITES_CATEGORY_ID
                                                  )
+
+    companion object {
+        // Navigation routes can only carry primitives, so the category tags
+        // along as its categoryId and gets resolved back here on the other side.
+        fun fromCategoryId(categoryId: Int): MovieCategory = when (categoryId) {
+            POPULAR_CATEGORY_ID -> PopularMovieCategory
+            UPCOMING_CATEGORY_ID -> UpcomingMovieCategory
+            NOW_PLAYING_CATEGORY_ID -> NowPlayingMovieCategory
+            TOP_RATED_CATEGORY_ID -> TopRatedMovieCategory
+            FAVORITES_CATEGORY_ID -> FavoritesMovieCategory
+            else -> PopularMovieCategory
+        }
+    }
 }
 
 private const val FAVORITES_CATEGORY_ID = 0

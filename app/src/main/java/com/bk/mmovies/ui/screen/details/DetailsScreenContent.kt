@@ -42,6 +42,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.bk.mmovies.R
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.MMoviesTheme
@@ -99,8 +100,17 @@ private const val TERTIARY_TEXT_ALPHA = 0.70f
 @Composable
 fun DetailsScreenContent(
         movieDetails: MovieDetailsModel,
+        category: MovieCategory,
         modifier: Modifier = Modifier
                         ) {
+    // Upcoming releases routinely lack a score, runtime, backdrop or overview
+    // on TMDB, so this category gets a "coming soon" presentation instead of
+    // hiding fields the way the sparse-data fallback does for other categories.
+    val isUpcoming = category == MovieCategory.UpcomingMovieCategory
+    val dateTbaLabel = stringResource(R.string.details_date_tba)
+    val runtimeTbaLabel = stringResource(R.string.details_runtime_tba)
+    val overviewTbaLabel = stringResource(R.string.details_overview_tba)
+
     Column(
             modifier = modifier
                     .fillMaxSize()
@@ -116,7 +126,7 @@ fun DetailsScreenContent(
                                 .crossfade(true)
                                 .build(),
                         placeholder = painterResource(R.drawable.placeholder),
-                        error = painterResource(R.drawable.error_placeholder),
+                        error = painterResource(R.drawable.placeholder),
                         contentDescription = movieDetails.title,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -143,27 +153,31 @@ fun DetailsScreenContent(
                         )
                     MetaRow(
                             icon = Icons.Default.CalendarMonth,
-                            text = movieDetails.releaseDate
+                            text = movieDetails.releaseDate.ifBlank { if (isUpcoming) dateTbaLabel else "" }
                            )
                     MetaRow(
                             icon = Icons.Default.Schedule,
-                            text = movieDetails.runtime
+                            text = movieDetails.runtime.ifBlank { if (isUpcoming) runtimeTbaLabel else "" }
                            )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        UserScoreView(
-                                score = movieDetails.userScore,
-                                size = userScoreRingSize
-                                     )
-                        Spacer(modifier = Modifier.width(userScoreRowSpacing))
-                        // Same caption treatment as the list badge in MovieRow,
-                        // just sized for this screen.
-                        Text(
-                                text = stringResource(R.string.user_score_label),
-                                color = MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = SECONDARY_TEXT_ALPHA
-                                                                                ),
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                    // Upcoming movies have no votes yet, so the score ring
+                    // would only ever show a meaningless zero.
+                    if (!isUpcoming) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            UserScoreView(
+                                    score = movieDetails.userScore,
+                                    size = userScoreRingSize
+                                         )
+                            Spacer(modifier = Modifier.width(userScoreRowSpacing))
+                            // Same caption treatment as the list badge in MovieRow,
+                            // just sized for this screen.
+                            Text(
+                                    text = stringResource(R.string.user_score_label),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(
+                                            alpha = SECONDARY_TEXT_ALPHA
+                                                                                    ),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                        }
                     }
                 }
             }
@@ -187,9 +201,12 @@ fun DetailsScreenContent(
 
         // Without an overview the card would collapse to the label plus its
         // padding — a thin letterboxed strip of backdrop with nothing in it.
-        if (movieDetails.overview.isNotBlank()) {
+        // Upcoming movies are the exception: the card still renders with a
+        // "To be announced" placeholder instead of disappearing entirely.
+        val overviewText = movieDetails.overview.ifBlank { if (isUpcoming) overviewTbaLabel else "" }
+        if (overviewText.isNotBlank()) {
             OverviewSection(
-                    overview = movieDetails.overview,
+                    overview = overviewText,
                     backdropUrl = movieDetails.backdropUrl
                            )
         }
@@ -277,7 +294,7 @@ private fun OverviewSection(
                         .crossfade(true)
                         .build(),
                 placeholder = painterResource(R.drawable.placeholder),
-                error = painterResource(R.drawable.error_placeholder),
+                error = painterResource(R.drawable.placeholder),
                 // Decorative: it sits behind the overview text and carries no
                 // information the poster and title haven't already announced.
                 contentDescription = null,
@@ -396,15 +413,37 @@ private fun DetailsScreenContentLargeFontPreview() {
     DetailsScreenContentPreviewFrame(previewMovieDetails)
 }
 
+/**
+ * TMDB's real shape for an unreleased title: no score, no runtime, no
+ * backdrop and no overview yet.
+ */
+@Preview(showBackground = true, name = "Upcoming - no data yet")
 @Composable
-private fun DetailsScreenContentPreviewFrame(movieDetails: MovieDetailsModel) {
+private fun DetailsScreenContentUpcomingPreview() {
+    DetailsScreenContentPreviewFrame(
+            movieDetails = previewMovieDetails.copy(
+                    releaseDate = "",
+                    runtime = "",
+                    userScore = 0,
+                    backdropUrl = "",
+                    overview = ""
+                                                    ),
+            category = MovieCategory.UpcomingMovieCategory
+                                    )
+}
+
+@Composable
+private fun DetailsScreenContentPreviewFrame(
+        movieDetails: MovieDetailsModel,
+        category: MovieCategory = MovieCategory.PopularMovieCategory
+                                             ) {
     MMoviesTheme {
         Box(
                 Modifier
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
            ) {
-            DetailsScreenContent(movieDetails = movieDetails)
+            DetailsScreenContent(movieDetails = movieDetails, category = category)
         }
     }
 }

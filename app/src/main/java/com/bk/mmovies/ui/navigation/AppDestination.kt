@@ -12,7 +12,8 @@ sealed interface AppDestination {
 
     @Serializable
     data class MovieDetailsDestination(
-            val movieId: Int
+            val movieId: Int,
+            val categoryId: Int
                                       ) : AppDestination
 }
 
