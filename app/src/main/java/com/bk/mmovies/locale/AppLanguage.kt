@@ -4,7 +4,8 @@ import java.util.Locale
 
 enum class AppLanguage(val languageTag: String, val tmdbLanguageTag: String, val locale: Locale) {
     ENGLISH("en", "en-US", Locale.ENGLISH),
-    HEBREW("iw", "he-IL", Locale("iw"));
+    HEBREW("iw", "he-IL", Locale("iw")),
+    RUSSIAN("ru", "ru-RU", Locale("ru"));
 
     companion object {
         // Android aliases "he"/"iw" for resource-qualifier matching, but
@@ -12,7 +13,10 @@ enum class AppLanguage(val languageTag: String, val tmdbLanguageTag: String, val
         // so both must be accepted here.
         private val HEBREW_LANGUAGE_CODES = setOf("iw", "he")
 
-        fun fromLocale(locale: Locale): AppLanguage =
-                if (locale.language in HEBREW_LANGUAGE_CODES) HEBREW else ENGLISH
+        fun fromLocale(locale: Locale): AppLanguage = when (locale.language) {
+            in HEBREW_LANGUAGE_CODES -> HEBREW
+            RUSSIAN.languageTag -> RUSSIAN
+            else -> ENGLISH
+        }
     }
 }

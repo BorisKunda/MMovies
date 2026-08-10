@@ -226,3 +226,20 @@ private fun CategoryListPopupViewPreviewHebrew() {
                              )
     }
 }
+
+// Russian category names are the longest of the three languages
+// ("Лучшие по рейтингу" against "Top Rated"), so this is where a row would
+// wrap or clip first.
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview(locale = "ru", name = "Russian (long text)")
+@Composable
+private fun CategoryListPopupViewPreviewRussian() {
+    MMoviesTheme {
+        CategoryListPopupView(
+                lastSelectedCategory = MovieCategory.TopRatedMovieCategory,
+                onNewCategorySelected = {},
+                onDismiss = {},
+                state = rememberModalBottomSheetState()
+                             )
+    }
+}

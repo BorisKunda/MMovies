@@ -5,6 +5,7 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
 import com.bk.mmovies.domain.model.MovieDetailsModel
+import com.bk.mmovies.locale.AppLanguage
 import com.bk.mmovies.locale.LocaleMonitor
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -33,8 +34,21 @@ class MovieDetailsMapper @Inject constructor(
         val totalMinutes = this?.takeIf { it > 0 } ?: return ""
         val hours = totalMinutes / 60
         val minutes = totalMinutes % 60
-        return "${hours}h ${minutes}m"
+        return when (localeMonitor.currentLanguage.value) {
+            AppLanguage.RUSSIAN -> "${hours}ч ${minutes}мин"
+            AppLanguage.HEBREW -> "${hours.toHebrewHoursLabel()} $minutes דקות"
+            AppLanguage.ENGLISH -> "${hours}h ${minutes}m"
+        }
     }
+
+    // Hebrew grammar: 1 hour and 2 hours have their own words rather than a
+    // number, unlike every other count which prefixes the number as usual.
+    private fun Int.toHebrewHoursLabel(): String = when (this) {
+        1 -> "שעה"
+        2 -> "שעתיים"
+        else -> "$this שעות"
+    }
+
 
     private fun getFormattedDate(releaseDate: String): String = try {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)

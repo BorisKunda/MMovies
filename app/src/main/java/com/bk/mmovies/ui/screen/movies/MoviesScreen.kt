@@ -331,6 +331,43 @@ private fun MoviesScreenEmptyFavoritesPreviewHebrew() {
                             )
 }
 
+// Russian content too, since the point of this one is length rather than
+// direction: titles, descriptions and the Cyrillic date format all run
+// longer than their English equivalents.
+private val previewMoviesRussian = listOf(
+        MovieModel(
+                id = 1,
+                title = "Матрица",
+                desc = "Хакер узнаёт истинную природу окружающей его реальности.",
+                imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
+                releaseDate = "31 марта 1999",
+                rating = 83
+                  ),
+        MovieModel(
+                id = 2,
+                title = "Начало",
+                desc = "Вор, крадущий корпоративные секреты с помощью технологии совместных сновидений.",
+                imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+                releaseDate = "16 июля 2010",
+                rating = 91
+                  )
+                                         )
+
+@Preview(showBackground = true, locale = "ru", name = "Russian (long text)")
+@Composable
+private fun MoviesScreenContentPreviewRussian() {
+    MoviesScreenPreviewFrame(MoviesScreenState.Content(previewMoviesRussian))
+}
+
+@Preview(showBackground = true, locale = "ru", name = "Russian (long text) - Empty favorites")
+@Composable
+private fun MoviesScreenEmptyFavoritesPreviewRussian() {
+    MoviesScreenPreviewFrame(
+            state = MoviesScreenState.Empty,
+            selectedCategory = MovieCategory.FavoritesMovieCategory
+                            )
+}
+
 @Preview(showBackground = true)
 @Composable
 private fun MoviesScreenContentPreview() {

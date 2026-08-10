@@ -15,4 +15,5 @@
 local.properties
 google-services.json
 .claude/settings.local.json
+.claude/settings.json
 TODOS.md
