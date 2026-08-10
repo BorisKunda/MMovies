@@ -1,0 +1,58 @@
+<resources>
+    <string name="app_name">MMovies</string>
+
+    <!--ERRORS-->
+    <string name="error_no_internet_connection_title">Нет подключения к интернету</string>
+    <string name="error_no_internet_connection_message">Проверьте Wi-Fi или мобильный интернет.\nМы продолжим автоматически, как только связь восстановится.</string>
+    <string name="error_no_internet_action">Открыть настройки сети</string>
+
+    <string name="error_missing_api_key_title">Отсутствует ключ API</string>
+    <string name="error_missing_api_key_message">Пользователь ещё не ввёл ключ.</string>
+    <string name="error_invalid_api_key_title">Неверный ключ API</string>
+    <string name="error_invalid_api_key_message">Ваш ключ API недействителен или его срок действия истёк. Получите новый ключ, чтобы продолжить.</string>
+    <string name="get_your_api_key">Получить ключ API</string>
+    <string name="open_tmdb_api_settings">Открыть настройки API TMDB</string>
+    <string name="how_to_get_api_key">Как получить ключ API?</string>
+    <string name="enter_your_api_key">Введите ваш ключ API</string>
+    <string name="api_key">Ключ API</string>
+    <string name="paste_your_api_key">Вставьте ваш ключ API</string>
+    <string name="save_and_continue">Сохранить и продолжить</string>
+
+    <string name="error_movies_load_failed">Не удалось загрузить фильмы. Пожалуйста, попробуйте позже.</string>
+    <string name="error_movie_details_load_failed">Не удалось загрузить информацию о фильме. Пожалуйста, попробуйте позже.</string>
+
+    <string name="generic_error_title">Ошибка</string>
+    <string name="generic_error_message">Что-то пошло не так</string>
+    <string name="try_again">Попробовать снова</string>
+
+    <!--CATEGORIES-->
+    <string name="categories_title">Категории</string>
+    <string name="category_popular">Популярные</string>
+    <string name="category_upcoming">Скоро</string>
+    <string name="category_now_playing">Сейчас в кино</string>
+    <string name="category_top_rated">Лучшие по рейтингу</string>
+    <string name="category_favorites">Избранное</string>
+    <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
+    <string name="category_selector_description">Категория: %1$s</string>
+    <string name="category_selector_action">Сменить категорию</string>
+
+    <!--EMPTY STATES-->
+    <string name="empty_favorites_title">Пока нет избранного</string>
+    <string name="empty_favorites_message">Фильмы, отмеченные как избранные, появятся здесь.</string>
+    <string name="empty_movies_title">Нечего показать</string>
+    <string name="empty_movies_message">В этой категории сейчас нет фильмов.</string>
+
+    <!--MOVIE LIST-->
+    <string name="movie_poster_zoom_action">Увеличить постер</string>
+    <string name="movie_open_details_action">Открыть подробности</string>
+
+    <!--MOVIE DETAILS-->
+    <string name="details_overview_label">ОПИСАНИЕ</string>
+    <string name="details_back">Назад</string>
+    <string name="details_date_tba">Дата: будет объявлена</string>
+    <string name="details_runtime_tba">Длительность: будет объявлена</string>
+    <string name="details_overview_tba">Будет объявлено</string>
+
+    <!--Shared by the movies list badge and the details header.-->
+    <string name="user_score_label">ОЦЕНКА\nЗРИТЕЛЕЙ</string>
+</resources>

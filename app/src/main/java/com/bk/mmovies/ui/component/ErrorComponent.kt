@@ -529,6 +529,35 @@ private fun MissingApiKeyViewPreviewHebrew() {
 
 
 @Composable
+@Preview(showBackground = true, locale = "ru", name = "Russian (long text)")
+private fun MissingApiKeyViewPreviewRussian() {
+    MMoviesTheme {
+        InvalidApiKeyView(
+                onOpenTmdbSettingsClicked = {
+                    logDebug(
+                            "MissingApiKeyViewPreviewRussian",
+                            "onOpenTmdbSettingsClicked"
+                            )
+                },
+                onApiKeyHelpClicked = {
+                    logDebug(
+                            "MissingApiKeyViewPreviewRussian",
+                            "onApiKeyHelpClicked"
+                            )
+                },
+                onSaveClicked = { key: String ->
+                    logDebug(
+                            "MissingApiKeyViewPreviewRussian",
+                            "onSaveClicked key"
+                            )
+                },
+                true
+                         )
+    }
+}
+
+
+@Composable
 @Preview(showBackground = true)
 private fun NoInternetViewPreview() {
     MMoviesTheme {
@@ -548,6 +577,19 @@ private fun NoInternetViewPreviewHebrew() {
         NoInternetView {
             logDebug(
                     "NoInternetViewPreviewHebrew",
+                    "onSettingsButtonClicked"
+                    )
+        }
+    }
+}
+
+@Composable
+@Preview(showBackground = true, locale = "ru", name = "Russian (long text)")
+private fun NoInternetViewPreviewRussian() {
+    MMoviesTheme {
+        NoInternetView {
+            logDebug(
+                    "NoInternetViewPreviewRussian",
                     "onSettingsButtonClicked"
                     )
         }

@@ -389,6 +389,32 @@ private fun DetailsScreenContentPreviewHebrew() {
     DetailsScreenContentPreviewFrame(previewMovieDetailsHebrew)
 }
 
+// Russian content too, since the point of this one is length rather than
+// direction: the genre chips and the two-line score caption
+// ("ОЦЕНКА\nЗРИТЕЛЕЙ") are the tightest fits on this screen.
+private val previewMovieDetailsRussian = MovieDetailsModel(
+        id = 1,
+        title = "Закулисные комнаты",
+        posterUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
+        backdropUrl = "https://image.tmdb.org/t/p/w780/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
+        releaseDate = "28 мая 2026",
+        runtime = "1ч 51м",
+        userScore = 85,
+        genres = listOf(
+                "Ужасы",
+                "Мистика",
+                "Научная фантастика",
+                "Триллер"
+                       ),
+        overview = "Странная дверь появляется в подвале мебельного салона."
+                                                          )
+
+@Preview(showBackground = true, locale = "ru", name = "Russian (long text)")
+@Composable
+private fun DetailsScreenContentPreviewRussian() {
+    DetailsScreenContentPreviewFrame(previewMovieDetailsRussian)
+}
+
 /**
  * Everything the mapper can hand us as empty: no release date, no runtime, no
  * genres and no overview, plus a title long enough to need truncating.
