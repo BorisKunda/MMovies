@@ -79,7 +79,7 @@ private const val CATEGORY_SELECTOR_ARROW_ALPHA = 0.7f
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MoviesScreen(
-        onNavigateToMovieDetails: (id: Int) -> Unit) {
+        onNavigateToMovieDetails: (id: Int, category: MovieCategory) -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val moviesViewModel = hiltViewModel<MoviesViewModel>()
     val state by moviesViewModel.moviesScreenState.collectAsStateWithLifecycle()
@@ -94,8 +94,8 @@ fun MoviesScreen(
                         )
 
     LaunchedEffect(Unit) {
-        moviesViewModel.goToMovieDetailsWithIdNavEvent.collect { movieId: Int ->
-            onNavigateToMovieDetails(movieId)
+        moviesViewModel.goToMovieDetailsNavEvent.collect { (movieId, category) ->
+            onNavigateToMovieDetails(movieId, category)
         }
     }
     DisposableEffect(lifecycleOwner) {

@@ -14,11 +14,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.bk.mmovies.ui.theme.CardSurface
 
 private val backgroundColor = CardSurface
@@ -36,7 +36,7 @@ private val defaultSize = 40.dp
 private const val RING_STROKE_RATIO = 0.10f
 private const val MIN_RING_STROKE_DP = 4f
 private const val NUMERAL_SIZE_RATIO = 0.30f
-private const val MIN_NUMERAL_SIZE_SP = 10f
+private const val MIN_NUMERAL_SIZE_DP = 10f
 
 @Composable
 fun UserScoreView(
@@ -48,8 +48,12 @@ fun UserScoreView(
     val badgeSize = size ?: defaultSize
     val ringStrokeWidth = (badgeSize.value * RING_STROKE_RATIO)
         .coerceAtLeast(MIN_RING_STROKE_DP).dp
-    val numeralFontSize = (badgeSize.value * NUMERAL_SIZE_RATIO)
-        .coerceAtLeast(MIN_NUMERAL_SIZE_SP).sp
+    // Converted through the density's fontScale (not a bare .sp) so the
+    // numeral always fits this fixed-size ring — on devices/users with a
+    // larger system font scale, plain .sp made the text overflow the badge.
+    val numeralFontSize = with(LocalDensity.current) {
+        (badgeSize.value * NUMERAL_SIZE_RATIO).coerceAtLeast(MIN_NUMERAL_SIZE_DP).dp.toSp()
+    }
 
     Box(
         modifier = if (size != null) modifier.size(size) else modifier,

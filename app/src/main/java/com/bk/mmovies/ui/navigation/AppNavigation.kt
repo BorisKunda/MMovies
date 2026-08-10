@@ -9,6 +9,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.screen.details.MovieDetailsScreen
 import com.bk.mmovies.ui.screen.movies.MoviesScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
@@ -22,8 +23,8 @@ fun AppNavigation(
         navController: NavHostController,
         onAppExit: () -> Unit
                  ) {
-    val navigateToMovieDetails: (Int) -> Unit = { movieId ->
-        navController.navigate(AppDestination.MovieDetailsDestination(movieId))
+    val navigateToMovieDetails: (Int, MovieCategory) -> Unit = { movieId, category ->
+        navController.navigate(AppDestination.MovieDetailsDestination(movieId, category.categoryId))
     }
 
     NavHost(
@@ -43,8 +44,8 @@ fun AppNavigation(
                 })
                 composable<AppDestination.MoviesDestination>(content = {
                     MoviesScreen(
-                            onNavigateToMovieDetails = { id: Int ->
-                                navigateToMovieDetails(id)
+                            onNavigateToMovieDetails = { id: Int, category: MovieCategory ->
+                                navigateToMovieDetails(id, category)
                             }
                                 )
                 })
@@ -52,6 +53,7 @@ fun AppNavigation(
                     val destination: AppDestination.MovieDetailsDestination = backStackEntry.toRoute()
                     MovieDetailsScreen(
                             movieId = destination.movieId,
+                            category = MovieCategory.fromCategoryId(destination.categoryId),
                             onBack = { navController.popBackStack() }
                                       )
                 })

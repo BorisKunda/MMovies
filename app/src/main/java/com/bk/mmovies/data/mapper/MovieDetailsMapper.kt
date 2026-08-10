@@ -30,7 +30,7 @@ class MovieDetailsMapper @Inject constructor(
     private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
 
     private fun Int?.toFormattedRuntime(): String {
-        val totalMinutes = this ?: return ""
+        val totalMinutes = this?.takeIf { it > 0 } ?: return ""
         val hours = totalMinutes / 60
         val minutes = totalMinutes % 60
         return "${hours}h ${minutes}m"

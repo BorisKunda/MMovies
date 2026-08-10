@@ -19,6 +19,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
 
@@ -27,6 +28,7 @@ private const val TAG = "MovieDetailsScreen"
 @Composable
 fun MovieDetailsScreen(
         movieId: Int,
+        category: MovieCategory,
         onBack: () -> Unit
                       ) {
     val movieDetailsViewModel = hiltViewModel<MovieDetailsViewModel>()
@@ -49,6 +51,7 @@ fun MovieDetailsScreen(
             is MovieDetailsScreenState.Content -> {
                 DetailsScreenContent(
                         movieDetails = currentState.movieDetails,
+                        category = category,
                         modifier = Modifier.fillMaxSize()
                                     )
             }

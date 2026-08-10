@@ -220,10 +220,7 @@ fun MovieRow(
                             .crossfade(true)
                             .build(),
                     placeholder = painterResource(R.drawable.placeholder),
-                    error = painterResource(
-                            if (useNeutralImageFallback) R.drawable.placeholder
-                            else R.drawable.error_placeholder
-                                            ),
+                    error = painterResource(R.drawable.placeholder),
                     // The title is already announced by the Text beside it, so
                     // labelling the poster too made TalkBack repeat every row.
                     contentDescription = null,
@@ -340,7 +337,7 @@ fun MovieRow(
                                 .crossfade(true)
                                 .build(),
                         placeholder = painterResource(R.drawable.placeholder),
-                        error = painterResource(R.drawable.error_placeholder),
+                        error = painterResource(R.drawable.placeholder),
                         contentDescription = movieModel.title,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
