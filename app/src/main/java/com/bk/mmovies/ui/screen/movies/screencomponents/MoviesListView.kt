@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.movies
+package com.bk.mmovies.ui.screen.movies.screencomponents
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -50,7 +50,6 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -66,7 +65,6 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.CardSurface
-import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.bk.mmovies.util.logDebug
 import com.bk.mmovies.util.logError
 
@@ -454,61 +452,4 @@ private fun PlaceholderLine(
                             shape = RoundedCornerShape(placeholderCornerShape)
                                )
        )
-}
-
-@Preview
-@Composable
-private fun MovieRowLoadingPlaceholderListPreview() {
-    MMoviesTheme {
-        MovieRowLoadingPlaceholderList()
-    }
-}
-
-@Preview
-@Composable
-private fun MovieRowLoadingPlaceholderPreview() {
-    MMoviesTheme {
-        MovieRowLoadingPlaceholder()
-    }
-}
-
-@Preview
-@Composable
-private fun MoviesListViewPreview() {
-    val sampleMovies = listOf(
-            MovieModel(
-                    id = 1,
-                    title = "The Matrix",
-                    desc = "A computer hacker learns about the true nature of reality.",
-                    imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
-                    releaseDate = "March 31, 1999",
-                    rating = 83
-                      ),
-            MovieModel(
-                    id = 2,
-                    title = "Inception",
-                    desc = "A thief who steals corporate secrets through dream-sharing technology.",
-                    imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
-                    releaseDate = "July 16, 2010",
-                    rating = 91
-                      ),
-            // No date and no description: both blocks must simply not render.
-            MovieModel(
-                    id = 3,
-                    title = "An Untitled Film With A Very Long Name That Has To Truncate",
-                    desc = "",
-                    imageUrl = "",
-                    releaseDate = "",
-                    rating = 0
-                      )
-                             )
-    // Wrapping in the theme: without it this previewed in light Material
-    // colours for an app that only ships a dark scheme.
-    MMoviesTheme {
-        MoviesListView(
-                movies = sampleMovies,
-                selectedCategory = MovieCategory.PopularMovieCategory,
-                onMovieClicked = {}
-                      )
-    }
 }

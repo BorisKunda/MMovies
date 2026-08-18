@@ -15,6 +15,8 @@ const val LOGIN_WITH_CREDENTIALS_ENDPOINT = "authentication/token/validate_with_
 const val LOGIN_SESSION_ID_ENDPOINT = "authentication/session/new"
 const val GUEST_SESSION_ID_ENDPOINT = "authentication/guest_session/new"
 const val DELETE_SESSION_ENDPOINT = "authentication/session"
+const val ACCOUNT_DETAILS_ENDPOINT = "account"
+const val QUERY_PARAM_SESSION_ID = "session_id"
 
 const val POPULAR_MOVIES_LIST_ENDPOINT = "movie/popular"
 const val UPCOMING_MOVIES_LIST_ENDPOINT = "movie/upcoming"
@@ -29,6 +31,7 @@ const val QUERY_PARAM_LANGUAGE = "language"
 const val TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/"
 const val POSTER_PATH_SIZE_SEGMENT_LIST_ITEM = "w342"
 const val POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM = "w780"
+const val AVATAR_PATH_SIZE_SEGMENT = "w185"
 
 const val TMDB_ERROR_CODE_INVALID_API_KEY = 7
 const val TMDB_ERROR_CODE_SUSPENDED_API_KEY = 10

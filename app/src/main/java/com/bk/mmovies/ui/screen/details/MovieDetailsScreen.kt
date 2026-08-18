@@ -22,6 +22,7 @@ import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
+import com.bk.mmovies.ui.screen.details.screencomponents.DetailsScreenContent
 
 private const val TAG = "MovieDetailsScreen"
 

@@ -1,6 +1,7 @@
 package com.bk.mmovies.data.source.remote.api
 
 
+import com.bk.mmovies.data.source.remote.ACCOUNT_DETAILS_ENDPOINT
 import com.bk.mmovies.data.source.remote.AUTHENTICATION_ENDPOINT
 import com.bk.mmovies.data.source.remote.DELETE_SESSION_ENDPOINT
 import com.bk.mmovies.data.source.remote.DISCOVER_MOVIES_LIST_ENDPOINT
@@ -11,7 +12,9 @@ import com.bk.mmovies.data.source.remote.LOGIN_WITH_CREDENTIALS_ENDPOINT
 import com.bk.mmovies.data.source.remote.MOVIE_ENDPOINT
 import com.bk.mmovies.data.source.remote.NOW_PLAYING_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.POPULAR_MOVIES_LIST_ENDPOINT
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_SESSION_ID
 import com.bk.mmovies.data.source.remote.TOP_RATED_MOVIES_LIST_ENDPOINT
+import com.bk.mmovies.data.source.remote.dto.AccountDetailsDto
 import com.bk.mmovies.data.source.remote.dto.DeleteSessionDto
 import com.bk.mmovies.data.source.remote.dto.DeleteSessionRequestDto
 import com.bk.mmovies.data.source.remote.dto.GuestSessionIdDto
@@ -51,6 +54,11 @@ interface TmdbApi {
 
     @HTTP(method = "DELETE", path = DELETE_SESSION_ENDPOINT, hasBody = true)
     suspend fun deleteSession(@Body deleteSessionRequestDto: DeleteSessionRequestDto): Response<DeleteSessionDto>
+
+    @GET(ACCOUNT_DETAILS_ENDPOINT)
+    suspend fun getAccountDetails(
+            @Query(QUERY_PARAM_SESSION_ID) sessionId: String
+                                  ): Response<AccountDetailsDto>
 
     @GET(MOVIE_ENDPOINT)
     suspend fun getMovieDetails(

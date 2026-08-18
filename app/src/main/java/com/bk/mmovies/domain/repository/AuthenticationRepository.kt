@@ -1,5 +1,6 @@
 package com.bk.mmovies.domain.repository
 
+import com.bk.mmovies.domain.model.result.AccountDetailsResult
 import com.bk.mmovies.domain.model.result.ApiKeyValidationResult
 import com.bk.mmovies.domain.model.result.GuestSessionIdResult
 import com.bk.mmovies.domain.model.result.LoginSessionIdResult
@@ -28,5 +29,6 @@ interface AuthenticationRepository {
     fun saveSharedPrefGuestSessionId(id: String)
     fun getSharedPrefGuestSessionId(): String?
     suspend fun logout(): LogoutResult
+    suspend fun getAccountDetailsResult(sessionId: String): AccountDetailsResult
 }
 

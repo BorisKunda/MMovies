@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.component
+package com.bk.mmovies.ui.screen.movies.screencomponents
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background

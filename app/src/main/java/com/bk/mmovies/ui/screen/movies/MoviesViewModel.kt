@@ -5,7 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
+import com.bk.mmovies.domain.model.result.AccountDetailsResult
 import com.bk.mmovies.domain.model.result.MoviesResult
+import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.MovieRepository
 import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,6 +27,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MoviesViewModel @Inject constructor(
         private val movieRepository: MovieRepository,
+        private val authenticationRepository: AuthenticationRepository,
         localeMonitor: LocaleMonitor,
         internetMonitor: InternetMonitor
                                          ) :
@@ -41,15 +44,23 @@ class MoviesViewModel @Inject constructor(
                                                                    )
     val selectedCategory: StateFlow<MovieCategory> = _selectedCategory.asStateFlow()
 
+    private val _userProfileState = MutableStateFlow(UserProfileUiState())
+    val userProfileState: StateFlow<UserProfileUiState> = _userProfileState.asStateFlow()
+
     private val _goToMovieDetailsNavEvent: MutableSharedFlow<Pair<Int, MovieCategory>> =
             MutableSharedFlow(extraBufferCapacity = 1)
     val goToMovieDetailsNavEvent: SharedFlow<Pair<Int, MovieCategory>> =
             _goToMovieDetailsNavEvent.asSharedFlow()
 
+    private val _goToAuthNavEvent: MutableSharedFlow<Unit> =
+            MutableSharedFlow(extraBufferCapacity = 1)
+    val goToAuthNavEvent: SharedFlow<Unit> = _goToAuthNavEvent.asSharedFlow()
+
     private var loadMoviesJob: Job? = null
 
     init {
         startLoad(_selectedCategory.value)
+        loadUserProfile()
 
         // Reload the current category in the new language whenever the
         // device/app language changes, including while the app is backgrounded.
@@ -62,6 +73,35 @@ class MoviesViewModel @Inject constructor(
                         internetMonitor.isInternetAvailable.first { it }
                         startLoad(_selectedCategory.value)
                     }
+        }
+    }
+
+    private fun loadUserProfile() {
+        val loginSessionId = authenticationRepository.getSharedPrefLoginSessionId()
+        if (loginSessionId == null) {
+            _userProfileState.value = UserProfileUiState(isGuest = true)
+            return
+        }
+        viewModelScope.launch {
+            when (val result = authenticationRepository.getAccountDetailsResult(loginSessionId)) {
+                is AccountDetailsResult.Success -> {
+                    _userProfileState.value = UserProfileUiState(
+                            name = result.name,
+                            imageUrl = result.avatarUrl,
+                            isGuest = false
+                                                                 )
+                }
+                is AccountDetailsResult.Failure -> {
+                    _userProfileState.value = UserProfileUiState(isGuest = false)
+                }
+            }
+        }
+    }
+
+    fun onLogoutClicked() {
+        viewModelScope.launch {
+            authenticationRepository.logout()
+            _goToAuthNavEvent.tryEmit(Unit)
         }
     }
 
@@ -120,5 +160,11 @@ sealed interface MoviesScreenState {
     data class Content(val movies: List<MovieModel>) : MoviesScreenState
     data class Error(val errorMessage: String) : MoviesScreenState
 }
+
+data class UserProfileUiState(
+        val name: String = "",
+        val imageUrl: String = "",
+        val isGuest: Boolean = true
+                              )
 
 

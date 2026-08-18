@@ -46,8 +46,13 @@ fun AppNavigation(
                             }
                         }
                     }, onNavigateToMoviesScreen = {
+                        // Splash can reach Movies directly (session already
+                        // valid) without ever pushing Auth, so popUpTo(Auth)
+                        // would find nothing to pop and leave Splash on the
+                        // stack underneath Movies. Pop Splash itself instead —
+                        // it's always present on this path.
                         navController.navigate(AppDestination.MoviesDestination) {
-                            popUpTo<AppDestination.AuthDestination> {
+                            popUpTo<AppDestination.SplashDestination> {
                                 inclusive = true
                             }
                         }
@@ -70,6 +75,12 @@ fun AppNavigation(
                                 id,
                                 category
                                               )
+                    }, onNavigateToAuthScreen = {
+                        navController.navigate(AppDestination.AuthDestination) {
+                            popUpTo<AppDestination.MoviesDestination> {
+                                inclusive = true
+                            }
+                        }
                     }
                                 )
                 })

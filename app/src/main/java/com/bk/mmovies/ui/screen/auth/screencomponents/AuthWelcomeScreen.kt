@@ -46,17 +46,14 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bk.mmovies.R
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.bk.mmovies.ui.theme.primaryButtonCornerSize
 import com.bk.mmovies.ui.theme.primaryButtonHeight
 import com.bk.mmovies.ui.theme.primaryButtonIconPadding
 import com.bk.mmovies.ui.theme.primaryButtonIconSize
-import com.bk.mmovies.util.logDebug
 
 private val authScreenPaddingHorizontal = 28.dp
 private val authScreenPaddingTop = 40.dp
@@ -303,102 +300,6 @@ private fun AuthDivider() {
         HorizontalDivider(
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
-                         )
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AuthScreenMainPreview() {
-    MMoviesTheme {
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-private fun AuthScreenPreview() {
-    MMoviesTheme {
-        AuthWelcomeScreen(
-                onLoginClicked = { username, password ->
-                    logDebug(
-                            "AuthScreenPreview",
-                            "onLoginClicked username=$username password=$password"
-                            )
-                },
-                onRegisterOnTmdbClicked = {
-                    logDebug(
-                            "AuthScreenPreview",
-                            "onRegisterOnTmdbClicked"
-                            )
-                },
-                onContinueAsGuestClicked = {
-                    logDebug(
-                            "AuthScreenPreview",
-                            "onContinueAsGuestClicked"
-                            )
-                }
-                         )
-    }
-}
-
-@Preview(
-        showBackground = true,
-        locale = "iw",
-        name = "Hebrew (RTL)"
-        )
-@Composable
-private fun AuthScreenPreviewHebrew() {
-    MMoviesTheme {
-        AuthWelcomeScreen(
-                onLoginClicked = { username, password ->
-                    logDebug(
-                            "AuthScreenPreviewHebrew",
-                            "onLoginClicked username=$username password=$password"
-                            )
-                },
-                onRegisterOnTmdbClicked = {
-                    logDebug(
-                            "AuthScreenPreviewHebrew",
-                            "onRegisterOnTmdbClicked"
-                            )
-                },
-                onContinueAsGuestClicked = {
-                    logDebug(
-                            "AuthScreenPreviewHebrew",
-                            "onContinueAsGuestClicked"
-                            )
-                }
-                         )
-    }
-}
-
-@Preview(
-        showBackground = true,
-        locale = "ru",
-        name = "Russian (long text)"
-        )
-@Composable
-private fun AuthScreenPreviewRussian() {
-    MMoviesTheme {
-        AuthWelcomeScreen(
-                onLoginClicked = { username, password ->
-                    logDebug(
-                            "AuthScreenPreviewRussian",
-                            "onLoginClicked username=$username password=$password"
-                            )
-                },
-                onRegisterOnTmdbClicked = {
-                    logDebug(
-                            "AuthScreenPreviewRussian",
-                            "onRegisterOnTmdbClicked"
-                            )
-                },
-                onContinueAsGuestClicked = {
-                    logDebug(
-                            "AuthScreenPreviewRussian",
-                            "onContinueAsGuestClicked"
-                            )
-                }
                          )
     }
 }

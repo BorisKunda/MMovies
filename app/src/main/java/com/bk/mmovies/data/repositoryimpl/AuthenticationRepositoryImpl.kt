@@ -1,10 +1,14 @@
 package com.bk.mmovies.data.repositoryimpl
 
 import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
+import com.bk.mmovies.data.source.remote.AVATAR_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.TMDB_ERROR_CODE_INVALID_API_KEY
 import com.bk.mmovies.data.source.remote.TMDB_ERROR_CODE_SUSPENDED_API_KEY
+import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.api.TmdbApi
+import com.bk.mmovies.data.source.remote.dto.AccountDetailsDto
+import com.bk.mmovies.data.source.remote.dto.AvatarDto
 import com.bk.mmovies.data.source.remote.dto.DeleteSessionRequestDto
 import com.bk.mmovies.data.source.remote.dto.GuestSessionIdDto
 import com.bk.mmovies.data.source.remote.dto.LoginSessionIdDto
@@ -14,6 +18,7 @@ import com.bk.mmovies.data.source.remote.dto.V3TokenValidityDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
 import com.bk.mmovies.data.source.remote.result.NetworkError
 import com.bk.mmovies.data.source.remote.result.toErrorMessage
+import com.bk.mmovies.domain.model.result.AccountDetailsResult
 import com.bk.mmovies.domain.model.result.ApiKeyValidationResult
 import com.bk.mmovies.domain.model.result.GuestSessionIdResult
 import com.bk.mmovies.domain.model.result.LoginSessionIdResult
@@ -207,5 +212,31 @@ class AuthenticationRepositoryImpl @Inject constructor(
         } catch (exception: Exception) {
             LogoutResult.Failure(exception.message ?: "Couldn't log out")
         }
+    }
+
+    override suspend fun getAccountDetailsResult(sessionId: String): AccountDetailsResult {
+        val result: ApiCallResult<AccountDetailsDto> = networkManager.executeApiCall(
+                "GetAccountDetails",
+                apiCall = { api.getAccountDetails(sessionId) })
+        return when (result) {
+            is ApiCallResult.Failure                  -> {
+                AccountDetailsResult.Failure(
+                        result.error.toErrorMessage("Couldn't load account details")
+                                             )
+            }
+            is ApiCallResult.Success<AccountDetailsDto> -> {
+                val dto = result.data
+                val name = dto.name?.takeIf { it.isNotBlank() } ?: dto.username ?: ""
+                AccountDetailsResult.Success(
+                        name = name,
+                        avatarUrl = dto.avatar.toAvatarUrl()
+                                             )
+            }
+        }
+    }
+
+    private fun AvatarDto?.toAvatarUrl(): String {
+        val tmdbAvatarPath = this?.tmdb?.avatarPath ?: return ""
+        return "$TMDB_IMAGE_BASE_URL$AVATAR_PATH_SIZE_SEGMENT$tmdbAvatarPath"
     }
 }

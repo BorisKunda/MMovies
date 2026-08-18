@@ -29,3 +29,8 @@ sealed interface LogoutResult {
     data object Success : LogoutResult
     data class Failure(val errorMessage: String) : LogoutResult
 }
+
+sealed interface AccountDetailsResult {
+    data class Success(val name: String, val avatarUrl: String) : AccountDetailsResult
+    data class Failure(val errorMessage: String) : AccountDetailsResult
+}
