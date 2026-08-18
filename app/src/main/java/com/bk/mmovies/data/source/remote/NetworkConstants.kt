@@ -27,11 +27,14 @@ const val TOP_RATED_MOVIES_LIST_ENDPOINT = "movie/top_rated"
 const val MOVIE_ENDPOINT = "movie/{movie_id}"
 const val QUERY_PARAM_API_KEY = "api_key"
 const val QUERY_PARAM_LANGUAGE = "language"
+const val QUERY_PARAM_APPEND_TO_RESPONSE = "append_to_response"
+const val APPEND_TO_RESPONSE_CREDITS = "credits"
 
 const val TMDB_IMAGE_BASE_URL = "https://image.tmdb.org/t/p/"
 const val POSTER_PATH_SIZE_SEGMENT_LIST_ITEM = "w342"
 const val POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM = "w780"
 const val AVATAR_PATH_SIZE_SEGMENT = "w185"
+const val CAST_PROFILE_PATH_SIZE_SEGMENT = "w185"
 
 const val TMDB_ERROR_CODE_INVALID_API_KEY = 7
 const val TMDB_ERROR_CODE_SUSPENDED_API_KEY = 10

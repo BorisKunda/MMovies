@@ -53,6 +53,8 @@
     <string name="details_date_tba">תאריך: טרם נקבע</string>
     <string name="details_runtime_tba">משך: טרם ידוע</string>
     <string name="details_overview_tba">יפורסם בקרוב</string>
+    <string name="details_cast_label">שחקנים</string>
+    <string name="details_cast_tba">שחקנים: טרם נקבע</string>
 
     <!--Shared by the movies list badge and the details' header.-->
     <string name="user_score_label">דירוג\nמשתמשים</string>

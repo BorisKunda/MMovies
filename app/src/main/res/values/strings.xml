@@ -53,6 +53,8 @@
     <string name="details_date_tba">Date: To be announced</string>
     <string name="details_runtime_tba">Runtime: To be announced</string>
     <string name="details_overview_tba">To be announced</string>
+    <string name="details_cast_label">CAST</string>
+    <string name="details_cast_tba">Cast: To be announced</string>
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">USER\nSCORE</string>

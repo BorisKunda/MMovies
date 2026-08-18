@@ -13,7 +13,10 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -34,6 +37,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -41,6 +45,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.bk.mmovies.R
+import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.ui.component.UserScoreView
@@ -95,6 +100,14 @@ private const val SCRIM_BOTTOM_ALPHA = 0.85f
 private const val SECONDARY_TEXT_ALPHA = 0.85f
 private const val TERTIARY_TEXT_ALPHA = 0.70f
 
+private val castSectionTitleLetterSpacing = 1.sp
+private val castItemWidth = 84.dp
+private val castImageSize = 72.dp
+private val castItemSpacing = 16.dp
+private val castImageNameSpacing = 8.dp
+private val castNameCharacterSpacing = 2.dp
+private const val CAST_ITEM_TEXT_MAX_LINES = 2
+
 @Composable
 fun DetailsScreenContent(
         movieDetails: MovieDetailsModel,
@@ -108,6 +121,7 @@ fun DetailsScreenContent(
     val dateTbaLabel = stringResource(R.string.details_date_tba)
     val runtimeTbaLabel = stringResource(R.string.details_runtime_tba)
     val overviewTbaLabel = stringResource(R.string.details_overview_tba)
+    val castTbaLabel = stringResource(R.string.details_cast_tba)
 
     Column(
             modifier = modifier
@@ -208,6 +222,98 @@ fun DetailsScreenContent(
                     backdropUrl = movieDetails.backdropUrl
                            )
         }
+
+        // Upcoming movies routinely have no cast credited yet on TMDB; show
+        // a TBA line instead of silently dropping the section like the
+        // sparse-data fallback does for other categories.
+        if (movieDetails.cast.isNotEmpty()) {
+            CastSection(cast = movieDetails.cast)
+        } else if (isUpcoming) {
+            CastSection(cast = emptyList(), tbaLabel = castTbaLabel)
+        }
+    }
+}
+
+@Composable
+private fun CastSection(
+        cast: List<CastMemberModel>,
+        modifier: Modifier = Modifier,
+        tbaLabel: String? = null
+                       ) {
+    Column(
+            modifier = modifier.padding(
+                    start = screenPadding,
+                    end = screenPadding,
+                    bottom = screenPadding
+                                        )
+          ) {
+        Text(
+                text = stringResource(R.string.details_cast_label),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = castSectionTitleLetterSpacing
+            )
+        if (cast.isNotEmpty()) {
+            LazyRow(
+                    modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(top = spacingUnit),
+                    horizontalArrangement = Arrangement.spacedBy(castItemSpacing)
+                   ) {
+                items(cast, key = { it.id }) { castMember ->
+                    CastMemberItem(castMember)
+                }
+            }
+        } else if (tbaLabel != null) {
+            Text(
+                    text = tbaLabel,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(top = spacingUnit)
+                )
+        }
+    }
+}
+
+@Composable
+private fun CastMemberItem(castMember: CastMemberModel) {
+    Column(
+            modifier = Modifier.width(castItemWidth),
+            horizontalAlignment = Alignment.CenterHorizontally
+          ) {
+        AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                        .data(castMember.profileUrl)
+                        .crossfade(true)
+                        .build(),
+                placeholder = painterResource(R.drawable.placeholder),
+                error = painterResource(R.drawable.placeholder),
+                contentDescription = castMember.name,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                        .size(castImageSize)
+                        .clip(CircleShape)
+                  )
+        Text(
+                text = castMember.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = castImageNameSpacing)
+            )
+        Text(
+                text = castMember.character,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium,
+                textAlign = TextAlign.Center,
+                maxLines = CAST_ITEM_TEXT_MAX_LINES,
+                overflow = TextOverflow.Ellipsis,
+                modifier = Modifier.padding(top = castNameCharacterSpacing)
+            )
     }
 }
 

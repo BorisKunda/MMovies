@@ -9,5 +9,6 @@ data class MovieDetailsModel(
         val runtime: String,
         val userScore: Int,
         val genres: List<String>,
-        val overview: String
+        val overview: String,
+        val cast: List<CastMemberModel> = emptyList()
                             )

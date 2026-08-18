@@ -2,6 +2,7 @@ package com.bk.mmovies.data.source.remote.api
 
 
 import com.bk.mmovies.data.source.remote.ACCOUNT_DETAILS_ENDPOINT
+import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS
 import com.bk.mmovies.data.source.remote.AUTHENTICATION_ENDPOINT
 import com.bk.mmovies.data.source.remote.DELETE_SESSION_ENDPOINT
 import com.bk.mmovies.data.source.remote.DISCOVER_MOVIES_LIST_ENDPOINT
@@ -12,6 +13,7 @@ import com.bk.mmovies.data.source.remote.LOGIN_WITH_CREDENTIALS_ENDPOINT
 import com.bk.mmovies.data.source.remote.MOVIE_ENDPOINT
 import com.bk.mmovies.data.source.remote.NOW_PLAYING_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.POPULAR_MOVIES_LIST_ENDPOINT
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_APPEND_TO_RESPONSE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_SESSION_ID
 import com.bk.mmovies.data.source.remote.TOP_RATED_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.dto.AccountDetailsDto
@@ -62,7 +64,8 @@ interface TmdbApi {
 
     @GET(MOVIE_ENDPOINT)
     suspend fun getMovieDetails(
-            @Path("movie_id") movieId: Int
+            @Path("movie_id") movieId: Int,
+            @Query(QUERY_PARAM_APPEND_TO_RESPONSE) appendToResponse: String = APPEND_TO_RESPONSE_CREDITS
                                ): Response<MovieDetailsDto>
 
 

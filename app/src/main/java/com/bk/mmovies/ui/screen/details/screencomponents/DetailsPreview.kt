@@ -7,9 +7,37 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.ui.theme.MMoviesTheme
+
+private val previewCast = listOf(
+        CastMemberModel(
+                id = 1,
+                name = "Wyatt Russell",
+                character = "Justin",
+                profileUrl = "https://image.tmdb.org/t/p/w185/8qXWJx6mxvXynMhmXPWXTLDdrUB.jpg"
+                        ),
+        CastMemberModel(
+                id = 2,
+                name = "Melissa Barrera",
+                character = "Mia",
+                profileUrl = "https://image.tmdb.org/t/p/w185/oJ022qBH7d1hbrTiHwSyZbSC08l.jpg"
+                        ),
+        CastMemberModel(
+                id = 3,
+                name = "Charlie Hunnam",
+                character = "Marcus",
+                profileUrl = ""
+                        ),
+        CastMemberModel(
+                id = 4,
+                name = "A Very Long Cast Member Name",
+                character = "A very long character description that should wrap",
+                profileUrl = ""
+                        )
+                                 )
 
 private val previewMovieDetails = MovieDetailsModel(
         id = 1,
@@ -25,7 +53,8 @@ private val previewMovieDetails = MovieDetailsModel(
                 "Science Fiction",
                 "Thriller"
                        ),
-        overview = "A strange doorway appears in the basement of a furniture showroom."
+        overview = "A strange doorway appears in the basement of a furniture showroom.",
+        cast = previewCast
                                                    )
 
 @Preview(showBackground = true)
@@ -111,7 +140,7 @@ private fun DetailsScreenContentLargeFontPreview() {
 
 /**
  * TMDB's real shape for an unreleased title: no score, no runtime, no
- * backdrop and no overview yet.
+ * backdrop, no overview and no cast yet.
  */
 @Preview(showBackground = true, name = "Upcoming - no data yet")
 @Composable
@@ -122,7 +151,8 @@ private fun DetailsScreenContentUpcomingPreview() {
                     runtime = "",
                     userScore = 0,
                     backdropUrl = "",
-                    overview = ""
+                    overview = "",
+                    cast = emptyList()
                                                     ),
             category = MovieCategory.UpcomingMovieCategory
                                     )

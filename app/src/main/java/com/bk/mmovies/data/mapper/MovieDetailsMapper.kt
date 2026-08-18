@@ -1,9 +1,12 @@
 package com.bk.mmovies.data.mapper
 
+import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
+import com.bk.mmovies.data.source.remote.dto.CastMemberDto
 import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
+import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.locale.AppLanguage
 import com.bk.mmovies.locale.LocaleMonitor
@@ -11,6 +14,8 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
+
+private const val CAST_LIST_LIMIT = 20
 
 class MovieDetailsMapper @Inject constructor(
         private val localeMonitor: LocaleMonitor
@@ -25,8 +30,27 @@ class MovieDetailsMapper @Inject constructor(
             runtime = dto.runtime.toFormattedRuntime(),
             userScore = dto.voteAverage.toRatingPercent(),
             genres = dto.genres?.mapNotNull { it.name } ?: emptyList(),
-            overview = dto.overview ?: ""
+            overview = dto.overview ?: "",
+            cast = dto.credits?.cast.toCastModels()
                                                                           )
+
+    // TMDB returns the full credited cast, often 30+ names; the app only
+    // shows a horizontal strip, so cap it to the leads (already sorted by
+    // billing order) instead of rendering everyone.
+    private fun List<CastMemberDto>?.toCastModels(): List<CastMemberModel> = this
+            ?.sortedBy { it.order ?: Int.MAX_VALUE }
+            ?.take(CAST_LIST_LIMIT)
+            ?.mapNotNull { castMemberDto ->
+                val id = castMemberDto.id ?: return@mapNotNull null
+                val name = castMemberDto.name ?: return@mapNotNull null
+                CastMemberModel(
+                        id = id,
+                        name = name,
+                        character = castMemberDto.character ?: "",
+                        profileUrl = castMemberDto.profilePath
+                                ?.let { getFullImageUrl(it, CAST_PROFILE_PATH_SIZE_SEGMENT) } ?: ""
+                                )
+            } ?: emptyList()
 
     private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
 

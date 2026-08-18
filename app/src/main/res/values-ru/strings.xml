@@ -53,6 +53,8 @@
     <string name="details_date_tba">Дата: будет объявлена</string>
     <string name="details_runtime_tba">Длительность: будет объявлена</string>
     <string name="details_overview_tba">Будет объявлено</string>
+    <string name="details_cast_label">В РОЛЯХ</string>
+    <string name="details_cast_tba">Актёрский состав: будет объявлен</string>
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">ОЦЕНКА\nЗРИТЕЛЕЙ</string>
