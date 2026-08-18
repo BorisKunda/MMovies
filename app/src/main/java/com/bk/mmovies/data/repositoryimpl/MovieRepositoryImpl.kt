@@ -2,7 +2,6 @@ package com.bk.mmovies.data.repositoryimpl
 
 
 import android.content.Context
-import coil3.util.CoilUtils.result
 import com.bk.mmovies.R
 import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
@@ -17,8 +16,6 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.result.MovieDetailsResult
 import com.bk.mmovies.domain.model.result.MoviesResult
 import com.bk.mmovies.domain.repository.MovieRepository
-import com.bk.mmovies.util.logDebug
-import com.bk.mmovies.util.logError
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Calendar

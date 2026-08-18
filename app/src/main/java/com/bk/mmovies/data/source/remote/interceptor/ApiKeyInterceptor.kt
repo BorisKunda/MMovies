@@ -1,6 +1,6 @@
 package com.bk.mmovies.data.source.remote.interceptor
 
-import com.bk.mmovies.data.source.local.preferences.ApiKeyStorage
+import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import okhttp3.HttpUrl
 import okhttp3.Interceptor
@@ -11,7 +11,7 @@ import javax.inject.Singleton
 
 @Singleton
 class ApiKeyInterceptor @Inject constructor(
-        private val apiKeyStorage: ApiKeyStorage
+        private val apiKeyStorage: AuthCredentialsSharedPrefs
                                            ) : Interceptor {
 
     override fun intercept(
@@ -19,7 +19,7 @@ class ApiKeyInterceptor @Inject constructor(
                           ): Response {
         val originalRequest: Request = chain.request()
 
-        val storedApiKey = apiKeyStorage.getApiKey() ?: return chain.proceed(originalRequest)
+        val storedApiKey = apiKeyStorage.getSharedPrefApiKey() ?: return chain.proceed(originalRequest)
 
         val originalRequestUrl: HttpUrl = originalRequest.url
 

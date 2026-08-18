@@ -7,3 +7,5 @@ val primaryButtonHeight = 64.dp
 val primaryButtonCornerSize = 14.dp
 val primaryButtonIconPadding = 12.dp
 val primaryButtonIconSize = 18.dp
+val profileAvatarSize = 43.dp
+val logoutIconSize = 24.dp

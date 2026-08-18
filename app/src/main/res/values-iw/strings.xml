@@ -10,6 +10,7 @@
     <string name="error_missing_api_key_message">המשתמש טרם הזין מפתח.</string>
     <string name="error_invalid_api_key_title">מפתח API לא תקין</string>
     <string name="error_invalid_api_key_message">מפתח ה-API שלך אינו תקין או שפג תוקפו. קבל מפתח חדש כדי להמשיך.</string>
+    <string name="toast_invalid_api_key">מפתח API לא תקין. נסה/י שוב.</string>
     <string name="get_your_api_key">קבל את מפתח ה-API שלך</string>
     <string name="open_tmdb_api_settings">פתח הגדרות API של TMDB</string>
     <string name="how_to_get_api_key">כיצד אוכל לקבל מפתח API?</string>
@@ -55,4 +56,24 @@
 
     <!--Shared by the movies list badge and the details' header.-->
     <string name="user_score_label">דירוג\nמשתמשים</string>
+
+    <!--AUTH-->
+    <string name="auth_title">ברוך הבא</string>
+    <string name="auth_subtitle">התחבר/י כדי לסנכרן את המועדפים שלך, או צור/י חשבון TMDB חינמי.</string>
+    <string name="username_label">שם משתמש</string>
+    <string name="username_placeholder">הזן/י שם משתמש</string>
+    <string name="password_label">סיסמה</string>
+    <string name="password_placeholder">הזן/י סיסמה</string>
+    <string name="show_password">הצג/י סיסמה</string>
+    <string name="hide_password">הסתר/י סיסמה</string>
+    <string name="log_in">התחברות ל-TMDB</string>
+    <string name="auth_divider_or">או</string>
+    <string name="no_tmdb_account_message">אין לך חשבון? הירשם ואמת את כתובת האימייל שלך, ואז נסה להתחבר.</string>
+    <string name="register_on_tmdb">הרשמה ל-TMDB</string>
+    <string name="continue_as_guest">המשך כאורח</string>
+    <string name="log_out">התנתקות</string>
+    <string name="log_in_action">התחברות</string>
+    <string name="guest_label">אורח</string>
+    <string name="powered_by_tmdb">מופעל על ידי</string>
+    <string name="tmdb_disclaimer">אפליקציה זו משתמשת ב-TMDB וב-TMDB API אך אינה מאושרת, מוסמכת או נתמכת על ידי TMDB.</string>
 </resources>

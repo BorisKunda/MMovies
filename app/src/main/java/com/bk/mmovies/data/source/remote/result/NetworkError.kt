@@ -13,4 +13,9 @@ sealed interface NetworkError {
     data object EmptyBody : NetworkError
 }
 
-
+fun NetworkError.toErrorMessage(fallback: String): String {
+    return when (this) {
+        is NetworkError.ExceptionError, NetworkError.EmptyBody -> "$fallback, please check your network"
+        is NetworkError.HttpError                               -> errorBody?.message ?: fallback
+    }
+}

@@ -337,10 +337,6 @@ private fun OverviewSection(
     }
 }
 
-/**
- * PREVIEWS
- */
-
 private val previewMovieDetails = MovieDetailsModel(
         id = 1,
         title = "Backrooms",

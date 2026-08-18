@@ -3,7 +3,7 @@ package com.bk.mmovies.preferences
 import android.content.Context
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
-import com.bk.mmovies.data.source.local.preferences.ApiKeyStorage
+import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import org.junit.After
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNull
@@ -12,28 +12,28 @@ import org.junit.Test
 import org.junit.runner.RunWith
 
 @RunWith(AndroidJUnit4::class)
-class ApiKeyStorageTest {
+class AuthCredentialsSharedPrefsTest {
 
-    private lateinit var apiKeyStorage: ApiKeyStorage
+    private lateinit var apiKeyStorage: AuthCredentialsSharedPrefs
 
     @Before
     fun setUp() {
         val context = ApplicationProvider.getApplicationContext<Context>()
-        apiKeyStorage = ApiKeyStorage(context)
+        apiKeyStorage = AuthCredentialsSharedPrefs(context)
         apiKeyStorage.clearStorage()
     }
 
     @Test
     fun testGetApiKeyReturnsNullIfNoKeySaved() {
-        val result = apiKeyStorage.getApiKey()
+        val result = apiKeyStorage.getSharedPrefApiKey()
         assertNull(result)
     }
 
     @Test
     fun testSaveKey() {
         val dummyKey = "123"
-        apiKeyStorage.saveApiKey(dummyKey)
-        val savedKey = apiKeyStorage.getApiKey()
+        apiKeyStorage.saveSharedPrefApiKey(dummyKey)
+        val savedKey = apiKeyStorage.getSharedPrefApiKey()
         assertEquals(
                 dummyKey,
                 savedKey
@@ -44,9 +44,9 @@ class ApiKeyStorageTest {
     @Test
     fun testRemoveKey() {
         val dummyKey = "123"
-        apiKeyStorage.saveApiKey(dummyKey)
+        apiKeyStorage.saveSharedPrefApiKey(dummyKey)
         apiKeyStorage.removeApiKey()
-        val savedKey = apiKeyStorage.getApiKey()
+        val savedKey = apiKeyStorage.getSharedPrefApiKey()
         assertNull(savedKey)
     }
 

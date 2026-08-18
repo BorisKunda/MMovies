@@ -10,6 +10,7 @@
     <string name="error_missing_api_key_message">The user has not entered a key yet.</string>
     <string name="error_invalid_api_key_title">Invalid API key</string>
     <string name="error_invalid_api_key_message">Your API key is invalid or has expired. Get a new key to continue.</string>
+    <string name="toast_invalid_api_key">Invalid API key. Please try again.</string>
     <string name="get_your_api_key">Get your API key</string>
     <string name="open_tmdb_api_settings">Open TMDB API settings</string>
     <string name="how_to_get_api_key">How do I get an API key?</string>
@@ -55,6 +56,26 @@
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">USER\nSCORE</string>
+
+    <!--AUTH-->
+    <string name="auth_title">Welcome!</string>
+    <string name="auth_subtitle">Log in to sync your favorites, or create a free TMDB account.</string>
+    <string name="username_label">Username</string>
+    <string name="username_placeholder">Enter your username</string>
+    <string name="password_label">Password</string>
+    <string name="password_placeholder">Enter your password</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="log_in">Log in to TMDB</string>
+    <string name="auth_divider_or">or</string>
+    <string name="no_tmdb_account_message">Don\'t have an account? Register &amp; verify your email, then try logging in.</string>
+    <string name="register_on_tmdb">Register on TMDB</string>
+    <string name="continue_as_guest">Continue as guest</string>
+    <string name="log_out">Log out</string>
+    <string name="log_in_action">Log in</string>
+    <string name="guest_label">Guest</string>
+    <string name="powered_by_tmdb">Powered by</string>
+    <string name="tmdb_disclaimer">This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</string>
 
     <string name="lorem_ipsum_short" translatable="false">Lorem ipsum..</string>
     <string name="lorem_ipsum_medium" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
