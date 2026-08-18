@@ -1,7 +1,7 @@
 package com.bk.mmovies.data.mapper
 
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
-import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
 import com.bk.mmovies.domain.model.MovieDetailsModel
@@ -20,7 +20,7 @@ class MovieDetailsMapper @Inject constructor(
             id = dto.id ?: 0,
             title = dto.title ?: "",
             posterUrl = dto.posterPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM) } ?: "",
-            backdropUrl = dto.backdropPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_ZOOM) } ?: "",
+            backdropUrl = dto.backdropPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM) } ?: "",
             releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
             runtime = dto.runtime.toFormattedRuntime(),
             userScore = dto.voteAverage.toRatingPercent(),

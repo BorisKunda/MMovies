@@ -10,6 +10,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.ui.screen.auth.AuthScreen
 import com.bk.mmovies.ui.screen.details.MovieDetailsScreen
 import com.bk.mmovies.ui.screen.movies.MoviesScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
@@ -24,7 +25,12 @@ fun AppNavigation(
         onAppExit: () -> Unit
                  ) {
     val navigateToMovieDetails: (Int, MovieCategory) -> Unit = { movieId, category ->
-        navController.navigate(AppDestination.MovieDetailsDestination(movieId, category.categoryId))
+        navController.navigate(
+                AppDestination.MovieDetailsDestination(
+                        movieId,
+                        category.categoryId
+                                                      )
+                              )
     }
 
     NavHost(
@@ -33,24 +39,43 @@ fun AppNavigation(
             Modifier.padding(paddingValues = padding),
             builder = {
                 composable<AppDestination.SplashDestination>(content = {
-                    //MockScreen()
-                    SplashScreen {
-                        navController.navigate(AppDestination.MoviesDestination) {
+                    SplashScreen(onNavigateToAuthScreen = {
+                        navController.navigate(AppDestination.AuthDestination) {
                             popUpTo<AppDestination.SplashDestination> {
                                 inclusive = true
                             }
                         }
-                    }
-                })
-                composable<AppDestination.MoviesDestination>(content = {
-                    MoviesScreen(
-                            onNavigateToMovieDetails = { id: Int, category: MovieCategory ->
-                                navigateToMovieDetails(id, category)
+                    }, onNavigateToMoviesScreen = {
+                        navController.navigate(AppDestination.MoviesDestination) {
+                            popUpTo<AppDestination.AuthDestination> {
+                                inclusive = true
                             }
+                        }
+                    })
+                })
+
+                composable<AppDestination.AuthDestination>(content = {
+                    AuthScreen(onNavigateToMoviesScreen = {
+                        navController.navigate(AppDestination.MoviesDestination) {
+                            popUpTo<AppDestination.AuthDestination> {
+                                inclusive = true
+                            }
+                        }
+                    })
+                })
+
+                composable<AppDestination.MoviesDestination>(content = {
+                    MoviesScreen(onNavigateToMovieDetailsScreen = { id: Int, category: MovieCategory ->
+                        navigateToMovieDetails(
+                                id,
+                                category
+                                              )
+                    }
                                 )
                 })
                 composable<AppDestination.MovieDetailsDestination>(content = { backStackEntry ->
-                    val destination: AppDestination.MovieDetailsDestination = backStackEntry.toRoute()
+                    val destination: AppDestination.MovieDetailsDestination =
+                            backStackEntry.toRoute()
                     MovieDetailsScreen(
                             movieId = destination.movieId,
                             category = MovieCategory.fromCategoryId(destination.categoryId),

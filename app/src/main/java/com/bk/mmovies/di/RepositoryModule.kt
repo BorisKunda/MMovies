@@ -3,14 +3,14 @@ package com.bk.mmovies.di
 import android.content.Context
 import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
-import com.bk.mmovies.data.repositoryimpl.ApiKeyRepositoryImpl
+import com.bk.mmovies.data.repositoryimpl.AuthenticationRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.MovieRepositoryImpl
 import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.db.MovieDb
-import com.bk.mmovies.data.source.local.preferences.ApiKeyStorage
+import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.TmdbApi
-import com.bk.mmovies.domain.repository.ApiKeyRepository
+import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.MovieRepository
 import dagger.Module
 import dagger.Provides
@@ -45,13 +45,13 @@ object RepositoryModule {
 
     @Provides
     @Singleton
-    fun provideApiKeyRepository(
+    fun provideAuthenticationRepository(
             api: TmdbApi,
-            apiKeyStorage: ApiKeyStorage,
+            authCredentialsSharedPrefs: AuthCredentialsSharedPrefs,
             networkManager: NetworkManager
-                               ): ApiKeyRepository = ApiKeyRepositoryImpl(
+                                       ): AuthenticationRepository = AuthenticationRepositoryImpl(
             api,
-            apiKeyStorage,
+            authCredentialsSharedPrefs,
             networkManager
-                                                                         )
+                                                                                                  )
 }

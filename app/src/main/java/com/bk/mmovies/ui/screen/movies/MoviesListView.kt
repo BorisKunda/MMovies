@@ -61,7 +61,7 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
-import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_ZOOM
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.UserScoreView
@@ -331,7 +331,7 @@ fun MovieRow(
                                 .data(
                                         movieModel.imageUrl.replace(
                                                 POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
-                                                POSTER_PATH_SIZE_SEGMENT_ZOOM
+                                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
                                                                     )
                                      )
                                 .crossfade(true)

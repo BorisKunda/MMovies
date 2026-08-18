@@ -1,9 +1,8 @@
 package com.bk.mmovies.data.source.remote.dto
 
-import com.bk.mmovies.data.source.remote.MOVIES_RESPONSE_FIELD
 import com.google.gson.annotations.SerializedName
 
 data class MovieListDto(
-        @SerializedName(MOVIES_RESPONSE_FIELD)
+        @SerializedName("results")
         val movies: List<MovieDto>?
                        )

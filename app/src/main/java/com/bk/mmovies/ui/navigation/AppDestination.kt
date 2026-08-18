@@ -8,6 +8,9 @@ sealed interface AppDestination {
     object SplashDestination : AppDestination
 
     @Serializable
+    object AuthDestination : AppDestination
+
+    @Serializable
     object MoviesDestination : AppDestination
 
     @Serializable

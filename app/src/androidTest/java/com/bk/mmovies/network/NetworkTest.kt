@@ -3,7 +3,7 @@ package com.bk.mmovies.network
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import com.bk.mmovies.data.source.remote.api.TmdbApi
-import com.bk.mmovies.data.source.remote.dto.TokenValidityDto
+import com.bk.mmovies.data.source.remote.dto.V3TokenValidityDto
 import com.bk.mmovies.util.logDebug
 import com.google.gson.Gson
 import junit.framework.TestCase.assertEquals
@@ -109,7 +109,7 @@ class NetworkTest {
                 }
         runBlocking {
             mockWebServer.enqueue(tokenValidResponse)
-            val response: Response<TokenValidityDto> = api.getIsApiV3TokenValid()
+            val response: Response<V3TokenValidityDto> = api.getIsApiV3TokenValid()
             assertTrue(response.isSuccessful)
             assertNotNull(response.body())
             assertEquals(

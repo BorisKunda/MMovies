@@ -1,10 +1,9 @@
 package com.bk.mmovies.di
 
 import com.bk.mmovies.BuildConfig
-import com.bk.mmovies.data.source.remote.NETWORK_TAG
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
-import com.bk.mmovies.data.source.remote.TMDB_BASE_URL
+import com.bk.mmovies.data.source.remote.TMDB_API_BASE_URL
 import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.bk.mmovies.data.source.remote.interceptor.ApiKeyInterceptor
 import com.bk.mmovies.data.source.remote.interceptor.LanguageInterceptor
@@ -45,7 +44,7 @@ object NetworkModule {
                         addInterceptor(
                                 HttpLoggingInterceptor { message ->
                                     logDebug(
-                                            NETWORK_TAG,
+                                            "Network",
                                             message
                                             )
                                 }.apply {
@@ -75,7 +74,7 @@ object NetworkModule {
             gson: Gson
                        ): Retrofit {
         return Retrofit.Builder()
-                .baseUrl(TMDB_BASE_URL)
+                .baseUrl(TMDB_API_BASE_URL)
                 .client(okHttpClient)
                 .addConverterFactory(
                         GsonConverterFactory.create(gson)

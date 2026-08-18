@@ -10,6 +10,7 @@
     <string name="error_missing_api_key_message">Пользователь ещё не ввёл ключ.</string>
     <string name="error_invalid_api_key_title">Неверный ключ API</string>
     <string name="error_invalid_api_key_message">Ваш ключ API недействителен или его срок действия истёк. Получите новый ключ, чтобы продолжить.</string>
+    <string name="toast_invalid_api_key">Неверный ключ API. Попробуйте ещё раз.</string>
     <string name="get_your_api_key">Получить ключ API</string>
     <string name="open_tmdb_api_settings">Открыть настройки API TMDB</string>
     <string name="how_to_get_api_key">Как получить ключ API?</string>
@@ -55,4 +56,24 @@
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">ОЦЕНКА\nЗРИТЕЛЕЙ</string>
+
+    <!--AUTH-->
+    <string name="auth_title">Добро пожаловать!</string>
+    <string name="auth_subtitle">Войдите, чтобы синхронизировать избранное, или создайте бесплатный аккаунт TMDB.</string>
+    <string name="username_label">Имя пользователя</string>
+    <string name="username_placeholder">Введите имя пользователя</string>
+    <string name="password_label">Пароль</string>
+    <string name="password_placeholder">Введите пароль</string>
+    <string name="show_password">Показать пароль</string>
+    <string name="hide_password">Скрыть пароль</string>
+    <string name="log_in">Войти в TMDB</string>
+    <string name="auth_divider_or">или</string>
+    <string name="no_tmdb_account_message">Нет аккаунта? Зарегистрируйтесь и подтвердите email, затем попробуйте войти.</string>
+    <string name="register_on_tmdb">Зарегистрироваться на TMDB</string>
+    <string name="continue_as_guest">Продолжить как гость</string>
+    <string name="log_out">Выйти</string>
+    <string name="log_in_action">Войти</string>
+    <string name="guest_label">Гость</string>
+    <string name="powered_by_tmdb">При поддержке</string>
+    <string name="tmdb_disclaimer">Это приложение использует TMDB и TMDB API, но не одобрено, не сертифицировано и не подтверждено TMDB.</string>
 </resources>
