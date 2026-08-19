@@ -21,6 +21,7 @@ import com.bk.mmovies.data.source.remote.TMDB_WEBPAGE_API_SETTINGS_URL
 import com.bk.mmovies.ui.component.InvalidApiKeyView
 import com.bk.mmovies.ui.component.LoaderView
 import com.bk.mmovies.ui.component.NoInternetView
+import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.util.logDebug
 
 private const val TAG = "SplashScreen"
@@ -74,6 +75,8 @@ fun SplashScreen(
                                  )
             }
         }
+
+        PoweredByTmdbFooter(modifier = Modifier.align(Alignment.BottomCenter))
     }
 
     LaunchedEffect(Unit) {
