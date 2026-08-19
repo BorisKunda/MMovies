@@ -1,5 +1,6 @@
 package com.bk.mmovies.ui.screen.details
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material.icons.Icons
@@ -13,6 +14,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -22,6 +24,7 @@ import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
+import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.screen.details.screencomponents.DetailsScreenContent
 
 private const val TAG = "MovieDetailsScreen"
@@ -44,28 +47,35 @@ fun MovieDetailsScreen(
         // which leaves no visible way out for anyone not using gestures.
         DetailsTopBar(onBack = onBack)
 
-        when (val currentState = state) {
-            is MovieDetailsScreenState.Loading -> {
-                LoaderView()
-            }
+        Box(
+                modifier = Modifier.weight(1f),
+                contentAlignment = Alignment.Center
+           ) {
+            when (val currentState = state) {
+                is MovieDetailsScreenState.Loading -> {
+                    LoaderView()
+                }
 
-            is MovieDetailsScreenState.Content -> {
-                DetailsScreenContent(
-                        movieDetails = currentState.movieDetails,
-                        category = category,
-                        showFavoriteStar = !movieDetailsViewModel.isGuest,
-                        onFavoriteClicked = { movieDetailsViewModel.onFavoriteClicked() },
-                        modifier = Modifier.fillMaxSize()
-                                    )
-            }
+                is MovieDetailsScreenState.Content -> {
+                    DetailsScreenContent(
+                            movieDetails = currentState.movieDetails,
+                            category = category,
+                            showFavoriteStar = !movieDetailsViewModel.isGuest,
+                            onFavoriteClicked = { movieDetailsViewModel.onFavoriteClicked() },
+                            modifier = Modifier.fillMaxSize()
+                                        )
+                }
 
-            is MovieDetailsScreenState.Error -> {
-                GenericErrorScreen(
-                        currentState.errorMessage,
-                        onTryAgainClicked = { movieDetailsViewModel.retry() }
-                                  )
+                is MovieDetailsScreenState.Error -> {
+                    GenericErrorScreen(
+                            currentState.errorMessage,
+                            onTryAgainClicked = { movieDetailsViewModel.retry() }
+                                      )
+                }
             }
         }
+
+        PoweredByTmdbFooter()
     }
 }
 

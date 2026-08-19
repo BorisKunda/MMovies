@@ -27,6 +27,11 @@
     <string name="generic_error_message">Что-то пошло не так</string>
     <string name="try_again">Попробовать снова</string>
 
+    <!--BOTTOM NAVIGATION-->
+    <string name="tab_movies">Фильмы</string>
+    <string name="tab_tv_series">Сериалы</string>
+    <string name="tv_series_coming_soon">Скоро</string>
+
     <!--CATEGORIES-->
     <string name="categories_title">Категории</string>
     <string name="category_popular">Популярные</string>

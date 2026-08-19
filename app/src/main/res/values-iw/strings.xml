@@ -27,6 +27,11 @@
     <string name="generic_error_message">משהו השתבש</string>
     <string name="try_again">נסה שוב</string>
 
+    <!--BOTTOM NAVIGATION-->
+    <string name="tab_movies">סרטים</string>
+    <string name="tab_tv_series">סדרות טלוויזיה</string>
+    <string name="tv_series_coming_soon">בקרוב</string>
+
     <!--CATEGORIES-->
     <string name="categories_title">קטגוריות</string>
     <string name="category_popular">פופולריים</string>

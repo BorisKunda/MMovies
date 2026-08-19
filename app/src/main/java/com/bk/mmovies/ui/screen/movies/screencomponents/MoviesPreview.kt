@@ -1,6 +1,7 @@
 package com.bk.mmovies.ui.screen.movies.screencomponents
 
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -12,9 +13,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
+import com.bk.mmovies.ui.screen.movies.MoviesBottomTab
 import com.bk.mmovies.ui.screen.movies.MoviesScreenState
 import com.bk.mmovies.ui.screen.movies.UserProfileUiState
 import com.bk.mmovies.ui.theme.MMoviesTheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 
 private val previewMovies = listOf(
         MovieModel(
@@ -161,20 +167,35 @@ private fun MoviesScreenPreviewFrame(
         isGuest: Boolean = false
                                     ) {
     MMoviesTheme {
-        MoviesScreenContent(
-                state = state,
-                selectedCategory = selectedCategory,
-                userProfileState = UserProfileUiState(
-                        name = "Boris Kunda",
-                        imageUrl = "",
-                        isGuest = isGuest
-                                                      ),
-                onMovieClicked = {},
-                onCategorySelected = {},
-                onRetry = {},
-                onLogout = {},
-                onFavoriteClicked = {}
-                            )
+        Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.background
+                ) { innerPadding ->
+            Column(
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .padding(innerPadding)
+                  ) {
+                MoviesHeaderBar(
+                        selectedCategory = selectedCategory,
+                        userProfileState = UserProfileUiState(
+                                name = "Boris Kunda",
+                                imageUrl = "",
+                                isGuest = isGuest
+                                                              ),
+                        onCategoryClick = {},
+                        onLogout = {}
+                                )
+                MoviesScreenContent(
+                        state = state,
+                        selectedCategory = selectedCategory,
+                        isGuest = isGuest,
+                        onMovieClicked = {},
+                        onRetry = {},
+                        onFavoriteClicked = {}
+                                    )
+            }
+        }
     }
 }
 
@@ -261,6 +282,26 @@ private fun UserSelectorPreview() {
                         onLogout = {}
                             )
             }
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+private fun MoviesBottomBarPreview() {
+    var selectedTab by remember { mutableStateOf(MoviesBottomTab.Movies) }
+    MMoviesTheme {
+        Scaffold(
+                modifier = Modifier.fillMaxSize(),
+                containerColor = MaterialTheme.colorScheme.background,
+                bottomBar = {
+                    MoviesBottomBar(
+                            selectedTab = selectedTab,
+                            onTabSelected = { selectedTab = it }
+                                   )
+                }
+                ) { innerPadding ->
+            Box(modifier = Modifier.padding(innerPadding))
         }
     }
 }

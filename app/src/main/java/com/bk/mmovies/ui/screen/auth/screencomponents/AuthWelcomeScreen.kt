@@ -64,7 +64,6 @@ private val authFieldSpacing = 20.dp
 private val authDividerPaddingVertical = 28.dp
 private val authDividerLabelPadding = 12.dp
 private val outlineButtonBorderStrokeWidth = 1.dp
-private val authFooterPaddingBottom = 24.dp
 private val authContinueAsGuestPaddingBottom = 4.dp
 private val authTextFieldFontSize = 16.sp
 
@@ -271,11 +270,7 @@ fun AuthWelcomeScreen(
         }
     }
 
-        PoweredByTmdbFooter(
-                modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = authFooterPaddingBottom)
-                           )
+        PoweredByTmdbFooter(modifier = Modifier.align(Alignment.BottomCenter))
     }
 }
 

@@ -27,6 +27,11 @@
     <string name="generic_error_message">Something went wrong</string>
     <string name="try_again">Try again</string>
 
+    <!--BOTTOM NAVIGATION-->
+    <string name="tab_movies">Movies</string>
+    <string name="tab_tv_series">TV Series</string>
+    <string name="tv_series_coming_soon">Coming soon</string>
+
     <!--CATEGORIES-->
     <string name="categories_title">Categories</string>
     <string name="category_popular">Popular</string>
