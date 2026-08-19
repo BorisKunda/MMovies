@@ -16,8 +16,15 @@ data class MovieDetailsDto(
         val genres: List<GenreDto>?,
         @SerializedName("vote_average")
         val voteAverage: Double?,
-        val credits: CreditsDto?
+        val credits: CreditsDto?,
+        @SerializedName("account_states")
+        val accountStates: AccountStatesDto?
                           )
+
+data class AccountStatesDto(
+        @SerializedName("favorite")
+        val favorite: Boolean?
+                            )
 
 data class GenreDto(
         val id: Int?,

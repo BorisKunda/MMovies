@@ -10,5 +10,6 @@ data class MovieDetailsModel(
         val userScore: Int,
         val genres: List<String>,
         val overview: String,
-        val cast: List<CastMemberModel> = emptyList()
+        val cast: List<CastMemberModel> = emptyList(),
+        val isFavorite: Boolean = false
                             )

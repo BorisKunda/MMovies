@@ -12,3 +12,8 @@ sealed interface MovieDetailsResult {
     data class Success(val movieDetails: MovieDetailsModel) : MovieDetailsResult
     data class Failure(val errorMessage: String) : MovieDetailsResult
 }
+
+sealed interface ToggleFavoriteResult {
+    data object Success : ToggleFavoriteResult
+    data class Failure(val errorMessage: String) : ToggleFavoriteResult
+}

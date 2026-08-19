@@ -6,6 +6,7 @@ import com.bk.mmovies.data.mapper.MovieMapper
 import com.bk.mmovies.data.repositoryimpl.AuthenticationRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.MovieRepositoryImpl
 import com.bk.mmovies.data.source.local.DbManager
+import com.bk.mmovies.data.source.local.dao.FavoriteDao
 import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import com.bk.mmovies.data.source.remote.NetworkManager
@@ -29,6 +30,7 @@ object RepositoryModule {
             db: MovieDb,
             networkManager: NetworkManager,
             dbManager: DbManager,
+            favoriteDao: FavoriteDao,
             movieMapper: MovieMapper,
             movieDetailsMapper: MovieDetailsMapper,
             @ApplicationContext context: Context,
@@ -38,6 +40,7 @@ object RepositoryModule {
                     db,
                     networkManager,
                     dbManager,
+                    favoriteDao,
                     movieMapper,
                     movieDetailsMapper,
                     context

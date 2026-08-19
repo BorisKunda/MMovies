@@ -143,11 +143,22 @@ private fun MoviesScreenEmptyPreview() {
     MoviesScreenPreviewFrame(MoviesScreenState.Empty)
 }
 
+@Preview(showBackground = true, name = "Favorites - guest login required")
+@Composable
+private fun MoviesScreenFavoritesLoginRequiredPreview() {
+    MoviesScreenPreviewFrame(
+            state = MoviesScreenState.FavoritesLoginRequired,
+            selectedCategory = MovieCategory.FavoritesMovieCategory,
+            isGuest = true
+                            )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MoviesScreenPreviewFrame(
         state: MoviesScreenState,
-        selectedCategory: MovieCategory = MovieCategory.PopularMovieCategory
+        selectedCategory: MovieCategory = MovieCategory.PopularMovieCategory,
+        isGuest: Boolean = false
                                     ) {
     MMoviesTheme {
         MoviesScreenContent(
@@ -156,12 +167,13 @@ private fun MoviesScreenPreviewFrame(
                 userProfileState = UserProfileUiState(
                         name = "Boris Kunda",
                         imageUrl = "",
-                        isGuest = false
+                        isGuest = isGuest
                                                       ),
                 onMovieClicked = {},
                 onCategorySelected = {},
                 onRetry = {},
-                onLogout = {}
+                onLogout = {},
+                onFavoriteClicked = {}
                             )
     }
 }
@@ -186,13 +198,16 @@ private fun MovieRowLoadingPlaceholderPreview() {
 @Composable
 private fun MoviesListViewPreview() {
     val sampleMovies = listOf(
+            // isFavorite = true so the preview shows both the filled and
+            // outline star states side by side.
             MovieModel(
                     id = 1,
                     title = "The Matrix",
                     desc = "A computer hacker learns about the true nature of reality.",
                     imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
                     releaseDate = "March 31, 1999",
-                    rating = 83
+                    rating = 83,
+                    isFavorite = true
                       ),
             MovieModel(
                     id = 2,
@@ -218,7 +233,9 @@ private fun MoviesListViewPreview() {
         MoviesListView(
                 movies = sampleMovies,
                 selectedCategory = MovieCategory.PopularMovieCategory,
-                onMovieClicked = {}
+                onMovieClicked = {},
+                isGuest = false,
+                onFavoriteClicked = {}
                       )
     }
 }

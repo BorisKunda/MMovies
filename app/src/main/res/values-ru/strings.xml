@@ -21,6 +21,7 @@
 
     <string name="error_movies_load_failed">Не удалось загрузить фильмы. Пожалуйста, попробуйте позже.</string>
     <string name="error_movie_details_load_failed">Не удалось загрузить информацию о фильме. Пожалуйста, попробуйте позже.</string>
+    <string name="error_favorite_toggle_failed">Не удалось обновить избранное. Пожалуйста, попробуйте позже.</string>
 
     <string name="generic_error_title">Ошибка</string>
     <string name="generic_error_message">Что-то пошло не так</string>
@@ -42,10 +43,14 @@
     <string name="empty_favorites_message">Фильмы, отмеченные как избранные, появятся здесь.</string>
     <string name="empty_movies_title">Нечего показать</string>
     <string name="empty_movies_message">В этой категории сейчас нет фильмов.</string>
+    <string name="empty_favorites_guest_title">Войдите, чтобы увидеть избранное</string>
+    <string name="empty_favorites_guest_message">Войдите, чтобы сохранять и просматривать избранные фильмы.</string>
 
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">Увеличить постер</string>
     <string name="movie_open_details_action">Открыть подробности</string>
+    <string name="favorite_add_action">Добавить в избранное</string>
+    <string name="favorite_remove_action">Удалить из избранного</string>
 
     <!--MOVIE DETAILS-->
     <string name="details_overview_label">ОПИСАНИЕ</string>

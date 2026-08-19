@@ -6,6 +6,8 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.domain.model.MovieCategory
@@ -32,7 +34,8 @@ fun MoviesScreen(
             onMovieClicked = { id -> moviesViewModel.handleMovieClick(id) },
             onCategorySelected = { category -> moviesViewModel.handleCategorySelected(category) },
             onRetry = { moviesViewModel.retry() },
-            onLogout = { moviesViewModel.onLogoutClicked() }
+            onLogout = { moviesViewModel.onLogoutClicked() },
+            onFavoriteClicked = { movie -> moviesViewModel.onFavoriteClicked(movie) }
                         )
 
     LaunchedEffect(Unit) {
@@ -57,6 +60,21 @@ fun MoviesScreen(
                     TAG,
                     "Disposed"
                     )
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        // Toggling favorite from the Details screen doesn't update this
+        // screen's in-memory list, so re-sync stars against the local cache
+        // whenever we're navigated back to (e.g. from Details).
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                moviesViewModel.refreshFavoriteMarkers()
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
         }
     }
 }

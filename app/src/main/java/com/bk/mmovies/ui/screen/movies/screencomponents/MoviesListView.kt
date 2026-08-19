@@ -63,6 +63,7 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
+import com.bk.mmovies.ui.component.FavoriteStarButton
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.CardSurface
 import com.bk.mmovies.util.logDebug
@@ -84,6 +85,7 @@ private val posterWidth = 92.dp
 private val posterHeight = 130.dp
 private val posterCornerShape = 8.dp
 private val ratingBadgeSize = 28.dp
+private val favoriteStarPadding = 4.dp
 
 // Styling for the score caption under the badge.
 private val scoreLabelTopSpacing = 6.dp
@@ -109,11 +111,16 @@ private val placeholderCornerShape = 8.dp
 fun MoviesListView(
         movies: List<MovieModel>,
         selectedCategory: MovieCategory,
-        onMovieClicked: (movieId: Int) -> Unit
+        onMovieClicked: (movieId: Int) -> Unit,
+        isGuest: Boolean = true,
+        onFavoriteClicked: (movie: MovieModel) -> Unit = {}
                   ) {
     // Upcoming titles have no votes yet, and frequently no poster art either,
     // so they get a neutral placeholder instead of the error artwork.
     val isUpcoming = selectedCategory == MovieCategory.UpcomingMovieCategory
+    // Unreleased movies can't be favorited/rated, and guests have no account
+    // to favorite into — the star is simply absent rather than disabled.
+    val showFavoriteStar = !isUpcoming && !isGuest
 
     LazyColumn(
             content = {
@@ -125,7 +132,9 @@ fun MoviesListView(
                             movieModel = movie,
                             showUserScore = !isUpcoming,
                             useNeutralImageFallback = isUpcoming,
-                            onMovieClicked = onMovieClicked
+                            showFavoriteStar = showFavoriteStar,
+                            onMovieClicked = onMovieClicked,
+                            onFavoriteClicked = onFavoriteClicked
                             )
                 }
             },
@@ -176,7 +185,9 @@ fun MovieRow(
         movieModel: MovieModel,
         showUserScore: Boolean = true,
         useNeutralImageFallback: Boolean = false,
-        onMovieClicked: (Int) -> Unit
+        showFavoriteStar: Boolean = false,
+        onMovieClicked: (Int) -> Unit,
+        onFavoriteClicked: (MovieModel) -> Unit = {}
             ) {
     var isPosterZoomed by remember { mutableStateOf(false) }
 
@@ -212,42 +223,55 @@ fun MovieRow(
 
                 verticalAlignment = Alignment.Top
            ) {
-            AsyncImage(
-                    model = ImageRequest.Builder(LocalContext.current)
-                            .data(movieModel.imageUrl)
-                            .crossfade(true)
-                            .build(),
-                    placeholder = painterResource(R.drawable.placeholder),
-                    error = painterResource(R.drawable.placeholder),
-                    // The title is already announced by the Text beside it, so
-                    // labelling the poster too made TalkBack repeat every row.
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                            .size(
-                                    width = posterWidth,
-                                    height = posterHeight
-                                 )
-                            .clip(RoundedCornerShape(posterCornerShape))
-                            .combinedClickable(
-                                    onClickLabel = stringResource(
-                                            R.string.movie_open_details_action
-                                                                 ),
-                                    // Surfaces the long-press zoom as a TalkBack
-                                    // custom action; it was unreachable before.
-                                    onLongClickLabel = stringResource(
-                                            R.string.movie_poster_zoom_action
+            Box(
+                    modifier = Modifier.size(
+                            width = posterWidth,
+                            height = posterHeight
+                                            )
+               ) {
+                AsyncImage(
+                        model = ImageRequest.Builder(LocalContext.current)
+                                .data(movieModel.imageUrl)
+                                .crossfade(true)
+                                .build(),
+                        placeholder = painterResource(R.drawable.placeholder),
+                        error = painterResource(R.drawable.placeholder),
+                        // The title is already announced by the Text beside it, so
+                        // labelling the poster too made TalkBack repeat every row.
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier
+                                .fillMaxSize()
+                                .clip(RoundedCornerShape(posterCornerShape))
+                                .combinedClickable(
+                                        onClickLabel = stringResource(
+                                                R.string.movie_open_details_action
                                                                      ),
-                                    onClick = { onMovieClicked(movieModel.id) },
-                                    onLongClick = { isPosterZoomed = true }
-                                              ),
-                    onError = { state ->
-                        logError(
-                                TAG,
-                                "error - loading image from url: ${movieModel.imageUrl} cause: ${state.result.throwable}"
-                                )
-                    },
-                      )
+                                        // Surfaces the long-press zoom as a TalkBack
+                                        // custom action; it was unreachable before.
+                                        onLongClickLabel = stringResource(
+                                                R.string.movie_poster_zoom_action
+                                                                         ),
+                                        onClick = { onMovieClicked(movieModel.id) },
+                                        onLongClick = { isPosterZoomed = true }
+                                                  ),
+                        onError = { state ->
+                            logError(
+                                    TAG,
+                                    "error - loading image from url: ${movieModel.imageUrl} cause: ${state.result.throwable}"
+                                    )
+                        },
+                          )
+                if (showFavoriteStar) {
+                    FavoriteStarButton(
+                            isFavorite = movieModel.isFavorite,
+                            onClick = { onFavoriteClicked(movieModel) },
+                            modifier = Modifier
+                                    .align(Alignment.TopEnd)
+                                    .padding(favoriteStarPadding)
+                                       )
+                }
+            }
             Spacer(modifier = Modifier.width(spacerPadding))
             Row(
                     modifier = Modifier.weight(1f),

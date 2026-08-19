@@ -6,6 +6,8 @@ import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS
 import com.bk.mmovies.data.source.remote.AUTHENTICATION_ENDPOINT
 import com.bk.mmovies.data.source.remote.DELETE_SESSION_ENDPOINT
 import com.bk.mmovies.data.source.remote.DISCOVER_MOVIES_LIST_ENDPOINT
+import com.bk.mmovies.data.source.remote.FAVORITE_ENDPOINT
+import com.bk.mmovies.data.source.remote.FAVORITE_MOVIES_ENDPOINT
 import com.bk.mmovies.data.source.remote.GUEST_SESSION_ID_ENDPOINT
 import com.bk.mmovies.data.source.remote.LOGIN_SESSION_ID_ENDPOINT
 import com.bk.mmovies.data.source.remote.LOGIN_VALIDATION_TOKEN_ENDPOINT
@@ -14,7 +16,10 @@ import com.bk.mmovies.data.source.remote.MOVIE_ENDPOINT
 import com.bk.mmovies.data.source.remote.NOW_PLAYING_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.POPULAR_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_APPEND_TO_RESPONSE
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_LANGUAGE
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_PAGE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_SESSION_ID
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_SORT_BY
 import com.bk.mmovies.data.source.remote.TOP_RATED_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.dto.AccountDetailsDto
 import com.bk.mmovies.data.source.remote.dto.DeleteSessionDto
@@ -25,6 +30,8 @@ import com.bk.mmovies.data.source.remote.dto.LoginValidationTokenDto
 import com.bk.mmovies.data.source.remote.dto.LoginWithCredentialsRequestDto
 import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
 import com.bk.mmovies.data.source.remote.dto.MovieListDto
+import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteRequestDto
+import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteResponseDto
 import com.bk.mmovies.data.source.remote.dto.V3TokenValidityDto
 import retrofit2.Response
 import retrofit2.http.Body
@@ -65,8 +72,27 @@ interface TmdbApi {
     @GET(MOVIE_ENDPOINT)
     suspend fun getMovieDetails(
             @Path("movie_id") movieId: Int,
-            @Query(QUERY_PARAM_APPEND_TO_RESPONSE) appendToResponse: String = APPEND_TO_RESPONSE_CREDITS
+            @Query(QUERY_PARAM_APPEND_TO_RESPONSE) appendToResponse: String = APPEND_TO_RESPONSE_CREDITS,
+            // Only present for a logged-in session, so account_states (favorite
+            // status) is included solely when it can actually be resolved.
+            @Query(QUERY_PARAM_SESSION_ID) sessionId: String? = null
                                ): Response<MovieDetailsDto>
+
+    @POST(FAVORITE_ENDPOINT)
+    suspend fun toggleFavorite(
+            @Path("account_id") accountId: Int,
+            @Query(QUERY_PARAM_SESSION_ID) sessionId: String,
+            @Body toggleFavoriteRequestDto: ToggleFavoriteRequestDto
+                              ): Response<ToggleFavoriteResponseDto>
+
+    @GET(FAVORITE_MOVIES_ENDPOINT)
+    suspend fun getFavoriteMovies(
+            @Path("account_id") accountId: Int,
+            @Query(QUERY_PARAM_SESSION_ID) sessionId: String,
+            @Query(QUERY_PARAM_LANGUAGE) language: String = "en-US",
+            @Query(QUERY_PARAM_PAGE) page: Int = 1,
+            @Query(QUERY_PARAM_SORT_BY) sortBy: String = "created_at.asc"
+                                  ): Response<MovieListDto>
 
 
     @GET(POPULAR_MOVIES_LIST_ENDPOINT)

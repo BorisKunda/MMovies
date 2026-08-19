@@ -3,6 +3,8 @@ package com.bk.mmovies.data.source.remote.dto
 import com.google.gson.annotations.SerializedName
 
 data class AccountDetailsDto(
+        @SerializedName("id")
+        val id: Int?,
         @SerializedName("username")
         val username: String?,
         @SerializedName("name")

@@ -21,6 +21,7 @@
 
     <string name="error_movies_load_failed">לא ניתן היה לטעון סרטים כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_movie_details_load_failed">לא ניתן היה לטעון את פרטי הסרט כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_favorite_toggle_failed">לא ניתן היה לעדכן את המועדפים כרגע. אנא נסה שוב מאוחר יותר.</string>
 
     <string name="generic_error_title">שגיאה</string>
     <string name="generic_error_message">משהו השתבש</string>
@@ -42,10 +43,14 @@
     <string name="empty_favorites_message">סרטים שתסמן/י כמועדפים יופיעו כאן.</string>
     <string name="empty_movies_title">אין מה להציג</string>
     <string name="empty_movies_message">אין סרטים בקטגוריה זו כרגע.</string>
+    <string name="empty_favorites_guest_title">התחבר/י כדי לראות מועדפים</string>
+    <string name="empty_favorites_guest_message">התחבר/י כדי לשמור ולצפות בסרטים המועדפים עליך.</string>
 
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">הגדל פוסטר</string>
     <string name="movie_open_details_action">פתח פרטים</string>
+    <string name="favorite_add_action">הוסף למועדפים</string>
+    <string name="favorite_remove_action">הסר מהמועדפים</string>
 
     <!--MOVIE DETAILS-->
     <string name="details_overview_label">תקציר</string>

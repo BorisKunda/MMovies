@@ -2,14 +2,17 @@ package com.bk.mmovies.data.source.local.db
 
 import androidx.room.Database
 import androidx.room.RoomDatabase
+import com.bk.mmovies.data.source.local.dao.FavoriteDao
 import com.bk.mmovies.data.source.local.dao.MovieDao
+import com.bk.mmovies.data.source.local.entity.FavoriteEntity
 import com.bk.mmovies.data.source.local.entity.MovieEntity
 
 @Database(
-        entities = [MovieEntity::class],
-        version = 1
+        entities = [MovieEntity::class, FavoriteEntity::class],
+        version = 2
          )
 abstract class MovieDb : RoomDatabase() {
     abstract fun movieDao(): MovieDao
+    abstract fun favoriteDao(): FavoriteDao
 }
 

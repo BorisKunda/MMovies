@@ -87,11 +87,29 @@ class AuthCredentialsSharedPrefs @Inject constructor(
                                           )
     }
 
+    fun saveSharedPrefAccountId(accountId: Int) {
+        sharedPreferences.edit {
+            putInt(
+                    ACCOUNT_ID,
+                    accountId
+                  )
+        }
+    }
+
+    fun getSharedPrefAccountId(): Int? {
+        val accountId = sharedPreferences.getInt(
+                ACCOUNT_ID,
+                NO_ACCOUNT_ID
+                                                 )
+        return accountId.takeIf { it != NO_ACCOUNT_ID }
+    }
+
     fun clearSession() {
         sharedPreferences.edit {
             remove(LOGIN_VALIDATION_TOKEN)
             remove(LOGIN_SESSION_ID)
             remove(GUEST_SESSION_ID)
+            remove(ACCOUNT_ID)
         }
     }
 
@@ -116,5 +134,10 @@ class AuthCredentialsSharedPrefs @Inject constructor(
 
         const val GUEST_SESSION_ID =
                 "tmdb_guest_session_id"
+
+        const val ACCOUNT_ID =
+                "tmdb_account_id"
+
+        const val NO_ACCOUNT_ID = -1
     }
 }

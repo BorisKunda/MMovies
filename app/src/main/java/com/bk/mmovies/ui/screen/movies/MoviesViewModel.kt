@@ -7,6 +7,7 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.domain.model.result.AccountDetailsResult
 import com.bk.mmovies.domain.model.result.MoviesResult
+import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
 import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.MovieRepository
 import com.bk.mmovies.locale.LocaleMonitor
@@ -85,11 +86,19 @@ class MoviesViewModel @Inject constructor(
         viewModelScope.launch {
             when (val result = authenticationRepository.getAccountDetailsResult(loginSessionId)) {
                 is AccountDetailsResult.Success -> {
+                    // Cached here (rather than re-fetched) so any screen that
+                    // needs it for a favorite call can read it synchronously.
+                    authenticationRepository.saveSharedPrefAccountId(result.accountId)
                     _userProfileState.value = UserProfileUiState(
                             name = result.name,
                             imageUrl = result.avatarUrl,
                             isGuest = false
                                                                  )
+                    // Refreshes the local favorite-id cache the repository
+                    // cross-references when building category lists, then
+                    // reloads the current category so it picks up correct stars.
+                    movieRepository.syncFavoriteIds(result.accountId, loginSessionId)
+                    startLoad(_selectedCategory.value)
                 }
                 is AccountDetailsResult.Failure -> {
                     _userProfileState.value = UserProfileUiState(isGuest = false)
@@ -129,7 +138,28 @@ class MoviesViewModel @Inject constructor(
     }
 
     private suspend fun loadMovies(category: MovieCategory) {
+        if (category == MovieCategory.FavoritesMovieCategory) {
+            loadFavorites()
+            return
+        }
         val result = movieRepository.getMoviesByCategory(category)
+        applyMoviesResult(result)
+    }
+
+    private suspend fun loadFavorites() {
+        val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
+        val accountId = authenticationRepository.getSharedPrefAccountId()
+        // Guests have no login session, and TMDB's favorite endpoints require
+        // one — never call out, just prompt for login instead.
+        if (sessionId == null || accountId == null) {
+            _moviesScreenState.value = MoviesScreenState.FavoritesLoginRequired
+            return
+        }
+        val result = movieRepository.getFavoriteMovies(accountId, sessionId)
+        applyMoviesResult(result)
+    }
+
+    private fun applyMoviesResult(result: MoviesResult) {
         when (result) {
             is MoviesResult.Success -> {
                 // "Nothing here" and "the load failed" are different things and
@@ -152,11 +182,66 @@ class MoviesViewModel @Inject constructor(
         _goToMovieDetailsNavEvent.tryEmit(movieId to _selectedCategory.value)
     }
 
+    fun onFavoriteClicked(movie: MovieModel) {
+        val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
+        val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
+        val newIsFavorite = !movie.isFavorite
+
+        // Optimistic: flip the star immediately, revert only if the call fails.
+        // The repository persists the toggle to the local favorite-id cache too.
+        updateMovieFavoriteState(movie.id, newIsFavorite)
+        viewModelScope.launch {
+            val result = movieRepository.toggleFavorite(accountId, sessionId, movie.id, newIsFavorite)
+            if (result is ToggleFavoriteResult.Failure) {
+                updateMovieFavoriteState(movie.id, movie.isFavorite)
+            }
+        }
+    }
+
+    /**
+     * Re-syncs the displayed list's favorite stars against the local cache.
+     * Toggling favorite from the Details screen updates the same Room cache
+     * but not this ViewModel's in-memory state, so without this the Movies
+     * screen kept showing stale stars after navigating back from Details.
+     */
+    fun refreshFavoriteMarkers() {
+        val currentState = _moviesScreenState.value
+        if (currentState !is MoviesScreenState.Content) return
+        viewModelScope.launch {
+            val favoriteIds = movieRepository.getCachedFavoriteIds()
+            val movies = if (_selectedCategory.value == MovieCategory.FavoritesMovieCategory) {
+                // A movie unfavorited elsewhere no longer belongs in this list at all.
+                currentState.movies.filter { favoriteIds.contains(it.id) }
+            } else {
+                currentState.movies.map { it.copy(isFavorite = favoriteIds.contains(it.id)) }
+            }
+            _moviesScreenState.value = if (movies.isEmpty()) {
+                MoviesScreenState.Empty
+            } else {
+                MoviesScreenState.Content(movies)
+            }
+        }
+    }
+
+    private fun updateMovieFavoriteState(movieId: Int, isFavorite: Boolean) {
+        val currentState = _moviesScreenState.value
+        if (currentState is MoviesScreenState.Content) {
+            _moviesScreenState.value = MoviesScreenState.Content(
+                    currentState.movies.map { movie ->
+                        if (movie.id == movieId) movie.copy(isFavorite = isFavorite) else movie
+                    }
+                                                                 )
+        }
+    }
+
 }
 
 sealed interface MoviesScreenState {
     object Loading : MoviesScreenState
     object Empty : MoviesScreenState
+    // Favorites tab selected by a guest: no API call is made, this is a
+    // distinct state from Empty so the UI can prompt for login instead.
+    object FavoritesLoginRequired : MoviesScreenState
     data class Content(val movies: List<MovieModel>) : MoviesScreenState
     data class Error(val errorMessage: String) : MoviesScreenState
 }
@@ -166,5 +251,4 @@ data class UserProfileUiState(
         val imageUrl: String = "",
         val isGuest: Boolean = true
                               )
-
 

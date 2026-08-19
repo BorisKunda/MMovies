@@ -53,6 +53,8 @@ fun MovieDetailsScreen(
                 DetailsScreenContent(
                         movieDetails = currentState.movieDetails,
                         category = category,
+                        showFavoriteStar = !movieDetailsViewModel.isGuest,
+                        onFavoriteClicked = { movieDetailsViewModel.onFavoriteClicked() },
                         modifier = Modifier.fillMaxSize()
                                     )
             }

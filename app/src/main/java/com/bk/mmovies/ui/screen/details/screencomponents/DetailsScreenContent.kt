@@ -48,6 +48,7 @@ import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieDetailsModel
+import com.bk.mmovies.ui.component.FavoriteStarButton
 import com.bk.mmovies.ui.component.UserScoreView
 
 // --- Spacing scale -----------------------------------------------------------
@@ -60,6 +61,7 @@ private val screenPadding = 16.dp
 private val posterWidth = 130.dp
 private val posterHeight = 195.dp         // kept at a true 2:3 poster ratio
 private val posterCornerShape = 8.dp
+private val favoriteStarPadding = 6.dp
 private val infoColumnStartPadding = 20.dp
 private val metaIconSize = 18.dp
 private val metaIconTextSpacing = 8.dp
@@ -112,12 +114,17 @@ private const val CAST_ITEM_TEXT_MAX_LINES = 2
 fun DetailsScreenContent(
         movieDetails: MovieDetailsModel,
         category: MovieCategory,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        showFavoriteStar: Boolean = false,
+        onFavoriteClicked: () -> Unit = {}
                         ) {
     // Upcoming releases routinely lack a score, runtime, backdrop or overview
     // on TMDB, so this category gets a "coming soon" presentation instead of
     // hiding fields the way the sparse-data fallback does for other categories.
     val isUpcoming = category == MovieCategory.UpcomingMovieCategory
+    // Unreleased movies can't be favorited/rated, matching the same rule
+    // applied to the grid's poster star.
+    val showStar = showFavoriteStar && !isUpcoming
     val dateTbaLabel = stringResource(R.string.details_date_tba)
     val runtimeTbaLabel = stringResource(R.string.details_runtime_tba)
     val overviewTbaLabel = stringResource(R.string.details_overview_tba)
@@ -132,22 +139,35 @@ fun DetailsScreenContent(
             // Center the info block against the poster so the shorter text
             // column no longer leaves a void beside the poster's lower half.
             Row(verticalAlignment = Alignment.CenterVertically) {
-                AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                                .data(movieDetails.posterUrl)
-                                .crossfade(true)
-                                .build(),
-                        placeholder = painterResource(R.drawable.placeholder),
-                        error = painterResource(R.drawable.placeholder),
-                        contentDescription = movieDetails.title,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier
-                                .size(
-                                        width = posterWidth,
-                                        height = posterHeight
-                                     )
-                                .clip(RoundedCornerShape(posterCornerShape))
-                          )
+                Box(
+                        modifier = Modifier.size(
+                                width = posterWidth,
+                                height = posterHeight
+                                                )
+                   ) {
+                    AsyncImage(
+                            model = ImageRequest.Builder(LocalContext.current)
+                                    .data(movieDetails.posterUrl)
+                                    .crossfade(true)
+                                    .build(),
+                            placeholder = painterResource(R.drawable.placeholder),
+                            error = painterResource(R.drawable.placeholder),
+                            contentDescription = movieDetails.title,
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                    .fillMaxSize()
+                                    .clip(RoundedCornerShape(posterCornerShape))
+                              )
+                    if (showStar) {
+                        FavoriteStarButton(
+                                isFavorite = movieDetails.isFavorite,
+                                onClick = onFavoriteClicked,
+                                modifier = Modifier
+                                        .align(Alignment.TopEnd)
+                                        .padding(favoriteStarPadding)
+                                           )
+                    }
+                }
                 Column(
                         modifier = Modifier
                                 .weight(1f)

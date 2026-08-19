@@ -28,6 +28,8 @@ interface AuthenticationRepository {
     fun getSharedPrefLoginSessionId(): String?
     fun saveSharedPrefGuestSessionId(id: String)
     fun getSharedPrefGuestSessionId(): String?
+    fun saveSharedPrefAccountId(accountId: Int)
+    fun getSharedPrefAccountId(): Int?
     suspend fun logout(): LogoutResult
     suspend fun getAccountDetailsResult(sessionId: String): AccountDetailsResult
 }

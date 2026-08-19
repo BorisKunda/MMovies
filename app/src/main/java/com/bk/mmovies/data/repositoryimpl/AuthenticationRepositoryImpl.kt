@@ -199,6 +199,14 @@ class AuthenticationRepositoryImpl @Inject constructor(
         return authCredentialsSharedPrefs.getSharedPrefGuestSessionId()
     }
 
+    override fun saveSharedPrefAccountId(accountId: Int) {
+        authCredentialsSharedPrefs.saveSharedPrefAccountId(accountId)
+    }
+
+    override fun getSharedPrefAccountId(): Int? {
+        return authCredentialsSharedPrefs.getSharedPrefAccountId()
+    }
+
     override suspend fun logout(): LogoutResult {
         val loginSessionId = authCredentialsSharedPrefs.getSharedPrefLoginSessionId()
         if (loginSessionId != null) {
@@ -228,6 +236,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 val dto = result.data
                 val name = dto.name?.takeIf { it.isNotBlank() } ?: dto.username ?: ""
                 AccountDetailsResult.Success(
+                        accountId = dto.id ?: 0,
                         name = name,
                         avatarUrl = dto.avatar.toAvatarUrl()
                                              )

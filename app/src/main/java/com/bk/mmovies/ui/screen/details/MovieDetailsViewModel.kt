@@ -5,6 +5,8 @@ import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.domain.model.result.MovieDetailsResult
+import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
+import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.MovieRepository
 import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,6 +23,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MovieDetailsViewModel @Inject constructor(
         private val movieRepository: MovieRepository,
+        private val authenticationRepository: AuthenticationRepository,
         localeMonitor: LocaleMonitor,
         internetMonitor: InternetMonitor
                                                 ) :
@@ -31,6 +34,11 @@ class MovieDetailsViewModel @Inject constructor(
                                                                                      )
     val movieDetailsScreenState: StateFlow<MovieDetailsScreenState> =
             _movieDetailsScreenState.asStateFlow()
+
+    // Doesn't change while this screen is open, so a plain property is
+    // enough — no need for a StateFlow the way MoviesViewModel needs one.
+    val isGuest: Boolean
+        get() = authenticationRepository.getSharedPrefLoginSessionId() == null
 
     private var movieId: Int? = null
     private var loadMovieDetailsJob: Job? = null
@@ -65,9 +73,10 @@ class MovieDetailsViewModel @Inject constructor(
     }
 
     private fun fetchMovieDetails(movieId: Int) {
+        val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
         loadMovieDetailsJob?.cancel()
         loadMovieDetailsJob = viewModelScope.launch {
-            when (val result = movieRepository.getMovieDetails(movieId)) {
+            when (val result = movieRepository.getMovieDetails(movieId, sessionId)) {
                 is MovieDetailsResult.Success -> {
                     _movieDetailsScreenState.value = MovieDetailsScreenState.Content(
                             result.movieDetails
@@ -78,6 +87,31 @@ class MovieDetailsViewModel @Inject constructor(
                             result.errorMessage
                                                                                   )
                 }
+            }
+        }
+    }
+
+    fun onFavoriteClicked() {
+        val currentState = _movieDetailsScreenState.value
+        if (currentState !is MovieDetailsScreenState.Content) return
+        val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
+        val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
+        val movieDetails = currentState.movieDetails
+        val newIsFavorite = !movieDetails.isFavorite
+
+        // Optimistic: flip the star immediately, revert only if the call fails.
+        _movieDetailsScreenState.value = MovieDetailsScreenState.Content(
+                movieDetails.copy(isFavorite = newIsFavorite)
+                                                                         )
+        viewModelScope.launch {
+            val result = movieRepository.toggleFavorite(
+                    accountId,
+                    sessionId,
+                    movieDetails.id,
+                    newIsFavorite
+                                                         )
+            if (result is ToggleFavoriteResult.Failure) {
+                _movieDetailsScreenState.value = MovieDetailsScreenState.Content(movieDetails)
             }
         }
     }

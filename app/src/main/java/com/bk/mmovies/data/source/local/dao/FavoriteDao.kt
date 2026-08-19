@@ -1,0 +1,25 @@
+package com.bk.mmovies.data.source.local.dao
+
+import androidx.room.Dao
+import androidx.room.Insert
+import androidx.room.OnConflictStrategy
+import androidx.room.Query
+import com.bk.mmovies.data.source.local.entity.FavoriteEntity
+
+@Dao
+interface FavoriteDao {
+    @Query("SELECT movieId FROM favorites")
+    suspend fun getAllFavoriteIds(): List<Int>
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertAll(favorites: List<FavoriteEntity>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insert(favorite: FavoriteEntity)
+
+    @Query("DELETE FROM favorites WHERE movieId = :movieId")
+    suspend fun deleteById(movieId: Int)
+
+    @Query("DELETE FROM favorites")
+    suspend fun clearAll()
+}

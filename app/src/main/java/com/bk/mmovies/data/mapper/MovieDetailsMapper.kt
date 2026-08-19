@@ -31,7 +31,8 @@ class MovieDetailsMapper @Inject constructor(
             userScore = dto.voteAverage.toRatingPercent(),
             genres = dto.genres?.mapNotNull { it.name } ?: emptyList(),
             overview = dto.overview ?: "",
-            cast = dto.credits?.cast.toCastModels()
+            cast = dto.credits?.cast.toCastModels(),
+            isFavorite = dto.accountStates?.favorite ?: false
                                                                           )
 
     // TMDB returns the full credited cast, often 30+ names; the app only

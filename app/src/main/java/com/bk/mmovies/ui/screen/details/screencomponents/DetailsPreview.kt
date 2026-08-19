@@ -158,6 +158,12 @@ private fun DetailsScreenContentUpcomingPreview() {
                                     )
 }
 
+@Preview(showBackground = true, name = "Favorited")
+@Composable
+private fun DetailsScreenContentFavoritedPreview() {
+    DetailsScreenContentPreviewFrame(previewMovieDetails.copy(isFavorite = true))
+}
+
 @Composable
 private fun DetailsScreenContentPreviewFrame(
         movieDetails: MovieDetailsModel,
@@ -169,7 +175,12 @@ private fun DetailsScreenContentPreviewFrame(
                         .fillMaxSize()
                         .background(MaterialTheme.colorScheme.background)
            ) {
-            DetailsScreenContent(movieDetails = movieDetails, category = category)
+            DetailsScreenContent(
+                    movieDetails = movieDetails,
+                    category = category,
+                    showFavoriteStar = true,
+                    onFavoriteClicked = {}
+                                 )
         }
     }
 }

@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.screen.movies.MoviesScreenState
@@ -47,7 +48,8 @@ fun MoviesScreenContent(
         onMovieClicked: (id: Int) -> Unit,
         onCategorySelected: (category: MovieCategory) -> Unit,
         onRetry: () -> Unit,
-        onLogout: () -> Unit
+        onLogout: () -> Unit,
+        onFavoriteClicked: (movie: MovieModel) -> Unit = {}
                         ) {
     var isCategoryPopupVisible by remember { mutableStateOf(false) }
     val categorySheetState = rememberModalBottomSheetState()
@@ -96,7 +98,9 @@ fun MoviesScreenContent(
                 MoviesListView(
                         movies = state.movies,
                         selectedCategory = selectedCategory,
-                        onMovieClicked = onMovieClicked
+                        isGuest = userProfileState.isGuest,
+                        onMovieClicked = onMovieClicked,
+                        onFavoriteClicked = onFavoriteClicked
                               )
             }
 
@@ -113,6 +117,14 @@ fun MoviesScreenContent(
                                 if (isFavorites) R.string.empty_favorites_message
                                 else R.string.empty_movies_message
                                                 )
+                              )
+            }
+
+            is MoviesScreenState.FavoritesLoginRequired -> {
+                EmptyStateView(
+                        imageResId = R.drawable.ic_star_filled_large,
+                        title = stringResource(R.string.empty_favorites_guest_title),
+                        message = stringResource(R.string.empty_favorites_guest_message)
                               )
             }
 
