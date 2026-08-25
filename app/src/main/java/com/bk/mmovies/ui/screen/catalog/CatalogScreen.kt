@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.movies
+package com.bk.mmovies.ui.screen.catalog
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -16,7 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -26,13 +26,14 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.screen.movies.screencomponents.CategoryListPopupView
-import com.bk.mmovies.ui.screen.movies.screencomponents.MoviesBottomBar
-import com.bk.mmovies.ui.screen.movies.screencomponents.MoviesHeaderBar
-import com.bk.mmovies.ui.screen.movies.screencomponents.MoviesScreenContent
-import com.bk.mmovies.ui.screen.tvseries.TvSeriesScreen
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTab
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTabBar
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogHeaderBar
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogScreenContent
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryListPopupView
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryType
 import com.bk.mmovies.util.logDebug
 import kotlinx.coroutines.launch
 
@@ -43,24 +44,24 @@ private val tabContentTopSpacing = 12.dp
 // margin is fixed inside PoweredByTmdbFooter.
 private val tmdbFooterTopPadding = 8.dp
 
-private const val TAG = "MoviesScreen"
+private const val TAG = "CatalogScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MoviesScreen(
-        onNavigateToMovieDetailsScreen: (id: Int, category: MovieCategory) -> Unit,
+fun CatalogScreen(
+        onNavigateToDetailsScreen: (id: Int, category: Category) -> Unit,
         onNavigateToAuthScreen: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
-    val moviesViewModel = hiltViewModel<MoviesViewModel>()
-    val state by moviesViewModel.moviesScreenState.collectAsStateWithLifecycle()
-    val selectedCategory by moviesViewModel.selectedCategory.collectAsStateWithLifecycle()
-    val userProfileState by moviesViewModel.userProfileState.collectAsStateWithLifecycle()
+    val catalogViewModel = hiltViewModel<CatalogViewModel>()
+    val state by catalogViewModel.catalogScreenState.collectAsStateWithLifecycle()
+    val selectedTab by catalogViewModel.selectedTab.collectAsStateWithLifecycle()
+    val selectedCategory by catalogViewModel.selectedCategory.collectAsStateWithLifecycle()
+    val userProfileState by catalogViewModel.userProfileState.collectAsStateWithLifecycle()
 
-    var selectedTab by rememberSaveable { mutableStateOf(MoviesBottomTab.Movies) }
     // Keeps each tab's own remembered/rememberSaveable state (e.g. list scroll
     // position) alive while the other tab is composed, instead of it being
     // torn down and recreated on every switch.
-    val tabStateHolder = rememberSaveableStateHolder()
+    val tabStateHolder: SaveableStateHolder = rememberSaveableStateHolder()
 
     var isCategoryPopupVisible by remember { mutableStateOf(false) }
     val categorySheetState = rememberModalBottomSheetState()
@@ -70,10 +71,10 @@ fun MoviesScreen(
             containerColor = MaterialTheme.colorScheme.background,
             bottomBar = {
                 Column {
-                    MoviesBottomBar(
+                    CatalogBottomTabBar(
                             selectedTab = selectedTab,
-                            onTabSelected = { selectedTab = it }
-                                   )
+                            onTabSelected = { catalogViewModel.onTabSelected(it) }
+                                       )
                     PoweredByTmdbFooter(
                             modifier = Modifier.padding(top = tmdbFooterTopPadding)
                                        )
@@ -87,12 +88,12 @@ fun MoviesScreen(
               ) {
             // Fixed above the tab content so switching tabs never resets the
             // selected category or logs out the user's selection state.
-            MoviesHeaderBar(
+            CatalogHeaderBar(
                     selectedCategory = selectedCategory,
                     userProfileState = userProfileState,
                     onCategoryClick = { isCategoryPopupVisible = true },
-                    onLogout = { moviesViewModel.onLogoutClicked() }
-                           )
+                    onLogout = { catalogViewModel.onLogoutClicked() }
+                            )
 
             Box(
                     modifier = Modifier
@@ -101,20 +102,14 @@ fun MoviesScreen(
                             .padding(top = tabContentTopSpacing)
                ) {
                 tabStateHolder.SaveableStateProvider(selectedTab) {
-                    when (selectedTab) {
-                        MoviesBottomTab.Movies -> {
-                            MoviesScreenContent(
-                                    state = state,
-                                    selectedCategory = selectedCategory,
-                                    isGuest = userProfileState.isGuest,
-                                    onMovieClicked = { id -> moviesViewModel.handleMovieClick(id) },
-                                    onRetry = { moviesViewModel.retry() },
-                                    onFavoriteClicked = { movie -> moviesViewModel.onFavoriteClicked(movie) }
-                                                )
-                        }
-
-                        MoviesBottomTab.TvSeries -> TvSeriesScreen()
-                    }
+                    CatalogScreenContent(
+                            state = state,
+                            selectedCategory = selectedCategory,
+                            isGuest = userProfileState.isGuest,
+                            onCatalogItemClicked = { id -> catalogViewModel.handleCatalogItemClicked(id) },
+                            onRetry = { catalogViewModel.retry() },
+                            onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) }
+                                         )
                 }
             }
         }
@@ -122,9 +117,10 @@ fun MoviesScreen(
 
     if (isCategoryPopupVisible) {
         CategoryListPopupView(
+                categoryType = if (selectedTab == CatalogBottomTab.Movies) CategoryType.MOVIE else CategoryType.TV,
                 lastSelectedCategory = selectedCategory,
                 onNewCategorySelected = { newCategory ->
-                    moviesViewModel.handleCategorySelected(newCategory)
+                    catalogViewModel.handleCategorySelected(newCategory)
                     coroutineScope.launch { categorySheetState.hide() }
                             .invokeOnCompletion {
                                 if (!categorySheetState.isVisible) {
@@ -134,16 +130,16 @@ fun MoviesScreen(
                 },
                 onDismiss = { isCategoryPopupVisible = false },
                 state = categorySheetState
-                              )
+                             )
     }
 
     LaunchedEffect(Unit) {
-        moviesViewModel.goToMovieDetailsNavEvent.collect { (movieId, category) ->
-            onNavigateToMovieDetailsScreen(movieId, category)
+        catalogViewModel.goToDetailsNavEvent.collect { (itemId, category) ->
+            onNavigateToDetailsScreen(itemId, category)
         }
     }
     LaunchedEffect(Unit) {
-        moviesViewModel.goToAuthNavEvent.collect {
+        catalogViewModel.goToAuthNavEvent.collect {
             onNavigateToAuthScreen()
         }
     }
@@ -168,7 +164,7 @@ fun MoviesScreen(
         // whenever we're navigated back to (e.g. from Details).
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
-                moviesViewModel.refreshFavoriteMarkers()
+                catalogViewModel.refreshFavoriteMarkers()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

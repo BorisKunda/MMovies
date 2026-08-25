@@ -20,8 +20,13 @@
     <string name="save_and_continue">Save and continue</string>
 
     <string name="error_movies_load_failed">Couldn\'t load movies right now. Please try again later.</string>
+    <string name="error_tv_series_load_failed">Couldn\'t load TV series right now. Please try again later.</string>
     <string name="error_movie_details_load_failed">Couldn\'t load movie details right now. Please try again later.</string>
+    <string name="error_tv_series_details_load_failed">Couldn\'t load TV series details right now. Please try again later.</string>
+    <string name="error_person_details_load_failed">Couldn\'t load cast details right now. Please try again later.</string>
     <string name="error_favorite_toggle_failed">Couldn\'t update favorites right now. Please try again later.</string>
+    <string name="error_season_load_failed">Couldn\'t load season details right now. Please try again later.</string>
+    <string name="error_episode_load_failed">Couldn\'t load episode details right now. Please try again later.</string>
 
     <string name="generic_error_title">Error</string>
     <string name="generic_error_message">Something went wrong</string>
@@ -39,6 +44,9 @@
     <string name="category_now_playing">Now Playing</string>
     <string name="category_top_rated">Top Rated</string>
     <string name="category_favorites">Favorites</string>
+    <string name="category_airing_today">Airing Today</string>
+    <string name="category_on_tv">On TV</string>
+    <string name="category_unknown">Unknown Category</string>
     <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
     <string name="category_selector_description">Category: %1$s</string>
     <string name="category_selector_action">Change category</string>
@@ -50,6 +58,8 @@
     <string name="empty_movies_message">There are no movies in this category right now.</string>
     <string name="empty_favorites_guest_title">Log in to see favorites</string>
     <string name="empty_favorites_guest_message">Log in to save and view your favorite movies.</string>
+    <string name="empty_tv_series_title">Nothing to show</string>
+    <string name="empty_tv_series_message">There are no TV series to show right now.</string>
 
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">Zoom poster</string>
@@ -60,10 +70,16 @@
     <!--MOVIE DETAILS-->
     <string name="details_overview_label">OVERVIEW</string>
     <string name="details_back">Back</string>
+    <string name="action_close">Close</string>
+    <string name="details_biography_label">BIOGRAPHY</string>
+    <string name="details_born_on">Born %1$s</string>
     <string name="details_date_tba">Date: To be announced</string>
     <string name="details_runtime_tba">Runtime: To be announced</string>
     <string name="details_overview_tba">To be announced</string>
     <string name="details_cast_label">CAST</string>
+    <string name="details_seasons_label">SEASONS</string>
+    <string name="details_episodes_label">EPISODES</string>
+    <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">Cast: To be announced</string>
 
     <!--Shared by the movies list badge and the details header.-->

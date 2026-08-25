@@ -3,16 +3,25 @@ package com.bk.mmovies.di
 import android.content.Context
 import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
+import com.bk.mmovies.data.mapper.PersonDetailsMapper
+import com.bk.mmovies.data.mapper.SeasonMapper
+import com.bk.mmovies.data.mapper.TvSeriesDetailsMapper
+import com.bk.mmovies.data.mapper.TvSeriesMapper
 import com.bk.mmovies.data.repositoryimpl.AuthenticationRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.MovieRepositoryImpl
+import com.bk.mmovies.data.repositoryimpl.PersonRepositoryImpl
+import com.bk.mmovies.data.repositoryimpl.TvSeriesRepositoryImpl
 import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
+import com.bk.mmovies.data.source.local.dao.TvFavoriteDao
 import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.MovieRepository
+import com.bk.mmovies.domain.repository.PersonRepository
+import com.bk.mmovies.domain.repository.TvSeriesRepository
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -45,6 +54,42 @@ object RepositoryModule {
                     movieDetailsMapper,
                     context
                                )
+
+    @Provides
+    @Singleton
+    fun provideTvSeriesRepository(
+            api: TmdbApi,
+            networkManager: NetworkManager,
+            tvSeriesMapper: TvSeriesMapper,
+            seasonMapper: SeasonMapper,
+            tvSeriesDetailsMapper: TvSeriesDetailsMapper,
+            tvFavoriteDao: TvFavoriteDao,
+            @ApplicationContext context: Context,
+                                 ): TvSeriesRepository =
+            TvSeriesRepositoryImpl(
+                    api,
+                    networkManager,
+                    tvSeriesMapper,
+                    seasonMapper,
+                    tvSeriesDetailsMapper,
+                    tvFavoriteDao,
+                    context
+                                   )
+
+    @Provides
+    @Singleton
+    fun providePersonRepository(
+            api: TmdbApi,
+            networkManager: NetworkManager,
+            personDetailsMapper: PersonDetailsMapper,
+            @ApplicationContext context: Context,
+                               ): PersonRepository =
+            PersonRepositoryImpl(
+                    api,
+                    networkManager,
+                    personDetailsMapper,
+                    context
+                                 )
 
     @Provides
     @Singleton

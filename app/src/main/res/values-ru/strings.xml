@@ -20,8 +20,13 @@
     <string name="save_and_continue">Сохранить и продолжить</string>
 
     <string name="error_movies_load_failed">Не удалось загрузить фильмы. Пожалуйста, попробуйте позже.</string>
+    <string name="error_tv_series_load_failed">Не удалось загрузить сериалы. Пожалуйста, попробуйте позже.</string>
     <string name="error_movie_details_load_failed">Не удалось загрузить информацию о фильме. Пожалуйста, попробуйте позже.</string>
+    <string name="error_tv_series_details_load_failed">Не удалось загрузить информацию о сериале. Пожалуйста, попробуйте позже.</string>
+    <string name="error_person_details_load_failed">Не удалось загрузить информацию об актёре. Пожалуйста, попробуйте позже.</string>
     <string name="error_favorite_toggle_failed">Не удалось обновить избранное. Пожалуйста, попробуйте позже.</string>
+    <string name="error_season_load_failed">Не удалось загрузить сезон. Пожалуйста, попробуйте позже.</string>
+    <string name="error_episode_load_failed">Не удалось загрузить эпизод. Пожалуйста, попробуйте позже.</string>
 
     <string name="generic_error_title">Ошибка</string>
     <string name="generic_error_message">Что-то пошло не так</string>
@@ -39,6 +44,9 @@
     <string name="category_now_playing">Сейчас в кино</string>
     <string name="category_top_rated">Лучшие по рейтингу</string>
     <string name="category_favorites">Избранное</string>
+    <string name="category_airing_today">Сегодня в эфире</string>
+    <string name="category_on_tv">На ТВ</string>
+    <string name="category_unknown">Неизвестная категория</string>
     <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
     <string name="category_selector_description">Категория: %1$s</string>
     <string name="category_selector_action">Сменить категорию</string>
@@ -50,6 +58,8 @@
     <string name="empty_movies_message">В этой категории сейчас нет фильмов.</string>
     <string name="empty_favorites_guest_title">Войдите, чтобы увидеть избранное</string>
     <string name="empty_favorites_guest_message">Войдите, чтобы сохранять и просматривать избранные фильмы.</string>
+    <string name="empty_tv_series_title">Нечего показать</string>
+    <string name="empty_tv_series_message">Сейчас нет доступных сериалов.</string>
 
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">Увеличить постер</string>
@@ -60,10 +70,16 @@
     <!--MOVIE DETAILS-->
     <string name="details_overview_label">ОПИСАНИЕ</string>
     <string name="details_back">Назад</string>
+    <string name="action_close">Закрыть</string>
+    <string name="details_biography_label">БИОГРАФИЯ</string>
+    <string name="details_born_on">Дата рождения: %1$s</string>
     <string name="details_date_tba">Дата: будет объявлена</string>
     <string name="details_runtime_tba">Длительность: будет объявлена</string>
     <string name="details_overview_tba">Будет объявлено</string>
     <string name="details_cast_label">В РОЛЯХ</string>
+    <string name="details_seasons_label">СЕЗОНЫ</string>
+    <string name="details_episodes_label">ЭПИЗОДЫ</string>
+    <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">Актёрский состав: будет объявлен</string>
 
     <!--Shared by the movies list badge and the details header.-->
