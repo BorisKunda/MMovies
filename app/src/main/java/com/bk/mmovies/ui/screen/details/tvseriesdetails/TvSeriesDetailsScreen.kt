@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.tvseriesdetails
+package com.bk.mmovies.ui.screen.details.tvseriesdetails
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,7 +24,7 @@ import com.bk.mmovies.R
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.screen.tvseriesdetails.screencomponents.TvSeriesDetailsScreenContent
+import com.bk.mmovies.ui.screen.details.tvseriesdetails.screencomponents.TvSeriesDetailsScreenContent
 
 private const val TAG = "TvSeriesDetailsScreen"
 

@@ -40,6 +40,8 @@ const val TV_EPISODE_ENDPOINT = "tv/{series_id}/season/{season_number}/episode/{
 
 const val MOVIE_ENDPOINT = "movie/{movie_id}"
 const val PERSON_ENDPOINT = "person/{person_id}"
+const val SEARCH_MULTI_ENDPOINT = "search/multi"
+const val QUERY_PARAM_QUERY = "query"
 const val QUERY_PARAM_API_KEY = "api_key"
 const val QUERY_PARAM_LANGUAGE = "language"
 const val QUERY_PARAM_APPEND_TO_RESPONSE = "append_to_response"

@@ -24,8 +24,10 @@ import com.bk.mmovies.data.source.remote.POPULAR_TV_SERIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_APPEND_TO_RESPONSE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_LANGUAGE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_PAGE
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_QUERY
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_SESSION_ID
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_SORT_BY
+import com.bk.mmovies.data.source.remote.SEARCH_MULTI_ENDPOINT
 import com.bk.mmovies.data.source.remote.TOP_RATED_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.TOP_RATED_TV_SERIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.TV_EPISODE_ENDPOINT
@@ -40,6 +42,7 @@ import com.bk.mmovies.data.source.remote.dto.LoginValidationTokenDto
 import com.bk.mmovies.data.source.remote.dto.LoginWithCredentialsRequestDto
 import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
 import com.bk.mmovies.data.source.remote.dto.MovieListDto
+import com.bk.mmovies.data.source.remote.dto.MultiSearchListDto
 import com.bk.mmovies.data.source.remote.dto.EpisodeDto
 import com.bk.mmovies.data.source.remote.dto.PersonDetailsDto
 import com.bk.mmovies.data.source.remote.dto.SeasonDetailsDto
@@ -189,5 +192,11 @@ interface TmdbApi {
             @Path("person_id") personId: Int,
             @Query(QUERY_PARAM_LANGUAGE) language: String = "en-US"
                                  ): Response<PersonDetailsDto>
+
+    @GET(SEARCH_MULTI_ENDPOINT)
+    suspend fun searchMulti(
+            @Query(QUERY_PARAM_QUERY) query: String,
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                           ): Response<MultiSearchListDto>
 }
 

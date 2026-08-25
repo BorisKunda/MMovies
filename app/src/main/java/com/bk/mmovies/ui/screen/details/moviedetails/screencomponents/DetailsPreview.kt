@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.details.screencomponents
+package com.bk.mmovies.ui.screen.details.moviedetails.screencomponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

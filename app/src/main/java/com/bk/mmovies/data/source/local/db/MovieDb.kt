@@ -4,18 +4,21 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
 import com.bk.mmovies.data.source.local.dao.MovieDao
+import com.bk.mmovies.data.source.local.dao.RecentSearchDao
 import com.bk.mmovies.data.source.local.dao.TvFavoriteDao
 import com.bk.mmovies.data.source.local.entity.FavoriteEntity
 import com.bk.mmovies.data.source.local.entity.MovieEntity
+import com.bk.mmovies.data.source.local.entity.RecentSearchEntity
 import com.bk.mmovies.data.source.local.entity.TvFavoriteEntity
 
 @Database(
-        entities = [MovieEntity::class, FavoriteEntity::class, TvFavoriteEntity::class],
-        version = 3
+        entities = [MovieEntity::class, FavoriteEntity::class, TvFavoriteEntity::class, RecentSearchEntity::class],
+        version = 4
          )
 abstract class MovieDb : RoomDatabase() {
     abstract fun movieDao(): MovieDao
     abstract fun favoriteDao(): FavoriteDao
     abstract fun tvFavoriteDao(): TvFavoriteDao
+    abstract fun recentSearchDao(): RecentSearchDao
 }
 

@@ -14,10 +14,12 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.screen.auth.AuthScreen
 import com.bk.mmovies.ui.screen.catalog.CatalogScreen
-import com.bk.mmovies.ui.screen.details.MovieDetailsScreen
-import com.bk.mmovies.ui.screen.seasondetails.SeasonDetailsScreen
+import com.bk.mmovies.ui.screen.details.moviedetails.MovieDetailsScreen
+import com.bk.mmovies.ui.screen.details.seasondetails.SeasonDetailsScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
-import com.bk.mmovies.ui.screen.tvseriesdetails.TvSeriesDetailsScreen
+import com.bk.mmovies.ui.screen.details.tvseriesdetails.TvSeriesDetailsScreen
+import com.bk.mmovies.ui.screen.search.SearchScreen
+import com.bk.mmovies.ui.screen.terms.TermsScreen
 
 
 private const val TAG = "AppNavigation"
@@ -46,6 +48,9 @@ fun AppNavigation(
                         seasonNumber
                                                         )
                               )
+    }
+    val navigateToSearch: () -> Unit = {
+        navController.navigate(AppDestination.SearchDestination)
     }
 
     NavHost(
@@ -97,6 +102,8 @@ fun AppNavigation(
                                 inclusive = true
                             }
                         }
+                    }, onNavigateToSearch = {
+                        navigateToSearch()
                     }
                                  )
                 })
@@ -129,6 +136,20 @@ fun AppNavigation(
                             seasonNumber = destination.seasonNumber,
                             onBack = { navController.popBackStack() }
                                        )
+                })
+                composable<AppDestination.TermsDestination>(content = {
+                    TermsScreen(onBack = { navController.popBackStack() })
+                })
+                composable<AppDestination.SearchDestination>(content = {
+                    SearchScreen(
+                            onNavigateToMovieDetails = { movieId ->
+                                navigateToMovieDetails(movieId, MovieCategory.PopularMovieCategory)
+                            },
+                            onNavigateToTvSeriesDetails = { seriesId ->
+                                navigateToTvSeriesDetails(seriesId)
+                            },
+                            onBack = { navController.popBackStack() }
+                                )
                 })
             },
            )

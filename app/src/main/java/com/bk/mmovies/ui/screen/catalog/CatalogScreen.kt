@@ -32,13 +32,14 @@ import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTab
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTabBar
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogHeaderBar
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogScreenContent
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogSearchBar
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryListPopupView
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryType
 import com.bk.mmovies.util.logDebug
 import kotlinx.coroutines.launch
 
 // Gap between the fixed header bar and the tab content below it.
-private val tabContentTopSpacing = 12.dp
+private val tabContentTopSpacing = 6.dp
 
 // Gap between the nav bar and the footer above it; the footer's own bottom
 // margin is fixed inside PoweredByTmdbFooter.
@@ -50,7 +51,8 @@ private const val TAG = "CatalogScreen"
 @Composable
 fun CatalogScreen(
         onNavigateToDetailsScreen: (id: Int, category: Category) -> Unit,
-        onNavigateToAuthScreen: () -> Unit) {
+        onNavigateToAuthScreen: () -> Unit,
+        onNavigateToSearch: () -> Unit) {
     val lifecycleOwner = LocalLifecycleOwner.current
     val catalogViewModel = hiltViewModel<CatalogViewModel>()
     val state by catalogViewModel.catalogScreenState.collectAsStateWithLifecycle()
@@ -86,6 +88,8 @@ fun CatalogScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
               ) {
+            CatalogSearchBar(onClick = onNavigateToSearch)
+
             // Fixed above the tab content so switching tabs never resets the
             // selected category or logs out the user's selection state.
             CatalogHeaderBar(

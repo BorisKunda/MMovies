@@ -27,6 +27,7 @@
     <string name="error_favorite_toggle_failed">Не удалось обновить избранное. Пожалуйста, попробуйте позже.</string>
     <string name="error_season_load_failed">Не удалось загрузить сезон. Пожалуйста, попробуйте позже.</string>
     <string name="error_episode_load_failed">Не удалось загрузить эпизод. Пожалуйста, попробуйте позже.</string>
+    <string name="error_search_failed">Не удалось выполнить поиск. Пожалуйста, попробуйте позже.</string>
 
     <string name="generic_error_title">Ошибка</string>
     <string name="generic_error_message">Что-то пошло не так</string>
@@ -39,11 +40,15 @@
 
     <!--CATEGORIES-->
     <string name="categories_title">Категории</string>
-    <string name="category_popular">Популярные</string>
-    <string name="category_upcoming">Скоро</string>
+    <string name="category_popular_movies">Популярные фильмы</string>
+    <string name="category_popular_tv">Популярные сериалы</string>
+    <string name="category_upcoming_movies">Скоро в кино</string>
+    <string name="category_upcoming_tv">Скоро на ТВ</string>
     <string name="category_now_playing">Сейчас в кино</string>
-    <string name="category_top_rated">Лучшие по рейтингу</string>
-    <string name="category_favorites">Избранное</string>
+    <string name="category_top_rated_movies">Лучшие фильмы</string>
+    <string name="category_top_rated_tv">Лучшие сериалы</string>
+    <string name="category_favorites_movies">Избранные фильмы</string>
+    <string name="category_favorites_tv">Избранные сериалы</string>
     <string name="category_airing_today">Сегодня в эфире</string>
     <string name="category_on_tv">На ТВ</string>
     <string name="category_unknown">Неизвестная категория</string>
@@ -62,6 +67,22 @@
     <string name="empty_tv_series_message">Сейчас нет доступных сериалов.</string>
 
     <!--MOVIE LIST-->
+    <!--SEARCH-->
+    <string name="search_action">Поиск</string>
+    <string name="search_field_hint">Поиск фильмов, сериалов, людей</string>
+    <string name="search_field_clear_action">Очистить поиск</string>
+    <string name="search_back_action">Назад</string>
+    <string name="search_recent_title">Недавние запросы</string>
+    <string name="search_recent_clear_all_action">Очистить все</string>
+    <string name="search_recent_remove_action">Удалить из недавних запросов</string>
+    <string name="search_empty_title">Ничего не найдено</string>
+    <string name="search_empty_message">Попробуйте другой запрос.</string>
+    <string name="search_idle_title">Поиск в MMovies</string>
+    <string name="search_idle_message">Находите фильмы, сериалы и людей.</string>
+    <string name="search_result_type_movie">Фильм</string>
+    <string name="search_result_type_tv_series">Сериал</string>
+    <string name="search_result_type_person">Персона</string>
+
     <string name="movie_poster_zoom_action">Увеличить постер</string>
     <string name="movie_open_details_action">Открыть подробности</string>
     <string name="favorite_add_action">Добавить в избранное</string>
@@ -104,4 +125,20 @@
     <string name="guest_label">Гость</string>
     <string name="powered_by_tmdb">При поддержке</string>
     <string name="tmdb_disclaimer">Это приложение использует TMDB и TMDB API, но не одобрено, не сертифицировано и не подтверждено TMDB.</string>
+
+    <!--TERMS AND CONDITIONS-->
+    <string name="terms_title">Условия использования</string>
+    <string name="terms_intro">MMovies — бесплатное некоммерческое приложение, созданное как личный проект. Используя его, вы соглашаетесь со следующими условиями.</string>
+    <string name="terms_tmdb_attribution_heading">Атрибуция TMDB</string>
+    <string name="terms_tmdb_attribution_body">Этот продукт использует API TMDB, но не одобрен и не сертифицирован TMDB.</string>
+    <string name="terms_content_ownership_heading">Права на контент</string>
+    <string name="terms_content_ownership_body">Все данные о фильмах и сериалах, изображения и связанный с ними контент, отображаемые в этом приложении, получены из The Movie Database (TMDB) и принадлежат TMDB и её поставщикам контента. MMovies не владеет этим контентом и не претендует на него.</string>
+    <string name="terms_data_accuracy_heading">Точность данных</string>
+    <string name="terms_data_accuracy_body">Контент предоставляется TMDB «как есть». Ни TMDB, ни разработчик этого приложения не гарантируют точность, полноту или актуальность отображаемой информации. Данные могут отсутствовать, устаревать или быть неверными.</string>
+    <string name="terms_no_warranty_heading">Отсутствие гарантий</string>
+    <string name="terms_no_warranty_body">MMovies предоставляется «как есть» и «по мере доступности», без каких-либо гарантий, явных или подразумеваемых. Использование приложения осуществляется на ваш собственный риск. Разработчик не несёт ответственности за любой ущерб или убытки, возникшие в результате использования приложения.</string>
+    <string name="terms_commercial_use_heading">Некоммерческое использование</string>
+    <string name="terms_commercial_use_body">Это приложение не монетизировано и не приносит дохода. Это личный некоммерческий проект, который не продаёт, не сублицензирует и не распространяет данные или контент TMDB.</string>
+    <string name="terms_changes_heading">Изменения условий</string>
+    <string name="terms_changes_body">Эти условия могут время от времени обновляться. Продолжение использования приложения после внесения изменений означает согласие с обновлёнными условиями.</string>
 </resources>

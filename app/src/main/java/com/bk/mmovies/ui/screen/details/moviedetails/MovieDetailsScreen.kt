@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.seasondetails
+package com.bk.mmovies.ui.screen.details.moviedetails
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,51 +21,55 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.screen.seasondetails.screencomponents.SeasonDetailsScreenContent
+import com.bk.mmovies.ui.screen.details.moviedetails.screencomponents.DetailsScreenContent
 
-private const val TAG = "SeasonDetailsScreen"
+private const val TAG = "MovieDetailsScreen"
 
 @Composable
-fun SeasonDetailsScreen(
-        seriesId: Int,
-        seasonNumber: Int,
+fun MovieDetailsScreen(
+        movieId: Int,
+        category: MovieCategory,
         onBack: () -> Unit
-                       ) {
-    val seasonDetailsViewModel = hiltViewModel<SeasonDetailsViewModel>()
-    val state by seasonDetailsViewModel.seasonDetailsScreenState.collectAsStateWithLifecycle()
+                      ) {
+    val movieDetailsViewModel = hiltViewModel<MovieDetailsViewModel>()
+    val state by movieDetailsViewModel.movieDetailsScreenState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(seriesId, seasonNumber) {
-        seasonDetailsViewModel.loadSeasonDetails(seriesId, seasonNumber)
+    LaunchedEffect(movieId) {
+        movieDetailsViewModel.loadMovieDetails(movieId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // The screen previously relied entirely on the system back gesture,
         // which leaves no visible way out for anyone not using gestures.
-        SeasonDetailsTopBar(onBack = onBack)
+        DetailsTopBar(onBack = onBack)
 
         Box(
                 modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
            ) {
             when (val currentState = state) {
-                is SeasonDetailsScreenState.Loading -> {
+                is MovieDetailsScreenState.Loading -> {
                     LoaderView()
                 }
 
-                is SeasonDetailsScreenState.Content -> {
-                    SeasonDetailsScreenContent(
-                            season = currentState.season,
+                is MovieDetailsScreenState.Content -> {
+                    DetailsScreenContent(
+                            movieDetails = currentState.movieDetails,
+                            category = category,
+                            showFavoriteStar = movieDetailsViewModel.canToggleFavorite,
+                            onFavoriteClicked = { movieDetailsViewModel.onFavoriteClicked() },
                             modifier = Modifier.fillMaxSize()
-                                               )
+                                        )
                 }
 
-                is SeasonDetailsScreenState.Error -> {
+                is MovieDetailsScreenState.Error -> {
                     GenericErrorScreen(
                             currentState.errorMessage,
-                            onTryAgainClicked = { seasonDetailsViewModel.retry() }
+                            onTryAgainClicked = { movieDetailsViewModel.retry() }
                                       )
                 }
             }
@@ -77,7 +81,7 @@ fun SeasonDetailsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun SeasonDetailsTopBar(onBack: () -> Unit) {
+private fun DetailsTopBar(onBack: () -> Unit) {
     TopAppBar(
             // No title: the header below already shows it at full size, and a
             // second copy here would make TalkBack announce it twice more.
