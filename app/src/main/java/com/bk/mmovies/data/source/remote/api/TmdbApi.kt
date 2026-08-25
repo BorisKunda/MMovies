@@ -123,7 +123,9 @@ interface TmdbApi {
 
 
     @GET(POPULAR_MOVIES_LIST_ENDPOINT)
-    suspend fun getPopularMovies(): Response<MovieListDto>
+    suspend fun getPopularMovies(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                 ): Response<MovieListDto>
 
     @GET(DISCOVER_MOVIES_LIST_ENDPOINT)
     suspend fun getUpcomingMovies(
@@ -138,22 +140,34 @@ interface TmdbApi {
                                  ): Response<MovieListDto>
 
     @GET(NOW_PLAYING_MOVIES_LIST_ENDPOINT)
-    suspend fun getNowPlayingMovies(): Response<MovieListDto>
+    suspend fun getNowPlayingMovies(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                    ): Response<MovieListDto>
 
     @GET(TOP_RATED_MOVIES_LIST_ENDPOINT)
-    suspend fun getTopRatedMovies(): Response<MovieListDto>
+    suspend fun getTopRatedMovies(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                  ): Response<MovieListDto>
 
     @GET(POPULAR_TV_SERIES_LIST_ENDPOINT)
-    suspend fun getPopularTvSeries(): Response<TvSeriesListDto>
+    suspend fun getPopularTvSeries(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                   ): Response<TvSeriesListDto>
 
     @GET(AIRING_TODAY_TV_SERIES_LIST_ENDPOINT)
-    suspend fun getAiringTodayTvSeries(): Response<TvSeriesListDto>
+    suspend fun getAiringTodayTvSeries(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                       ): Response<TvSeriesListDto>
 
     @GET(ON_TV_TV_SERIES_LIST_ENDPOINT)
-    suspend fun getOnTvTvSeries(): Response<TvSeriesListDto>
+    suspend fun getOnTvTvSeries(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                ): Response<TvSeriesListDto>
 
     @GET(TOP_RATED_TV_SERIES_LIST_ENDPOINT)
-    suspend fun getTopRatedTvSeries(): Response<TvSeriesListDto>
+    suspend fun getTopRatedTvSeries(
+            @Query(QUERY_PARAM_PAGE) page: Int = 1
+                                    ): Response<TvSeriesListDto>
 
     @GET(DISCOVER_TV_SERIES_LIST_ENDPOINT)
     suspend fun getUpcomingTvSeries(

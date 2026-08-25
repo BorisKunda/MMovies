@@ -17,6 +17,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
@@ -28,6 +29,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -48,6 +50,8 @@ import com.bk.mmovies.domain.model.SearchResultModel
 import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
+import com.bk.mmovies.ui.component.LoadingMoreFooter
+import com.bk.mmovies.ui.component.PaginationEffect
 import com.bk.mmovies.ui.screen.search.SearchResultsUiState
 import com.bk.mmovies.ui.theme.CardSurface
 
@@ -185,7 +189,7 @@ private fun RecentSearchRow(query: String, onClick: () -> Unit, onRemoveClick: (
 
 @Composable
 fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<SearchResultMediaType>,
-        onResultClicked: (SearchResultModel) -> Unit, onRetry: () -> Unit) {
+        onResultClicked: (SearchResultModel) -> Unit, onRetry: () -> Unit, onLoadNextPage: () -> Unit = {}) {
     when (state) {
         is SearchResultsUiState.Idle    -> Unit
         is SearchResultsUiState.Loading -> {
@@ -200,17 +204,31 @@ fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<Searc
             } else {
                 state.results.filter { it.mediaType in selectedFilters }
             }
-            if (filteredResults.isEmpty()) {
+            if (filteredResults.isNotEmpty()) {
+                SearchResultsList(
+                        results = filteredResults,
+                        onResultClicked = onResultClicked,
+                        isLoadingNextPage = state.isLoadingNextPage,
+                        onLoadNextPage = onLoadNextPage
+                                  )
+            } else if (!state.endReached) {
+                // Filtering is client-side: the active filter can exclude
+                // every result fetched so far while a later, unfetched page
+                // still holds a match. There's no list here for
+                // PaginationEffect to attach to, so keep paging directly
+                // until either a match turns up or the last page is hit.
+                LaunchedEffect(state.currentPage, state.isLoadingNextPage, selectedFilters) {
+                    if (!state.isLoadingNextPage) onLoadNextPage()
+                }
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    LoaderView()
+                }
+            } else {
                 EmptyStateView(
                         imageResId = R.drawable.ic_popcorn_bucket,
                         title = stringResource(R.string.search_empty_title),
                         message = stringResource(R.string.search_empty_message)
                               )
-            } else {
-                SearchResultsList(
-                        results = filteredResults,
-                        onResultClicked = onResultClicked
-                                  )
             }
         }
 
@@ -229,14 +247,26 @@ fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<Searc
 }
 
 @Composable
-private fun SearchResultsList(results: List<SearchResultModel>, onResultClicked: (SearchResultModel) -> Unit) {
+private fun SearchResultsList(
+        results: List<SearchResultModel>,
+        onResultClicked: (SearchResultModel) -> Unit,
+        isLoadingNextPage: Boolean = false,
+        onLoadNextPage: () -> Unit = {}
+                              ) {
+    val listState = rememberLazyListState()
+    listState.PaginationEffect(onLoadMore = onLoadNextPage)
+
     LazyColumn(
+            state = listState,
             content = {
                 items(items = results, key = { "${it.mediaType}_${it.id}" }) { result ->
                     SearchResultRow(
                             result = result,
                             onClick = { onResultClicked(result) }
                                    )
+                }
+                if (isLoadingNextPage) {
+                    items(count = 1) { LoadingMoreFooter() }
                 }
             },
             contentPadding = PaddingValues(bottom = listBottomPadding),

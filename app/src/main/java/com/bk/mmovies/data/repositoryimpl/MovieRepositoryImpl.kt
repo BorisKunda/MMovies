@@ -53,31 +53,31 @@ class MovieRepositoryImpl @Inject constructor(
         return SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(calendar.time)
     }
 
-    override suspend fun getMoviesByCategory(category: MovieCategory): MoviesResult {
+    override suspend fun getMoviesByCategory(category: MovieCategory, page: Int): MoviesResult {
         var apiCallResult: ApiCallResult<MovieListDto>? = null
         when (category) {
             MovieCategory.PopularMovieCategory -> {
                 apiCallResult = networkManager.executeApiCall(
                         "GetPopularMovies",
-                        apiCall = { -> api.getPopularMovies() })
+                        apiCall = { -> api.getPopularMovies(page = page) })
             }
 
             MovieCategory.UpcomingMovieCategory -> {
                 apiCallResult = networkManager.executeApiCall(
                         "GetUpcomingMovies",
-                        apiCall = { -> api.getUpcomingMovies(primaryReleaseDateGte = tomorrowDate()) })
+                        apiCall = { -> api.getUpcomingMovies(primaryReleaseDateGte = tomorrowDate(), page = page) })
             }
 
             MovieCategory.NowPlayingMovieCategory -> {
                 apiCallResult = networkManager.executeApiCall(
                         "GetNowPlayingMovies",
-                        apiCall = { -> api.getNowPlayingMovies() })
+                        apiCall = { -> api.getNowPlayingMovies(page = page) })
             }
 
             MovieCategory.TopRatedMovieCategory -> {
                 apiCallResult = networkManager.executeApiCall(
                         "GetTopRatedMovies",
-                        apiCall = { -> api.getTopRatedMovies() })
+                        apiCall = { -> api.getTopRatedMovies(page = page) })
             }
 
             MovieCategory.FavoritesMovieCategory -> {
@@ -105,7 +105,7 @@ class MovieRepositoryImpl @Inject constructor(
                 val models = movieMapper.toModels(sortedMovies).map {
                     it.copy(isFavorite = favoriteIds.contains(it.id))
                 }
-                MoviesResult.Success(models)
+                MoviesResult.Success(models, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure               -> {
                 MoviesResult.Failure(failureMessage)
@@ -135,10 +135,10 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFavoriteMovies(accountId: Int, sessionId: String): MoviesResult {
+    override suspend fun getFavoriteMovies(accountId: Int, sessionId: String, page: Int): MoviesResult {
         val apiCallResult: ApiCallResult<MovieListDto> = networkManager.executeApiCall(
                 "GetFavoriteMovies",
-                apiCall = { -> api.getFavoriteMovies(accountId, sessionId) })
+                apiCall = { -> api.getFavoriteMovies(accountId, sessionId, page = page) })
 
         return when (apiCallResult) {
             is ApiCallResult.Success<MovieListDto> -> {
@@ -147,7 +147,7 @@ class MovieRepositoryImpl @Inject constructor(
                 // default would otherwise produce.
                 val movies = movieMapper.toModels(apiCallResult.data.movies.orEmpty())
                         .map { it.copy(isFavorite = true) }
-                MoviesResult.Success(movies)
+                MoviesResult.Success(movies, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure               -> {
                 MoviesResult.Failure(failureMessage)

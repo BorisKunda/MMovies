@@ -4,5 +4,7 @@ import com.google.gson.annotations.SerializedName
 
 data class TvSeriesListDto(
         @SerializedName("results")
-        val tvSeries: List<TvSeriesDto>?
+        val tvSeries: List<TvSeriesDto>?,
+        @SerializedName("total_pages")
+        val totalPages: Int?
                           )

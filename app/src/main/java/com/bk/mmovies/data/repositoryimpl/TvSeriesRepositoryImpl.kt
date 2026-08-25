@@ -58,30 +58,30 @@ class TvSeriesRepositoryImpl @Inject constructor(
         return SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(calendar.time)
     }
 
-    override suspend fun getTvSeriesByCategory(category: TvSeriesCategory): TvSeriesResult {
+    override suspend fun getTvSeriesByCategory(category: TvSeriesCategory, page: Int): TvSeriesResult {
         val apiCallResult: ApiCallResult<TvSeriesListDto> = when (category) {
             TvSeriesCategory.PopularTvSeriesCategory      -> {
                 networkManager.executeApiCall(
                         "GetPopularTvSeries",
-                        apiCall = { -> api.getPopularTvSeries() })
+                        apiCall = { -> api.getPopularTvSeries(page = page) })
             }
 
             TvSeriesCategory.AiringTodayTvSeriesCategory  -> {
                 networkManager.executeApiCall(
                         "GetAiringTodayTvSeries",
-                        apiCall = { -> api.getAiringTodayTvSeries() })
+                        apiCall = { -> api.getAiringTodayTvSeries(page = page) })
             }
 
             TvSeriesCategory.OnTVTvSeriesCategory         -> {
                 networkManager.executeApiCall(
                         "GetOnTvTvSeries",
-                        apiCall = { -> api.getOnTvTvSeries() })
+                        apiCall = { -> api.getOnTvTvSeries(page = page) })
             }
 
             TvSeriesCategory.TopRatedTvSeriesCategory     -> {
                 networkManager.executeApiCall(
                         "GetTopRatedTvSeries",
-                        apiCall = { -> api.getTopRatedTvSeries() })
+                        apiCall = { -> api.getTopRatedTvSeries(page = page) })
             }
 
             TvSeriesCategory.FavoritesTvSeriesCategory    -> {
@@ -97,7 +97,7 @@ class TvSeriesRepositoryImpl @Inject constructor(
                 // equivalent query.
                 networkManager.executeApiCall(
                         "GetUpcomingTvSeries",
-                        apiCall = { -> api.getUpcomingTvSeries(firstAirDateGte = tomorrowDate()) })
+                        apiCall = { -> api.getUpcomingTvSeries(firstAirDateGte = tomorrowDate(), page = page) })
             }
         }
 
@@ -116,7 +116,7 @@ class TvSeriesRepositoryImpl @Inject constructor(
                 val models = tvSeriesMapper.toModels(sortedTvSeriesDtos).map {
                     it.copy(isFavorite = favoriteIds.contains(it.id))
                 }
-                TvSeriesResult.Success(models)
+                TvSeriesResult.Success(models, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure                  -> {
                 TvSeriesResult.Failure(failureMessage)
@@ -146,10 +146,10 @@ class TvSeriesRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getFavoriteTvSeries(accountId: Int, sessionId: String): TvSeriesResult {
+    override suspend fun getFavoriteTvSeries(accountId: Int, sessionId: String, page: Int): TvSeriesResult {
         val apiCallResult: ApiCallResult<TvSeriesListDto> = networkManager.executeApiCall(
                 "GetFavoriteTvSeries",
-                apiCall = { -> api.getFavoriteTvSeries(accountId, sessionId) })
+                apiCall = { -> api.getFavoriteTvSeries(accountId, sessionId, page = page) })
 
         return when (apiCallResult) {
             is ApiCallResult.Success<TvSeriesListDto> -> {
@@ -158,7 +158,7 @@ class TvSeriesRepositoryImpl @Inject constructor(
                 // default would otherwise produce.
                 val tvSeries = tvSeriesMapper.toModels(apiCallResult.data.tvSeries.orEmpty())
                         .map { it.copy(isFavorite = true) }
-                TvSeriesResult.Success(tvSeries)
+                TvSeriesResult.Success(tvSeries, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure                  -> {
                 TvSeriesResult.Failure(failureMessage)

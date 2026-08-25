@@ -4,7 +4,7 @@ import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.domain.model.MovieModel
 
 sealed interface MoviesResult {
-    data class Success(val movies: List<MovieModel>) : MoviesResult
+    data class Success(val movies: List<MovieModel>, val page: Int = 1, val totalPages: Int = 1) : MoviesResult
     data class Failure(val errorMessage: String) : MoviesResult
 }
 

@@ -12,6 +12,9 @@ import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.domain.model.UnknownCategory
+import com.bk.mmovies.domain.model.canLoadNextPage
+import com.bk.mmovies.domain.model.isLastPage
+import com.bk.mmovies.domain.model.mergePagedItems
 import com.bk.mmovies.domain.model.result.AccountDetailsResult
 import com.bk.mmovies.domain.model.result.MoviesResult
 import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
@@ -96,6 +99,7 @@ class CatalogViewModel @Inject constructor(
     val goToAuthNavEvent: SharedFlow<Unit> = _goToAuthNavEvent.asSharedFlow()
 
     private var loadCatalogItemsJob: Job? = null
+    private var loadNextPageJob: Job? = null
 
     init {
         startLoad(_selectedCategory.value)
@@ -201,11 +205,12 @@ class CatalogViewModel @Inject constructor(
 
     private fun startLoad(category: Category) {
         _catalogScreenState.value = CatalogScreenState.Loading
+        loadNextPageJob?.cancel()
         loadCatalogItemsJob?.cancel()
         loadCatalogItemsJob = viewModelScope.launch {
             when (category) {
-                is MovieCategory    -> loadMovies(category)
-                is TvSeriesCategory -> loadTvSeries(category)
+                is MovieCategory    -> loadMovies(category, page = 1)
+                is TvSeriesCategory -> loadTvSeries(category, page = 1)
                 // Unreachable today, but leaving the state on Loading would
                 // strand the screen on the skeleton with no retry affordance.
                 else                -> _catalogScreenState.value =
@@ -214,15 +219,37 @@ class CatalogViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadMovies(category: MovieCategory) {
+    /**
+     * Fetches the page after the one currently shown and appends it to the
+     * list, triggered by the list scrolling near its end. A no-op while
+     * already loading or once the category's last page has been reached.
+     */
+    fun loadNextPage() {
+        val currentState = _catalogScreenState.value
+        if (currentState !is CatalogScreenState.Content) return
+        if (!canLoadNextPage(currentState.endReached, currentState.isLoadingNextPage)) return
+        val nextPage = currentState.currentPage + 1
+        _catalogScreenState.value = currentState.copy(isLoadingNextPage = true)
+        loadNextPageJob?.cancel()
+        loadNextPageJob = viewModelScope.launch {
+            when (val category = _selectedCategory.value) {
+                is MovieCategory    -> loadMovies(category, nextPage)
+                is TvSeriesCategory -> loadTvSeries(category, nextPage)
+                // No list is shown for this category, so there is nothing to page.
+                else                -> Unit
+            }
+        }
+    }
+
+    private suspend fun loadMovies(category: MovieCategory, page: Int) {
         if (category == MovieCategory.FavoritesMovieCategory) {
-            loadFavoriteMovies()
+            loadFavoriteMovies(page)
             return
         }
-        applyMoviesResult(movieRepository.getMoviesByCategory(category))
+        applyMoviesResult(movieRepository.getMoviesByCategory(category, page), page)
     }
 
-    private suspend fun loadFavoriteMovies() {
+    private suspend fun loadFavoriteMovies(page: Int) {
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
         val accountId = authenticationRepository.getSharedPrefAccountId()
         // Guests have no login session, and TMDB's favorite endpoints require
@@ -231,25 +258,26 @@ class CatalogViewModel @Inject constructor(
             _catalogScreenState.value = CatalogScreenState.FavoritesLoginRequired
             return
         }
-        applyMoviesResult(movieRepository.getFavoriteMovies(accountId, sessionId))
+        applyMoviesResult(movieRepository.getFavoriteMovies(accountId, sessionId, page), page)
     }
 
-    private fun applyMoviesResult(result: MoviesResult) {
+    private fun applyMoviesResult(result: MoviesResult, requestedPage: Int) {
         when (result) {
-            is MoviesResult.Success -> applyCatalogItems(catalogItemMapper.fromMovies(result.movies))
-            is MoviesResult.Failure -> _catalogScreenState.value = CatalogScreenState.Error(result.errorMessage)
+            is MoviesResult.Success -> applyCatalogItems(
+                    catalogItemMapper.fromMovies(result.movies), result.page, result.totalPages)
+            is MoviesResult.Failure -> applyLoadFailure(requestedPage, result.errorMessage)
         }
     }
 
-    private suspend fun loadTvSeries(category: TvSeriesCategory) {
+    private suspend fun loadTvSeries(category: TvSeriesCategory, page: Int) {
         if (category == TvSeriesCategory.FavoritesTvSeriesCategory) {
-            loadFavoriteTvSeries()
+            loadFavoriteTvSeries(page)
             return
         }
-        applyTvSeriesResult(tvRepository.getTvSeriesByCategory(category))
+        applyTvSeriesResult(tvRepository.getTvSeriesByCategory(category, page), page)
     }
 
-    private suspend fun loadFavoriteTvSeries() {
+    private suspend fun loadFavoriteTvSeries(page: Int) {
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
         val accountId = authenticationRepository.getSharedPrefAccountId()
         // Guests have no login session, and TMDB's favorite endpoints require
@@ -258,23 +286,53 @@ class CatalogViewModel @Inject constructor(
             _catalogScreenState.value = CatalogScreenState.FavoritesLoginRequired
             return
         }
-        applyTvSeriesResult(tvRepository.getFavoriteTvSeries(accountId, sessionId))
+        applyTvSeriesResult(tvRepository.getFavoriteTvSeries(accountId, sessionId, page), page)
     }
 
-    private fun applyTvSeriesResult(result: TvSeriesResult) {
+    private fun applyTvSeriesResult(result: TvSeriesResult, requestedPage: Int) {
         when (result) {
-            is TvSeriesResult.Success -> applyCatalogItems(catalogItemMapper.fromTvSeries(result.tvSeries))
-            is TvSeriesResult.Failure -> _catalogScreenState.value = CatalogScreenState.Error(result.errorMessage)
+            is TvSeriesResult.Success -> applyCatalogItems(
+                    catalogItemMapper.fromTvSeries(result.tvSeries), result.page, result.totalPages)
+            is TvSeriesResult.Failure -> applyLoadFailure(requestedPage, result.errorMessage)
         }
     }
 
     // "Nothing here" and "the load failed" are different things and deserve
-    // different screens.
-    private fun applyCatalogItems(items: List<CatalogItem>) {
-        _catalogScreenState.value = if (items.isEmpty()) {
+    // different screens. Page 1 replaces the list; later pages append to
+    // whatever is already showing.
+    private fun applyCatalogItems(items: List<CatalogItem>, page: Int, totalPages: Int) {
+        val currentState = _catalogScreenState.value
+        val existingItems = (currentState as? CatalogScreenState.Content)?.catalogItems.orEmpty()
+        val mergedItems = mergePagedItems(existingItems, items, page) { it.id }
+        // Each page arrives pre-sorted by release date on its own (see
+        // MovieRepositoryImpl/TvSeriesRepositoryImpl), which only orders
+        // within that page — re-sort the merged list so date order holds
+        // across page boundaries too.
+        val isUpcoming = _selectedCategory.value == MovieCategory.UpcomingMovieCategory ||
+                _selectedCategory.value == TvSeriesCategory.UpcomingTvSeriesCategory
+        val orderedItems = if (isUpcoming) mergedItems.sortedBy { it.releaseDate } else mergedItems
+        _catalogScreenState.value = if (orderedItems.isEmpty()) {
             CatalogScreenState.Empty
         } else {
-            CatalogScreenState.Content(items)
+            CatalogScreenState.Content(
+                    catalogItems = orderedItems,
+                    currentPage = page,
+                    endReached = isLastPage(page, totalPages),
+                    isLoadingNextPage = false
+                                       )
+        }
+    }
+
+    // A failed first page is a real error screen; a failed next page just
+    // stops the footer spinner so scrolling back near the end retries it.
+    private fun applyLoadFailure(requestedPage: Int, errorMessage: String) {
+        if (requestedPage <= 1) {
+            _catalogScreenState.value = CatalogScreenState.Error(errorMessage)
+            return
+        }
+        val currentState = _catalogScreenState.value
+        if (currentState is CatalogScreenState.Content) {
+            _catalogScreenState.value = currentState.copy(isLoadingNextPage = false)
         }
     }
 
@@ -310,8 +368,7 @@ class CatalogViewModel @Inject constructor(
      * screen kept showing stale stars after navigating back from Details.
      */
     fun refreshFavoriteMarkers() {
-        val currentState = _catalogScreenState.value
-        if (currentState !is CatalogScreenState.Content) return
+        if (_catalogScreenState.value !is CatalogScreenState.Content) return
         val isMoviesTab = _selectedTab.value == CatalogBottomTab.Movies
         viewModelScope.launch {
             val favoriteIds = if (isMoviesTab) {
@@ -319,26 +376,38 @@ class CatalogViewModel @Inject constructor(
             } else {
                 tvRepository.getCachedFavoriteIds()
             }
+            // Re-read the state instead of relying on what was captured
+            // before the suspending lookup above — a loadNextPage() can
+            // complete while this is in flight, and writing back a snapshot
+            // taken before that would silently discard the appended page.
+            val latestState = _catalogScreenState.value
+            if (latestState !is CatalogScreenState.Content) return@launch
             val isFavoritesCategory = _selectedCategory.value == MovieCategory.FavoritesMovieCategory ||
                     _selectedCategory.value == TvSeriesCategory.FavoritesTvSeriesCategory
             val items = if (isFavoritesCategory) {
                 // An item unfavorited elsewhere no longer belongs in this list at all.
-                currentState.catalogItems.filter { favoriteIds.contains(it.id) }
+                latestState.catalogItems.filter { favoriteIds.contains(it.id) }
             } else {
-                currentState.catalogItems.map { it.copy(isFavorite = favoriteIds.contains(it.id)) }
+                latestState.catalogItems.map { it.copy(isFavorite = favoriteIds.contains(it.id)) }
             }
-            applyCatalogItems(items)
+            // Re-marking stars on an already-loaded list, not a new page fetch
+            // — keep the existing pagination state (page/endReached) intact.
+            _catalogScreenState.value = if (items.isEmpty()) {
+                CatalogScreenState.Empty
+            } else {
+                latestState.copy(catalogItems = items)
+            }
         }
     }
 
     private fun updateCatalogItemFavoriteState(itemId: Int, isFavorite: Boolean) {
         val currentState = _catalogScreenState.value
         if (currentState is CatalogScreenState.Content) {
-            _catalogScreenState.value = CatalogScreenState.Content(
-                    currentState.catalogItems.map { item ->
+            _catalogScreenState.value = currentState.copy(
+                    catalogItems = currentState.catalogItems.map { item ->
                         if (item.id == itemId) item.copy(isFavorite = isFavorite) else item
                     }
-                                                                  )
+                                                          )
         }
     }
 }
@@ -350,7 +419,12 @@ sealed interface CatalogScreenState {
     object Loading : CatalogScreenState
     object Empty : CatalogScreenState
     object FavoritesLoginRequired : CatalogScreenState
-    data class Content(val catalogItems: List<CatalogItem>) : CatalogScreenState
+    data class Content(
+            val catalogItems: List<CatalogItem>,
+            val currentPage: Int = 1,
+            val endReached: Boolean = false,
+            val isLoadingNextPage: Boolean = false
+                       ) : CatalogScreenState
     data class Error(val errorMessage: String) : CatalogScreenState
 }
 

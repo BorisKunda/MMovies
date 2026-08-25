@@ -26,14 +26,18 @@ class SearchRepositoryImpl @Inject constructor(
     private val failureMessage: String
         get() = context.getString(R.string.error_search_failed)
 
-    override suspend fun search(query: String): SearchResult {
+    override suspend fun search(query: String, page: Int): SearchResult {
         val apiCallResult: ApiCallResult<MultiSearchListDto> = networkManager.executeApiCall(
                 "SearchMulti",
-                apiCall = { -> api.searchMulti(query) })
+                apiCall = { -> api.searchMulti(query, page) })
 
         return when (apiCallResult) {
             is ApiCallResult.Success<MultiSearchListDto> -> {
-                SearchResult.Success(searchResultMapper.toModels(apiCallResult.data.results.orEmpty()))
+                SearchResult.Success(
+                        searchResultMapper.toModels(apiCallResult.data.results.orEmpty()),
+                        page,
+                        apiCallResult.data.totalPages ?: page
+                                     )
             }
             is ApiCallResult.Failure                      -> {
                 SearchResult.Failure(failureMessage)

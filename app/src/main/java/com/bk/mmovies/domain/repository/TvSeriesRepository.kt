@@ -8,11 +8,11 @@ import com.bk.mmovies.domain.model.result.TvSeriesDetailsResult
 import com.bk.mmovies.domain.model.result.TvSeriesResult
 
 interface TvSeriesRepository {
-    suspend fun getTvSeriesByCategory(category: TvSeriesCategory): TvSeriesResult
+    suspend fun getTvSeriesByCategory(category: TvSeriesCategory, page: Int = 1): TvSeriesResult
     suspend fun getTvSeriesDetails(seriesId: Int, sessionId: String?): TvSeriesDetailsResult
     suspend fun getSeasonDetails(seriesId: Int, seasonNumber: Int): SeasonDetailsResult
     suspend fun getEpisodeDetails(seriesId: Int, seasonNumber: Int, episodeNumber: Int): EpisodeDetailsResult
-    suspend fun getFavoriteTvSeries(accountId: Int, sessionId: String): TvSeriesResult
+    suspend fun getFavoriteTvSeries(accountId: Int, sessionId: String, page: Int = 1): TvSeriesResult
     suspend fun syncFavoriteIds(accountId: Int, sessionId: String)
     suspend fun getCachedFavoriteIds(): Set<Int>
     suspend fun toggleFavorite(

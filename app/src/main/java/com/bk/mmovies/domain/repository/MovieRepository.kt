@@ -7,9 +7,9 @@ import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
 
 
 interface MovieRepository {
-    suspend fun getMoviesByCategory(category: MovieCategory): MoviesResult
+    suspend fun getMoviesByCategory(category: MovieCategory, page: Int = 1): MoviesResult
     suspend fun getMovieDetails(movieId: Int, sessionId: String?): MovieDetailsResult
-    suspend fun getFavoriteMovies(accountId: Int, sessionId: String): MoviesResult
+    suspend fun getFavoriteMovies(accountId: Int, sessionId: String, page: Int = 1): MoviesResult
     suspend fun syncFavoriteIds(accountId: Int, sessionId: String)
     suspend fun getCachedFavoriteIds(): Set<Int>
     suspend fun toggleFavorite(
