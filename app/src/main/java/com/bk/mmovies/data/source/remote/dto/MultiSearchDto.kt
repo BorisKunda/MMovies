@@ -4,7 +4,9 @@ import com.google.gson.annotations.SerializedName
 
 data class MultiSearchListDto(
         @SerializedName("results")
-        val results: List<MultiSearchResultDto>?
+        val results: List<MultiSearchResultDto>?,
+        @SerializedName("total_pages")
+        val totalPages: Int?
                               )
 
 // One shape for TMDB's mixed movie/tv/person search response: the fields that

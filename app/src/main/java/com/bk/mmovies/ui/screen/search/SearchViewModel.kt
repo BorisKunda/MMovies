@@ -5,6 +5,9 @@ import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
+import com.bk.mmovies.domain.model.canLoadNextPage
+import com.bk.mmovies.domain.model.isLastPage
+import com.bk.mmovies.domain.model.mergePagedItems
 import com.bk.mmovies.domain.model.result.SearchResult
 import com.bk.mmovies.domain.repository.SearchRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -50,6 +53,11 @@ class SearchViewModel @Inject constructor(
 
     private var searchJob: Job? = null
     private var debounceJob: Job? = null
+    private var nextPageJob: Job? = null
+
+    // The query results were fetched for; loadNextPage() re-issues search()
+    // against this rather than the live (possibly since-edited) _query value.
+    private var activeQuery: String = ""
 
     init {
         loadRecentSearches()
@@ -69,6 +77,8 @@ class SearchViewModel @Inject constructor(
         debounceJob?.cancel()
         val trimmedQuery = newQuery.trim()
         if (trimmedQuery.isEmpty()) {
+            searchJob?.cancel()
+            nextPageJob?.cancel()
             _resultsState.value = SearchResultsUiState.Idle
             return
         }
@@ -147,19 +157,62 @@ class SearchViewModel @Inject constructor(
 
     private fun runSearch(query: String) {
         debounceJob?.cancel()
+        nextPageJob?.cancel()
+        activeQuery = query
         _resultsState.value = SearchResultsUiState.Loading
         searchJob?.cancel()
         searchJob = viewModelScope.launch {
-            when (val result = searchRepository.search(query)) {
-                is SearchResult.Success -> {
-                    _resultsState.value = if (result.results.isEmpty()) {
-                        SearchResultsUiState.Empty
-                    } else {
-                        SearchResultsUiState.Content(result.results)
-                    }
+            applySearchResult(searchRepository.search(query, page = 1), requestedPage = 1)
+        }
+    }
+
+    /**
+     * Fetches the page after the one currently shown and appends it to the
+     * results, triggered by the list scrolling near its end. A no-op while
+     * already loading or once the last page has been reached.
+     */
+    fun loadNextPage() {
+        val currentState = _resultsState.value
+        if (currentState !is SearchResultsUiState.Content) return
+        if (!canLoadNextPage(currentState.endReached, currentState.isLoadingNextPage)) return
+        val nextPage = currentState.currentPage + 1
+        _resultsState.value = currentState.copy(isLoadingNextPage = true)
+        nextPageJob?.cancel()
+        nextPageJob = viewModelScope.launch {
+            applySearchResult(searchRepository.search(activeQuery, nextPage), requestedPage = nextPage)
+        }
+    }
+
+    private fun applySearchResult(result: SearchResult, requestedPage: Int) {
+        when (result) {
+            is SearchResult.Success -> {
+                val currentState = _resultsState.value
+                val existingResults = (currentState as? SearchResultsUiState.Content)?.results.orEmpty()
+                val mergedResults = mergePagedItems(existingResults, result.results, requestedPage) {
+                    "${it.mediaType}_${it.id}"
                 }
-                is SearchResult.Failure -> {
+                _resultsState.value = if (mergedResults.isEmpty()) {
+                    SearchResultsUiState.Empty
+                } else {
+                    SearchResultsUiState.Content(
+                            results = mergedResults,
+                            currentPage = result.page,
+                            endReached = isLastPage(result.page, result.totalPages),
+                            isLoadingNextPage = false
+                                                 )
+                }
+            }
+            is SearchResult.Failure -> {
+                // A failed first page is a real error screen; a failed next
+                // page just stops the footer spinner so scrolling back near
+                // the end retries it.
+                if (requestedPage <= 1) {
                     _resultsState.value = SearchResultsUiState.Error(result.errorMessage)
+                    return
+                }
+                val currentState = _resultsState.value
+                if (currentState is SearchResultsUiState.Content) {
+                    _resultsState.value = currentState.copy(isLoadingNextPage = false)
                 }
             }
         }
@@ -170,6 +223,11 @@ sealed interface SearchResultsUiState {
     object Idle : SearchResultsUiState
     object Loading : SearchResultsUiState
     object Empty : SearchResultsUiState
-    data class Content(val results: List<SearchResultModel>) : SearchResultsUiState
+    data class Content(
+            val results: List<SearchResultModel>,
+            val currentPage: Int = 1,
+            val endReached: Boolean = false,
+            val isLoadingNextPage: Boolean = false
+                       ) : SearchResultsUiState
     data class Error(val errorMessage: String) : SearchResultsUiState
 }

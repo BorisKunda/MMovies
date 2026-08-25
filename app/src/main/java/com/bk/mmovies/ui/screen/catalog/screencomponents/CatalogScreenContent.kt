@@ -21,7 +21,8 @@ fun CatalogScreenContent(
         isGuest: Boolean,
         onCatalogItemClicked: (id: Int) -> Unit,
         onRetry: () -> Unit,
-        onFavoriteClicked: (catalogItem: CatalogItem) -> Unit = {}
+        onFavoriteClicked: (catalogItem: CatalogItem) -> Unit = {},
+        onLoadNextPage: () -> Unit = {}
                          ) {
     Column(modifier = Modifier.fillMaxSize()) {
         when (state) {
@@ -35,7 +36,9 @@ fun CatalogScreenContent(
                         selectedCategory = selectedCategory,
                         isGuest = isGuest,
                         onCatalogItemClicked = onCatalogItemClicked,
-                        onFavoriteClicked = onFavoriteClicked
+                        onFavoriteClicked = onFavoriteClicked,
+                        isLoadingNextPage = state.isLoadingNextPage,
+                        onLoadNextPage = onLoadNextPage
                                )
             }
 

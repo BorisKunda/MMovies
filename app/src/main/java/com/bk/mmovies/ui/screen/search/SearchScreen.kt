@@ -146,7 +146,8 @@ fun SearchScreen(
                                 castMemberForDialog = castMember
                             }
                         },
-                        onRetry = { searchViewModel.retry() }
+                        onRetry = { searchViewModel.retry() },
+                        onLoadNextPage = { searchViewModel.loadNextPage() }
                                      )
             }
         }

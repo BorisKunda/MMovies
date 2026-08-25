@@ -112,7 +112,8 @@ fun CatalogScreen(
                             isGuest = userProfileState.isGuest,
                             onCatalogItemClicked = { id -> catalogViewModel.handleCatalogItemClicked(id) },
                             onRetry = { catalogViewModel.retry() },
-                            onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) }
+                            onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) },
+                            onLoadNextPage = { catalogViewModel.loadNextPage() }
                                          )
                 }
             }
