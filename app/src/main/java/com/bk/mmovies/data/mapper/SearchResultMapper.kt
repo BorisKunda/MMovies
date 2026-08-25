@@ -6,6 +6,8 @@ import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.MultiSearchResultDto
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
+import java.time.LocalDate
+import java.time.format.DateTimeParseException
 import javax.inject.Inject
 
 private const val MEDIA_TYPE_MOVIE = "movie"
@@ -28,7 +30,7 @@ class SearchResultMapper @Inject constructor() {
                     title = dto.title ?: "",
                     imageUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
                     subtitle = dto.releaseDate ?: "",
-                    rating = dto.rating.toRatingPercent()
+                    isUpcoming = dto.releaseDate.isUpcomingDate()
                                                    )
 
             MEDIA_TYPE_TV     -> SearchResultModel(
@@ -36,8 +38,7 @@ class SearchResultMapper @Inject constructor() {
                     mediaType = SearchResultMediaType.TV_SERIES,
                     title = dto.name ?: "",
                     imageUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
-                    subtitle = dto.firstAirDate ?: "",
-                    rating = dto.rating.toRatingPercent()
+                    subtitle = dto.firstAirDate ?: ""
                                                    )
 
             MEDIA_TYPE_PERSON -> SearchResultModel(
@@ -52,7 +53,16 @@ class SearchResultMapper @Inject constructor() {
         }
     }
 
-    private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
+    // No release date at all is treated as not-yet-released, same as a
+    // release date that's clearly in the future.
+    private fun String?.isUpcomingDate(): Boolean {
+        if (this.isNullOrBlank()) return true
+        return try {
+            LocalDate.parse(this).isAfter(LocalDate.now())
+        } catch (e: DateTimeParseException) {
+            false
+        }
+    }
 
     private fun getFullImageUrl(sizeSegment: String, path: String): String =
             "$TMDB_IMAGE_BASE_URL$sizeSegment$path"

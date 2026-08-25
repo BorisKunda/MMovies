@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Tv
@@ -50,7 +51,8 @@ fun CatalogBottomTabBar(
         // and stretched to consume the rest of the screen.
         Row(modifier = Modifier
                 .fillMaxWidth()
-                .height(IntrinsicSize.Min)) {
+                .height(IntrinsicSize.Min)
+                .selectableGroup()) {
             CatalogBottomTab.entries.forEachIndexed { index, tab ->
                 if (index != 0) {
                     VerticalDivider(

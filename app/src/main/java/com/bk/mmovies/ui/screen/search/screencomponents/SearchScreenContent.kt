@@ -81,13 +81,7 @@ fun SearchFilterRow(selectedFilters: Set<SearchResultMediaType>, onFilterToggled
             modifier = Modifier.padding(vertical = filterRowVerticalPadding)
            ) {
         items(items = SearchResultMediaType.entries, key = { it }) { mediaType ->
-            val label = stringResource(
-                    when (mediaType) {
-                        SearchResultMediaType.MOVIE     -> R.string.search_result_type_movie
-                        SearchResultMediaType.TV_SERIES -> R.string.search_result_type_tv_series
-                        SearchResultMediaType.PERSON    -> R.string.search_result_type_person
-                    }
-                                      )
+            val label = stringResource(mediaType.labelResId)
             FilterChip(
                     selected = mediaType in selectedFilters,
                     onClick = { onFilterToggled(mediaType) },
@@ -300,13 +294,7 @@ private fun SearchResultRow(result: SearchResultModel, onClick: () -> Unit) {
 
 @Composable
 private fun MediaTypeBadge(mediaType: SearchResultMediaType, modifier: Modifier = Modifier) {
-    val label = stringResource(
-            when (mediaType) {
-                SearchResultMediaType.MOVIE     -> R.string.search_result_type_movie
-                SearchResultMediaType.TV_SERIES -> R.string.search_result_type_tv_series
-                SearchResultMediaType.PERSON    -> R.string.search_result_type_person
-            }
-                              )
+    val label = stringResource(mediaType.labelResId)
     Box(
             modifier = modifier
                     .clip(RoundedCornerShape(badgeCornerShape))

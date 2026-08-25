@@ -37,6 +37,7 @@ import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CastMemberModel
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
 import com.bk.mmovies.ui.component.ActorDetailsDialog
@@ -51,7 +52,7 @@ private val searchBarVerticalPadding = 4.dp
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
-        onNavigateToMovieDetails: (movieId: Int) -> Unit,
+        onNavigateToMovieDetails: (movieId: Int, category: MovieCategory) -> Unit,
         onNavigateToTvSeriesDetails: (seriesId: Int) -> Unit,
         onBack: () -> Unit
                  ) {
@@ -162,8 +163,8 @@ fun SearchScreen(
         focusRequester.requestFocus()
     }
     LaunchedEffect(Unit) {
-        searchViewModel.goToMovieDetailsNavEvent.collect { movieId ->
-            onNavigateToMovieDetails(movieId)
+        searchViewModel.goToMovieDetailsNavEvent.collect { (movieId, category) ->
+            onNavigateToMovieDetails(movieId, category)
         }
     }
     LaunchedEffect(Unit) {

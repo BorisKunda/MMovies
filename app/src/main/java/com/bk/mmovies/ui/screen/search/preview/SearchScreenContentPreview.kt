@@ -21,16 +21,14 @@ private val sampleResults = listOf(
                 mediaType = SearchResultMediaType.MOVIE,
                 title = "The Matrix",
                 imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
-                subtitle = "March 31, 1999",
-                rating = 83
+                subtitle = "March 31, 1999"
                           ),
         SearchResultModel(
                 id = 2,
                 mediaType = SearchResultMediaType.TV_SERIES,
                 title = "Breaking Bad",
                 imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
-                subtitle = "January 20, 2008",
-                rating = 88
+                subtitle = "January 20, 2008"
                           ),
         SearchResultModel(
                 id = 3,

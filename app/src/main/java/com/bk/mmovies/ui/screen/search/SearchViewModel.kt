@@ -2,6 +2,7 @@ package com.bk.mmovies.ui.screen.search
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
 import com.bk.mmovies.domain.model.result.SearchResult
@@ -15,7 +16,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -41,31 +41,18 @@ class SearchViewModel @Inject constructor(
     private val _selectedFilters = MutableStateFlow<Set<SearchResultMediaType>>(emptySet())
     val selectedFilters: StateFlow<Set<SearchResultMediaType>> = _selectedFilters.asStateFlow()
 
-    private val _goToMovieDetailsNavEvent: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1)
-    val goToMovieDetailsNavEvent: SharedFlow<Int> = _goToMovieDetailsNavEvent.asSharedFlow()
+    private val _goToMovieDetailsNavEvent: MutableSharedFlow<Pair<Int, MovieCategory>> =
+            MutableSharedFlow(extraBufferCapacity = 1)
+    val goToMovieDetailsNavEvent: SharedFlow<Pair<Int, MovieCategory>> = _goToMovieDetailsNavEvent.asSharedFlow()
 
     private val _goToTvSeriesDetailsNavEvent: MutableSharedFlow<Int> = MutableSharedFlow(extraBufferCapacity = 1)
     val goToTvSeriesDetailsNavEvent: SharedFlow<Int> = _goToTvSeriesDetailsNavEvent.asSharedFlow()
 
     private var searchJob: Job? = null
+    private var debounceJob: Job? = null
 
     init {
         loadRecentSearches()
-
-        // collectLatest cancels the pending delay (and any in-flight search)
-        // as soon as a newer keystroke lands, which is what gives this the
-        // debounced/"live suggestions while typing" behavior.
-        viewModelScope.launch {
-            _query.collectLatest { currentQuery ->
-                val trimmedQuery = currentQuery.trim()
-                if (trimmedQuery.isEmpty()) {
-                    _resultsState.value = SearchResultsUiState.Idle
-                    return@collectLatest
-                }
-                delay(SEARCH_DEBOUNCE_MILLIS)
-                runSearch(trimmedQuery)
-            }
-        }
     }
 
     private fun loadRecentSearches() {
@@ -74,8 +61,21 @@ class SearchViewModel @Inject constructor(
         }
     }
 
+    // Debounced on a job we own (rather than a collectLatest on _query) so
+    // an immediate search — onSearchSubmitted/onRecentSearchClicked/retry —
+    // can cancel the pending delay instead of racing it.
     fun onQueryChanged(newQuery: String) {
         _query.value = newQuery
+        debounceJob?.cancel()
+        val trimmedQuery = newQuery.trim()
+        if (trimmedQuery.isEmpty()) {
+            _resultsState.value = SearchResultsUiState.Idle
+            return
+        }
+        debounceJob = viewModelScope.launch {
+            delay(SEARCH_DEBOUNCE_MILLIS)
+            runSearch(trimmedQuery)
+        }
     }
 
     // Toggles one media type in/out of the filter set; an empty set means
@@ -126,7 +126,14 @@ class SearchViewModel @Inject constructor(
             }
         }
         when (result.mediaType) {
-            SearchResultMediaType.MOVIE     -> _goToMovieDetailsNavEvent.tryEmit(result.id)
+            SearchResultMediaType.MOVIE     -> {
+                val category = if (result.isUpcoming) {
+                    MovieCategory.UpcomingMovieCategory
+                } else {
+                    MovieCategory.PopularMovieCategory
+                }
+                _goToMovieDetailsNavEvent.tryEmit(result.id to category)
+            }
             SearchResultMediaType.TV_SERIES -> _goToTvSeriesDetailsNavEvent.tryEmit(result.id)
             SearchResultMediaType.PERSON    -> Unit
         }
@@ -139,6 +146,7 @@ class SearchViewModel @Inject constructor(
     }
 
     private fun runSearch(query: String) {
+        debounceJob?.cancel()
         _resultsState.value = SearchResultsUiState.Loading
         searchJob?.cancel()
         searchJob = viewModelScope.launch {

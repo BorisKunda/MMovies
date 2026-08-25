@@ -142,8 +142,8 @@ fun AppNavigation(
                 })
                 composable<AppDestination.SearchDestination>(content = {
                     SearchScreen(
-                            onNavigateToMovieDetails = { movieId ->
-                                navigateToMovieDetails(movieId, MovieCategory.PopularMovieCategory)
+                            onNavigateToMovieDetails = { movieId, category ->
+                                navigateToMovieDetails(movieId, category)
                             },
                             onNavigateToTvSeriesDetails = { seriesId ->
                                 navigateToTvSeriesDetails(seriesId)
