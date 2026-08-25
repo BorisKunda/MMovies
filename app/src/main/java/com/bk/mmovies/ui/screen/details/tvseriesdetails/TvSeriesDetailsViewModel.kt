@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.tvseriesdetails
+package com.bk.mmovies.ui.screen.details.tvseriesdetails
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

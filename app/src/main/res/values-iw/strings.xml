@@ -27,6 +27,7 @@
     <string name="error_favorite_toggle_failed">לא ניתן היה לעדכן את המועדפים כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_season_load_failed">לא ניתן היה לטעון את פרטי העונה כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_episode_load_failed">לא ניתן היה לטעון את פרטי הפרק כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_search_failed">לא ניתן היה לבצע חיפוש כרגע. אנא נסה שוב מאוחר יותר.</string>
 
     <string name="generic_error_title">שגיאה</string>
     <string name="generic_error_message">משהו השתבש</string>
@@ -39,11 +40,15 @@
 
     <!--CATEGORIES-->
     <string name="categories_title">קטגוריות</string>
-    <string name="category_popular">פופולריים</string>
-    <string name="category_upcoming">בקרוב</string>
+    <string name="category_popular_movies">סרטים פופולריים</string>
+    <string name="category_popular_tv">סדרות פופולריות</string>
+    <string name="category_upcoming_movies">סרטים שיצאו בקרוב</string>
+    <string name="category_upcoming_tv">סדרות שיצאו בקרוב</string>
     <string name="category_now_playing">בקולנוע עכשיו</string>
-    <string name="category_top_rated">המדורגים ביותר</string>
-    <string name="category_favorites">מועדפים</string>
+    <string name="category_top_rated_movies">הסרטים המדורגים ביותר</string>
+    <string name="category_top_rated_tv">הסדרות המדורגות ביותר</string>
+    <string name="category_favorites_movies">סרטים מועדפים</string>
+    <string name="category_favorites_tv">סדרות מועדפות</string>
     <string name="category_airing_today">משודר היום</string>
     <string name="category_on_tv">בטלוויזיה</string>
     <string name="category_unknown">קטגוריה לא ידועה</string>
@@ -62,6 +67,22 @@
     <string name="empty_tv_series_message">אין כרגע סדרות טלוויזיה להצגה.</string>
 
     <!--MOVIE LIST-->
+    <!--SEARCH-->
+    <string name="search_action">חיפוש</string>
+    <string name="search_field_hint">חיפוש סרטים, סדרות ואנשים</string>
+    <string name="search_field_clear_action">נקה חיפוש</string>
+    <string name="search_back_action">חזרה</string>
+    <string name="search_recent_title">חיפושים אחרונים</string>
+    <string name="search_recent_clear_all_action">נקה הכל</string>
+    <string name="search_recent_remove_action">הסר מחיפושים אחרונים</string>
+    <string name="search_empty_title">לא נמצאו תוצאות</string>
+    <string name="search_empty_message">נסה מונח חיפוש אחר.</string>
+    <string name="search_idle_title">חיפוש ב-MMovies</string>
+    <string name="search_idle_message">מצא סרטים, סדרות ואנשים.</string>
+    <string name="search_result_type_movie">סרט</string>
+    <string name="search_result_type_tv_series">סדרה</string>
+    <string name="search_result_type_person">איש/ה</string>
+
     <string name="movie_poster_zoom_action">הגדל פוסטר</string>
     <string name="movie_open_details_action">פתח פרטים</string>
     <string name="favorite_add_action">הוסף למועדפים</string>
@@ -104,4 +125,20 @@
     <string name="guest_label">אורח</string>
     <string name="powered_by_tmdb">מופעל על ידי</string>
     <string name="tmdb_disclaimer">אפליקציה זו משתמשת ב-TMDB וב-TMDB API אך אינה מאושרת, מוסמכת או נתמכת על ידי TMDB.</string>
+
+    <!--TERMS AND CONDITIONS-->
+    <string name="terms_title">תנאי שימוש</string>
+    <string name="terms_intro">MMovies הינה אפליקציה חינמית ולא מסחרית, שנבנתה כפרויקט אישי. שימוש באפליקציה מהווה הסכמה לתנאים הבאים.</string>
+    <string name="terms_tmdb_attribution_heading">קרדיט ל-TMDB</string>
+    <string name="terms_tmdb_attribution_body">מוצר זה משתמש ב-API של TMDB אך אינו מאושר או מוסמך על ידי TMDB.</string>
+    <string name="terms_content_ownership_heading">בעלות על התוכן</string>
+    <string name="terms_content_ownership_body">כל הנתונים על סרטים וסדרות, התמונות והתוכן הקשור המוצגים באפליקציה זו מקורם ב-The Movie Database ‏(TMDB) ושייכים ל-TMDB ולספקי התוכן שלה. ל-MMovies אין בעלות על תוכן זה והיא אינה טוענת לזכויות עליו.</string>
+    <string name="terms_data_accuracy_heading">דיוק הנתונים</string>
+    <string name="terms_data_accuracy_body">התוכן מסופק על ידי TMDB \"כפי שהוא\". לא TMDB ולא מפתח האפליקציה מבטיחים שהמידע המוצג מדויק, שלם או מעודכן. פרטים מסוימים עשויים להיות חסרים, מיושנים או שגויים.</string>
+    <string name="terms_no_warranty_heading">ללא אחריות</string>
+    <string name="terms_no_warranty_body">MMovies מסופקת כפי שהיא וכפי שזמינה, ללא כל אחריות, מפורשת או משתמעת. השימוש באפליקציה הוא באחריותך הבלעדית. המפתח אינו נושא באחריות לכל נזק או הפסד הנובע משימוש באפליקציה.</string>
+    <string name="terms_commercial_use_heading">שימוש לא מסחרי</string>
+    <string name="terms_commercial_use_body">אפליקציה זו אינה ממומנת ואינה מייצרת הכנסה. מדובר בפרויקט אישי ולא מסחרי, שאינו מוכר, מעניק רישיון משנה או מפיץ מחדש תוכן או נתונים של TMDB.</string>
+    <string name="terms_changes_heading">שינויים בתנאים</string>
+    <string name="terms_changes_body">תנאים אלה עשויים להתעדכן מעת לעת. המשך השימוש באפליקציה לאחר ביצוע שינויים מהווה הסכמה לתנאים המעודכנים.</string>
 </resources>

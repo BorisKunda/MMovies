@@ -29,8 +29,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -89,6 +92,14 @@ private val posterHeight = 130.dp
 private val posterCornerShape = 8.dp
 private val ratingBadgeSize = 28.dp
 private val favoriteStarPadding = 4.dp
+
+// Hints that the poster is long-press-zoomable without a permanent label
+// competing with the favorite star for the same corner. Scrim mirrors
+// FavoriteStarButton's approach so the icon stays legible on light posters.
+private val zoomHintSize = 14.dp
+private val zoomHintPadding = 4.dp
+private val zoomHintScrimPadding = 2.dp
+private const val ZOOM_HINT_SCRIM_ALPHA = 0.35f
 
 // Styling for the score caption under the badge.
 private val scoreLabelTopSpacing = 6.dp
@@ -283,6 +294,23 @@ fun CatalogItemRow(
                                     .align(Alignment.TopEnd)
                                     .padding(favoriteStarPadding)
                                       )
+                }
+                Box(
+                        modifier = Modifier
+                                .align(Alignment.BottomEnd)
+                                .padding(zoomHintPadding)
+                                .clip(CircleShape)
+                                .background(Color.Gray.copy(alpha = ZOOM_HINT_SCRIM_ALPHA))
+                                .padding(zoomHintScrimPadding)
+                   ) {
+                    Icon(
+                            imageVector = Icons.Default.ZoomIn,
+                            // The long-press action is already announced via
+                            // combinedClickable's onLongClickLabel above.
+                            contentDescription = null,
+                            tint = Color.White,
+                            modifier = Modifier.size(zoomHintSize)
+                        )
                 }
             }
             Spacer(modifier = Modifier.width(spacerPadding))

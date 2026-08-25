@@ -27,6 +27,7 @@
     <string name="error_favorite_toggle_failed">Couldn\'t update favorites right now. Please try again later.</string>
     <string name="error_season_load_failed">Couldn\'t load season details right now. Please try again later.</string>
     <string name="error_episode_load_failed">Couldn\'t load episode details right now. Please try again later.</string>
+    <string name="error_search_failed">Couldn\'t search right now. Please try again later.</string>
 
     <string name="generic_error_title">Error</string>
     <string name="generic_error_message">Something went wrong</string>
@@ -39,11 +40,15 @@
 
     <!--CATEGORIES-->
     <string name="categories_title">Categories</string>
-    <string name="category_popular">Popular</string>
-    <string name="category_upcoming">Upcoming</string>
+    <string name="category_popular_movies">Popular Movies</string>
+    <string name="category_popular_tv">Popular TV Series</string>
+    <string name="category_upcoming_movies">Upcoming Movies</string>
+    <string name="category_upcoming_tv">Upcoming TV Series</string>
     <string name="category_now_playing">Now Playing</string>
-    <string name="category_top_rated">Top Rated</string>
-    <string name="category_favorites">Favorites</string>
+    <string name="category_top_rated_movies">Top Rated Movies</string>
+    <string name="category_top_rated_tv">Top Rated TV Series</string>
+    <string name="category_favorites_movies">Favorite Movies</string>
+    <string name="category_favorites_tv">Favorite TV Series</string>
     <string name="category_airing_today">Airing Today</string>
     <string name="category_on_tv">On TV</string>
     <string name="category_unknown">Unknown Category</string>
@@ -60,6 +65,22 @@
     <string name="empty_favorites_guest_message">Log in to save and view your favorite movies.</string>
     <string name="empty_tv_series_title">Nothing to show</string>
     <string name="empty_tv_series_message">There are no TV series to show right now.</string>
+
+    <!--SEARCH-->
+    <string name="search_action">Search</string>
+    <string name="search_field_hint">Search movies, TV shows, people</string>
+    <string name="search_field_clear_action">Clear search</string>
+    <string name="search_back_action">Back</string>
+    <string name="search_recent_title">Recent searches</string>
+    <string name="search_recent_clear_all_action">Clear all</string>
+    <string name="search_recent_remove_action">Remove from recent searches</string>
+    <string name="search_empty_title">No results found</string>
+    <string name="search_empty_message">Try a different search term.</string>
+    <string name="search_idle_title">Search MMovies</string>
+    <string name="search_idle_message">Find movies, TV shows, and people.</string>
+    <string name="search_result_type_movie">Movie</string>
+    <string name="search_result_type_tv_series">TV Series</string>
+    <string name="search_result_type_person">Person</string>
 
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">Zoom poster</string>
@@ -104,6 +125,22 @@
     <string name="guest_label">Guest</string>
     <string name="powered_by_tmdb">Powered by</string>
     <string name="tmdb_disclaimer">This application uses TMDB and the TMDB APIs but is not endorsed, certified, or otherwise approved by TMDB.</string>
+
+    <!--TERMS AND CONDITIONS-->
+    <string name="terms_title">Terms and Conditions</string>
+    <string name="terms_intro">MMovies is a free, non-commercial app built as a personal project. By using it, you agree to the following terms.</string>
+    <string name="terms_tmdb_attribution_heading">TMDB Attribution</string>
+    <string name="terms_tmdb_attribution_body">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
+    <string name="terms_content_ownership_heading">Content Ownership</string>
+    <string name="terms_content_ownership_body">All movie and TV show data, images, and related content displayed in this app are sourced from The Movie Database (TMDB) and belong to TMDB and its content providers. MMovies does not own, and makes no claim to, this content.</string>
+    <string name="terms_data_accuracy_heading">Data Accuracy</string>
+    <string name="terms_data_accuracy_body">Content is provided by TMDB \"as is.\" Neither TMDB nor the developer of this app guarantees that the information shown is accurate, complete, or up to date. Details may be missing, outdated, or incorrect.</string>
+    <string name="terms_no_warranty_heading">No Warranty</string>
+    <string name="terms_no_warranty_body">MMovies is provided as-is and as-available, without warranty of any kind, express or implied. Use of this app is at your own risk. The developer is not liable for any damages or losses arising from your use of the app.</string>
+    <string name="terms_commercial_use_heading">Non-Commercial Use</string>
+    <string name="terms_commercial_use_body">This app is not monetized and generates no revenue. It is a personal, non-commercial project and does not sell, sublicense, or redistribute TMDB content or data.</string>
+    <string name="terms_changes_heading">Changes to These Terms</string>
+    <string name="terms_changes_body">These terms may be updated from time to time. Continued use of the app after changes are made constitutes acceptance of the updated terms.</string>
 
     <string name="lorem_ipsum_short" translatable="false">Lorem ipsum..</string>
     <string name="lorem_ipsum_medium" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>

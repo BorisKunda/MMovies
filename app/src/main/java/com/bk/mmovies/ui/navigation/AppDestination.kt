@@ -32,5 +32,11 @@ sealed interface AppDestination {
             val seriesId: Int,
             val seasonNumber: Int
                                        ) : AppDestination
+
+    @Serializable
+    object TermsDestination : AppDestination
+
+    @Serializable
+    object SearchDestination : AppDestination
 }
 

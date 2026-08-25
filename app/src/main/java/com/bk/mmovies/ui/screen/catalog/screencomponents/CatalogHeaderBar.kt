@@ -15,7 +15,7 @@ import com.bk.mmovies.ui.screen.catalog.UserProfileUiState
 // from the end edge as CategorySelector sits from the start edge.
 private val userSelectorEndPadding = 28.dp
 
-private val headerTopMargin = 12.dp
+private val headerTopMargin = 6.dp
 
 // Fixed above the tab content (see MoviesScreen) so switching between the
 // Movies and TV Series tabs never resets the selected category or user.

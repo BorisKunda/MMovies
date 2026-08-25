@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.seasondetails.screencomponents
+package com.bk.mmovies.ui.screen.details.seasondetails.screencomponents
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

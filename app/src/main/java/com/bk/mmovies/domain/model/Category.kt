@@ -30,7 +30,7 @@ sealed interface Category {
 sealed class MovieCategory : Category {
 
     data object PopularMovieCategory : MovieCategory() {
-        override val labelRes: Int = R.string.category_popular
+        override val labelRes: Int = R.string.category_popular_movies
         override val drawableRes: Int = R.drawable.ic_categories_popular
         override val categoryId: Int = POPULAR_MOVIE_CATEGORY_ID
     }
@@ -42,19 +42,19 @@ sealed class MovieCategory : Category {
     }
 
     data object UpcomingMovieCategory : MovieCategory() {
-        override val labelRes: Int = R.string.category_upcoming
+        override val labelRes: Int = R.string.category_upcoming_movies
         override val drawableRes: Int = R.drawable.ic_categories_upcoming
         override val categoryId: Int = UPCOMING_MOVIE_CATEGORY_ID
     }
 
     data object TopRatedMovieCategory : MovieCategory() {
-        override val labelRes: Int = R.string.category_top_rated
+        override val labelRes: Int = R.string.category_top_rated_movies
         override val drawableRes: Int = R.drawable.ic_categories_top_rated
         override val categoryId: Int = TOP_RATED_MOVIE_CATEGORY_ID
     }
 
     data object FavoritesMovieCategory : MovieCategory() {
-        override val labelRes: Int = R.string.category_favorites
+        override val labelRes: Int = R.string.category_favorites_movies
         override val drawableRes: Int = R.drawable.ic_star_filled
         override val categoryId: Int = FAVORITES_MOVIE_CATEGORY_ID
     }
@@ -63,7 +63,7 @@ sealed class MovieCategory : Category {
 sealed class TvSeriesCategory : Category {
 
     data object PopularTvSeriesCategory : TvSeriesCategory() {
-        override val labelRes: Int = R.string.category_popular
+        override val labelRes: Int = R.string.category_popular_tv
         override val drawableRes: Int = R.drawable.ic_categories_popular
         override val categoryId: Int = POPULAR_TV_CATEGORY_ID
     }
@@ -81,19 +81,19 @@ sealed class TvSeriesCategory : Category {
     }
 
     data object TopRatedTvSeriesCategory : TvSeriesCategory() {
-        override val labelRes: Int = R.string.category_top_rated
+        override val labelRes: Int = R.string.category_top_rated_tv
         override val drawableRes: Int = R.drawable.ic_categories_top_rated
         override val categoryId: Int = TOP_RATED_TV_CATEGORY_ID
     }
 
     data object FavoritesTvSeriesCategory : TvSeriesCategory() {
-        override val labelRes: Int = R.string.category_favorites
+        override val labelRes: Int = R.string.category_favorites_tv
         override val drawableRes: Int = R.drawable.ic_star_filled
         override val categoryId: Int = FAVORITES_TV_CATEGORY_ID
     }
 
     data object UpcomingTvSeriesCategory: TvSeriesCategory(){
-        override val labelRes: Int = R.string.category_upcoming
+        override val labelRes: Int = R.string.category_upcoming_tv
         override val drawableRes: Int = R.drawable.ic_categories_upcoming
         override val categoryId: Int = UPCOMING_TV_CATEGORY_ID
 

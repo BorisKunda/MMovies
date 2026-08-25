@@ -6,6 +6,7 @@ import androidx.room.Room
 import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
 import com.bk.mmovies.data.source.local.dao.MovieDao
+import com.bk.mmovies.data.source.local.dao.RecentSearchDao
 import com.bk.mmovies.data.source.local.dao.TvFavoriteDao
 import com.bk.mmovies.data.source.local.db.MOVIE_DATABASE_NAME
 import com.bk.mmovies.data.source.local.db.MovieDb
@@ -46,6 +47,11 @@ object DbModule {
     @Provides
     fun provideTvFavoriteDao(db: MovieDb): TvFavoriteDao {
         return db.tvFavoriteDao()
+    }
+
+    @Provides
+    fun provideRecentSearchDao(db: MovieDb): RecentSearchDao {
+        return db.recentSearchDao()
     }
 
     @Singleton
