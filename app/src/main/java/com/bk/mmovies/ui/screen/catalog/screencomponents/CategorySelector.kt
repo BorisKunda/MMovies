@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.movies.screencomponents
+package com.bk.mmovies.ui.screen.catalog.screencomponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -26,7 +26,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
-import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.Category
 
 private val categoryIconEndPadding = 6.dp
 private val categorySelectorCornerShape = 18.dp
@@ -52,7 +52,7 @@ private const val CATEGORY_SELECTOR_ARROW_ALPHA = 0.7f
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategorySelector(
-        selectedCategory: MovieCategory,
+        selectedCategory: Category,
         onClick: () -> Unit
                      ) {
     val categorySelectorShape = RoundedCornerShape(categorySelectorCornerShape)

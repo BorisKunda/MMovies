@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.movies.screencomponents
+package com.bk.mmovies.ui.screen.catalog.screencomponents
 
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.foundation.background
@@ -22,7 +22,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.SheetState
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -34,11 +33,11 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
+import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
-import com.bk.mmovies.ui.theme.MMoviesTheme
+import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.util.logDebug
 
 private const val TAG = "CategoryListPopupView"
@@ -70,8 +69,9 @@ private const val SELECTED_BORDER_ALPHA = 0.45f
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CategoryListPopupView(
-        lastSelectedCategory: MovieCategory,
-        onNewCategorySelected: (newSelectedCategory: MovieCategory) -> Unit,
+        categoryType: CategoryType,
+        lastSelectedCategory: Category,
+        onNewCategorySelected: (newSelectedCategory: Category) -> Unit,
         onDismiss: () -> Unit,
         state: SheetState
                          ) {
@@ -101,28 +101,39 @@ fun CategoryListPopupView(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(itemSpacing)
                   ) {
-                movieCategoriesList.forEach { category ->
+
+                val categories = when (categoryType) {
+                    CategoryType.MOVIE -> movieCategoriesList
+                    CategoryType.TV    -> tvCategoriesList
+                }
+
+                categories.forEach { category ->
                     CategoryRow(
                             category = category,
                             isSelected = category == lastSelectedCategory,
-                            onClick = { onNewCategorySelected(category) }
-                               )
+                            onClick = { onNewCategorySelected(category) })
                 }
             }
         }
     }
 
     DisposableEffect(Unit) {
-        logDebug(TAG, "LAUNCHED")
+        logDebug(
+                TAG,
+                "LAUNCHED"
+                )
         onDispose {
-            logDebug(TAG, "DISPOSED")
+            logDebug(
+                    TAG,
+                    "DISPOSED"
+                    )
         }
     }
 }
 
 @Composable
 private fun CategoryRow(
-        category: MovieCategory,
+        category: Category,
         isSelected: Boolean,
         onClick: () -> Unit
                        ) {
@@ -198,48 +209,18 @@ private val movieCategoriesList = listOf(
         MovieCategory.TopRatedMovieCategory,
         MovieCategory.FavoritesMovieCategory
                                         )
+private val tvCategoriesList = listOf(
+        TvSeriesCategory.PopularTvSeriesCategory,
+        TvSeriesCategory.AiringTodayTvSeriesCategory,
+        TvSeriesCategory.OnTVTvSeriesCategory,
+        TvSeriesCategory.TopRatedTvSeriesCategory,
+        TvSeriesCategory.UpcomingTvSeriesCategory,
+        TvSeriesCategory.FavoritesTvSeriesCategory
+                                     )
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview
-@Composable
-private fun CategoryListPopupViewPreview() {
-    MMoviesTheme {
-        CategoryListPopupView(
-                lastSelectedCategory = MovieCategory.PopularMovieCategory,
-                onNewCategorySelected = {},
-                onDismiss = {},
-                state = rememberModalBottomSheetState()
-                             )
-    }
+enum class CategoryType {
+    MOVIE,
+    TV
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(locale = "iw", name = "Hebrew (RTL)")
-@Composable
-private fun CategoryListPopupViewPreviewHebrew() {
-    MMoviesTheme {
-        CategoryListPopupView(
-                lastSelectedCategory = MovieCategory.TopRatedMovieCategory,
-                onNewCategorySelected = {},
-                onDismiss = {},
-                state = rememberModalBottomSheetState()
-                             )
-    }
-}
 
-// Russian category names are the longest of the three languages
-// ("Лучшие по рейтингу" against "Top Rated"), so this is where a row would
-// wrap or clip first.
-@OptIn(ExperimentalMaterial3Api::class)
-@Preview(locale = "ru", name = "Russian (long text)")
-@Composable
-private fun CategoryListPopupViewPreviewRussian() {
-    MMoviesTheme {
-        CategoryListPopupView(
-                lastSelectedCategory = MovieCategory.TopRatedMovieCategory,
-                onNewCategorySelected = {},
-                onDismiss = {},
-                state = rememberModalBottomSheetState()
-                             )
-    }
-}

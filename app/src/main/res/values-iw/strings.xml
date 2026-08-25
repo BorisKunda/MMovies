@@ -20,8 +20,13 @@
     <string name="save_and_continue">שמור והמשך</string>
 
     <string name="error_movies_load_failed">לא ניתן היה לטעון סרטים כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_tv_series_load_failed">לא ניתן היה לטעון סדרות טלוויזיה כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_movie_details_load_failed">לא ניתן היה לטעון את פרטי הסרט כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_tv_series_details_load_failed">לא ניתן היה לטעון את פרטי הסדרה כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_person_details_load_failed">לא ניתן היה לטעון את פרטי השחקן כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_favorite_toggle_failed">לא ניתן היה לעדכן את המועדפים כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_season_load_failed">לא ניתן היה לטעון את פרטי העונה כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_episode_load_failed">לא ניתן היה לטעון את פרטי הפרק כרגע. אנא נסה שוב מאוחר יותר.</string>
 
     <string name="generic_error_title">שגיאה</string>
     <string name="generic_error_message">משהו השתבש</string>
@@ -39,6 +44,9 @@
     <string name="category_now_playing">בקולנוע עכשיו</string>
     <string name="category_top_rated">המדורגים ביותר</string>
     <string name="category_favorites">מועדפים</string>
+    <string name="category_airing_today">משודר היום</string>
+    <string name="category_on_tv">בטלוויזיה</string>
+    <string name="category_unknown">קטגוריה לא ידועה</string>
     <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
     <string name="category_selector_description">קטגוריה: %1$s</string>
     <string name="category_selector_action">שנה קטגוריה</string>
@@ -50,6 +58,8 @@
     <string name="empty_movies_message">אין סרטים בקטגוריה זו כרגע.</string>
     <string name="empty_favorites_guest_title">התחבר/י כדי לראות מועדפים</string>
     <string name="empty_favorites_guest_message">התחבר/י כדי לשמור ולצפות בסרטים המועדפים עליך.</string>
+    <string name="empty_tv_series_title">אין מה להציג</string>
+    <string name="empty_tv_series_message">אין כרגע סדרות טלוויזיה להצגה.</string>
 
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">הגדל פוסטר</string>
@@ -60,10 +70,16 @@
     <!--MOVIE DETAILS-->
     <string name="details_overview_label">תקציר</string>
     <string name="details_back">חזור</string>
+    <string name="action_close">סגור</string>
+    <string name="details_biography_label">ביוגרפיה</string>
+    <string name="details_born_on">נולד/ה %1$s</string>
     <string name="details_date_tba">תאריך: טרם נקבע</string>
     <string name="details_runtime_tba">משך: טרם ידוע</string>
     <string name="details_overview_tba">יפורסם בקרוב</string>
     <string name="details_cast_label">שחקנים</string>
+    <string name="details_seasons_label">עונות</string>
+    <string name="details_episodes_label">פרקים</string>
+    <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">שחקנים: טרם נקבע</string>
 
     <!--Shared by the movies list badge and the details' header.-->

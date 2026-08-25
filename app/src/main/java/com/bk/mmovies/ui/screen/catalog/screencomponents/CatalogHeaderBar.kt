@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.movies.screencomponents
+package com.bk.mmovies.ui.screen.catalog.screencomponents
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
@@ -8,8 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.bk.mmovies.domain.model.MovieCategory
-import com.bk.mmovies.ui.screen.movies.UserProfileUiState
+import com.bk.mmovies.domain.model.Category
+import com.bk.mmovies.ui.screen.catalog.UserProfileUiState
 
 // Mirrors CategorySelector's own start padding so UserSelector sits as far
 // from the end edge as CategorySelector sits from the start edge.
@@ -20,8 +20,8 @@ private val headerTopMargin = 12.dp
 // Fixed above the tab content (see MoviesScreen) so switching between the
 // Movies and TV Series tabs never resets the selected category or user.
 @Composable
-fun MoviesHeaderBar(
-        selectedCategory: MovieCategory,
+fun CatalogHeaderBar(
+        selectedCategory: Category,
         userProfileState: UserProfileUiState,
         onCategoryClick: () -> Unit,
         onLogout: () -> Unit
@@ -38,7 +38,7 @@ fun MoviesHeaderBar(
         CategorySelector(
                 selectedCategory = selectedCategory,
                 onClick = onCategoryClick
-                         )
+                        )
 
         UserSelector(
                 name = userProfileState.name,
@@ -49,7 +49,7 @@ fun MoviesHeaderBar(
                         end = userSelectorEndPadding,
                         top = categorySelectorVerticalMargin,
                         bottom = categorySelectorVerticalMargin
-                                            )
-                    )
+                                           )
+                                                                                        )
     }
 }

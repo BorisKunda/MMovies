@@ -5,9 +5,9 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.CastMemberDto
-import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
+import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
 import com.bk.mmovies.domain.model.CastMemberModel
-import com.bk.mmovies.domain.model.MovieDetailsModel
+import com.bk.mmovies.domain.model.TvSeriesDetailsModel
 import com.bk.mmovies.locale.AppLanguage
 import com.bk.mmovies.locale.LocaleMonitor
 import java.text.ParseException
@@ -17,23 +17,30 @@ import javax.inject.Inject
 
 private const val CAST_LIST_LIMIT = 20
 
-class MovieDetailsMapper @Inject constructor(
-        private val localeMonitor: LocaleMonitor
-                                             ) {
+class TvSeriesDetailsMapper @Inject constructor(
+        private val localeMonitor: LocaleMonitor,
+        private val seasonMapper: SeasonMapper
+                                                ) {
 
-    fun toModel(dto: MovieDetailsDto): MovieDetailsModel = MovieDetailsModel(
+    fun toModel(dto: TvSeriesDetailsDto): TvSeriesDetailsModel = TvSeriesDetailsModel(
             id = dto.id ?: 0,
-            title = dto.title ?: "",
+            title = dto.name ?: "",
             posterUrl = dto.posterPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM) } ?: "",
             backdropUrl = dto.backdropPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM) } ?: "",
-            releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
-            runtime = dto.runtime.toFormattedRuntime(),
+            firstAirDate = dto.firstAirDate?.let { getFormattedDate(it) } ?: "",
+            seasonsLabel = dto.numberOfSeasons.toSeasonsLabel(),
             userScore = dto.voteAverage.toRatingPercent(),
             genres = dto.genres?.mapNotNull { it.name } ?: emptyList(),
             overview = dto.overview ?: "",
             cast = dto.credits?.cast.toCastModels(),
+            // A "season 0" entry is TMDB's convention for specials; hide it
+            // from what is meant to be the regular season list.
+            seasons = dto.seasons.orEmpty()
+                    .filter { (it.seasonNumber ?: 0) > 0 }
+                    .sortedBy { it.seasonNumber }
+                    .map { seasonMapper.toModel(it) },
             isFavorite = dto.accountStates?.favorite ?: false
-                                                                          )
+                                                                                      )
 
     // TMDB returns the full credited cast, often 30+ names; the app only
     // shows a horizontal strip, so cap it to the leads (already sorted by
@@ -61,50 +68,34 @@ class MovieDetailsMapper @Inject constructor(
 
     private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
 
-    // A sub-hour (or exactly-N-hour) runtime has to drop the empty component
-    // rather than render a literal "0h 45m" / "1h 0m".
-    private fun Int?.toFormattedRuntime(): String {
-        val totalMinutes = this?.takeIf { it > 0 } ?: return ""
-        val hours = totalMinutes / 60
-        val minutes = totalMinutes % 60
+    private fun Int?.toSeasonsLabel(): String {
+        val seasons = this?.takeIf { it > 0 } ?: return ""
         return when (localeMonitor.currentLanguage.value) {
-            AppLanguage.RUSSIAN -> when {
-                hours == 0   -> "${minutes}мин"
-                minutes == 0 -> "${hours}ч"
-                else         -> "${hours}ч ${minutes}мин"
-            }
-            AppLanguage.HEBREW  -> when {
-                hours == 0   -> minutes.toHebrewMinutesLabel()
-                minutes == 0 -> hours.toHebrewHoursLabel()
-                else         -> "${hours.toHebrewHoursLabel()} ${minutes.toHebrewMinutesLabel()}"
-            }
-            AppLanguage.ENGLISH -> when {
-                hours == 0   -> "${minutes}m"
-                minutes == 0 -> "${hours}h"
-                else         -> "${hours}h ${minutes}m"
-            }
+            AppLanguage.RUSSIAN -> "$seasons ${seasons.toRussianSeasonsWord()}"
+            AppLanguage.HEBREW  -> if (seasons == 1) "עונה אחת" else "$seasons עונות"
+            AppLanguage.ENGLISH -> if (seasons == 1) "1 Season" else "$seasons Seasons"
         }
     }
 
-    // Hebrew grammar: 1 hour and 2 hours have their own words rather than a
-    // number, unlike every other count which prefixes the number as usual.
-    private fun Int.toHebrewHoursLabel(): String = when (this) {
-        1 -> "שעה"
-        2 -> "שעתיים"
-        else -> "$this שעות"
+    // Russian counting nouns decline by the last digit (with 11-14 always
+    // taking the plural form), unlike English/Hebrew's simple one-vs-many split.
+    private fun Int.toRussianSeasonsWord(): String {
+        val lastTwoDigits = this % 100
+        if (lastTwoDigits in 11..14) return "сезонов"
+        return when (this % 10) {
+            1    -> "сезон"
+            2, 3, 4 -> "сезона"
+            else -> "сезонов"
+        }
     }
 
-    private fun Int.toHebrewMinutesLabel(): String =
-            if (this == 1) "דקה אחת" else "$this דקות"
-
-
-    private fun getFormattedDate(releaseDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)
+    private fun getFormattedDate(firstAirDate: String): String = try {
+        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(firstAirDate)
         date?.let {
             SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: releaseDate
+        } ?: firstAirDate
     } catch (e: ParseException) {
-        releaseDate
+        firstAirDate
     }
 
     private fun getFullImageUrl(imagePath: String, sizeSegment: String): String {

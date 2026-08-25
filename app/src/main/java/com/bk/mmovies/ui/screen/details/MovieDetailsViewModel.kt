@@ -36,9 +36,15 @@ class MovieDetailsViewModel @Inject constructor(
             _movieDetailsScreenState.asStateFlow()
 
     // Doesn't change while this screen is open, so a plain property is
-    // enough — no need for a StateFlow the way MoviesViewModel needs one.
-    val isGuest: Boolean
-        get() = authenticationRepository.getSharedPrefLoginSessionId() == null
+    // enough — no need for a StateFlow the way CatalogViewModel needs one.
+    //
+    // Both ids are required: onFavoriteClicked needs the accountId too, and
+    // that is only persisted once account details resolve. Keying the star on
+    // the session alone rendered a control that silently did nothing whenever
+    // that fetch had failed.
+    val canToggleFavorite: Boolean
+        get() = authenticationRepository.getSharedPrefLoginSessionId() != null &&
+                authenticationRepository.getSharedPrefAccountId() != null
 
     private var movieId: Int? = null
     private var loadMovieDetailsJob: Job? = null

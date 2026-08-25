@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.details.screencomponents
+package com.bk.mmovies.ui.screen.tvseriesdetails.screencomponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -22,7 +22,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
-import androidx.compose.material.icons.filled.Schedule
+import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -51,57 +51,46 @@ import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CastMemberModel
-import com.bk.mmovies.domain.model.MovieCategory
-import com.bk.mmovies.domain.model.MovieDetailsModel
+import com.bk.mmovies.domain.model.SeasonModel
+import com.bk.mmovies.domain.model.TvSeriesDetailsModel
 import com.bk.mmovies.ui.component.ActorDetailsDialog
 import com.bk.mmovies.ui.component.FavoriteStarButton
 import com.bk.mmovies.ui.component.UserScoreView
 
 // --- Spacing scale -----------------------------------------------------------
-// A single consistent step keeps the vertical rhythm tight and deliberate
-// instead of the uneven 10/28/24 gaps the old layout used.
-private val spacingUnit = 12.dp           // base step
-private val spacingUnitLarge = 24.dp      // 2x base, for section breaks
+// Mirrors DetailsScreenContent (the movie details layout) so both details
+// screens read as the same design.
+private val spacingUnit = 12.dp
+private val spacingUnitLarge = 24.dp
 
 private val screenPadding = 16.dp
 private val posterWidth = 130.dp
-private val posterHeight = 195.dp         // kept at a true 2:3 poster ratio
+private val posterHeight = 195.dp
 private val posterCornerShape = 8.dp
 private val favoriteStarPadding = 6.dp
 private val infoColumnStartPadding = 20.dp
 private val metaIconSize = 18.dp
 private val metaIconTextSpacing = 8.dp
-private val userScoreRingSize =
-        32.dp     // UserScoreView scales its numeral and ring with this
+private val userScoreRingSize = 32.dp
 private val userScoreRowSpacing = 12.dp
 
-// A long title must not out-grow the poster it sits beside, or the Row's
-// CenterVertically ends up centring the poster against a wall of text.
 private const val TITLE_MAX_LINES = 3
 
 private val chipSpacing = 8.dp
-private val chipCornerShape = 8.dp        // softer radius so chips read as tags, not tappable pills
+private val chipCornerShape = 8.dp
 private val chipHorizontalPadding = 12.dp
 private val chipVerticalPadding = 6.dp
 
-// Derived from the scale rather than hand-picked: the header block already
-// contributes screenPadding below the chips, so this tops the gap up to
-// exactly spacingUnitLarge and stays correct if screenPadding changes.
 private val overviewTopSpacing = spacingUnitLarge - screenPadding
 private val backdropCornerShape = 12.dp
 private val backdropContentPadding = 20.dp
 
 private val overviewTitleLetterSpacing = 1.sp
 
-// Tags are metadata, not actions: a low-contrast fill communicates that far
-// better than a bright bordered pill (which invites a tap that goes nowhere).
 private const val CHIP_CONTAINER_ALPHA = 0.08f
 private const val CHIP_BORDER_ALPHA = 0.14f
 private val chipBorderWidth = 1.dp
 
-// The overview text runs the full height of the card, so the scrim has to be
-// heaviest at the bottom where the body copy is densest — leaving the top
-// lighter lets the backdrop actually show through under the short label.
 private const val SCRIM_TOP_ALPHA = 0.55f
 private const val SCRIM_BOTTOM_ALPHA = 0.85f
 
@@ -116,34 +105,27 @@ private val castImageNameSpacing = 8.dp
 private val castNameCharacterSpacing = 2.dp
 private const val CAST_ITEM_TEXT_MAX_LINES = 2
 
+private val seasonRowSpacing = 16.dp
+private val seasonPosterWidth = 64.dp
+private val seasonPosterHeight = 96.dp
+private val seasonPosterCornerShape = 6.dp
+private val seasonRowTextStartPadding = 12.dp
+private val seasonRowMetaTopSpacing = 4.dp
+
 @Composable
-fun DetailsScreenContent(
-        movieDetails: MovieDetailsModel,
-        category: MovieCategory,
+fun TvSeriesDetailsScreenContent(
+        tvSeriesDetails: TvSeriesDetailsModel,
         modifier: Modifier = Modifier,
         showFavoriteStar: Boolean = false,
-        onFavoriteClicked: () -> Unit = {}
-                        ) {
-    // Upcoming releases routinely lack a score, runtime, backdrop or overview
-    // on TMDB, so this category gets a "coming soon" presentation instead of
-    // hiding fields the way the sparse-data fallback does for other categories.
-    val isUpcoming = category == MovieCategory.UpcomingMovieCategory
-    // Unreleased movies can't be favorited/rated, matching the same rule
-    // applied to the grid's poster star.
-    val showStar = showFavoriteStar && !isUpcoming
-    val dateTbaLabel = stringResource(R.string.details_date_tba)
-    val runtimeTbaLabel = stringResource(R.string.details_runtime_tba)
-    val overviewTbaLabel = stringResource(R.string.details_overview_tba)
-    val castTbaLabel = stringResource(R.string.details_cast_tba)
-
+        onFavoriteClicked: () -> Unit = {},
+        onSeasonClicked: (seasonNumber: Int) -> Unit = {}
+                                 ) {
     Column(
             modifier = modifier
                     .fillMaxSize()
-                    .verticalScroll(rememberScrollState())   // never let content overflow the screen
+                    .verticalScroll(rememberScrollState())
           ) {
         Column(modifier = Modifier.padding(screenPadding)) {
-            // Center the info block against the poster so the shorter text
-            // column no longer leaves a void beside the poster's lower half.
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Box(
                         modifier = Modifier.size(
@@ -153,20 +135,20 @@ fun DetailsScreenContent(
                    ) {
                     AsyncImage(
                             model = ImageRequest.Builder(LocalContext.current)
-                                    .data(movieDetails.posterUrl)
+                                    .data(tvSeriesDetails.posterUrl)
                                     .crossfade(true)
                                     .build(),
                             placeholder = painterResource(R.drawable.placeholder),
                             error = painterResource(R.drawable.placeholder),
-                            contentDescription = movieDetails.title,
+                            contentDescription = tvSeriesDetails.title,
                             contentScale = ContentScale.Crop,
                             modifier = Modifier
                                     .fillMaxSize()
                                     .clip(RoundedCornerShape(posterCornerShape))
                               )
-                    if (showStar) {
+                    if (showFavoriteStar) {
                         FavoriteStarButton(
-                                isFavorite = movieDetails.isFavorite,
+                                isFavorite = tvSeriesDetails.isFavorite,
                                 onClick = onFavoriteClicked,
                                 modifier = Modifier
                                         .align(Alignment.TopEnd)
@@ -182,7 +164,7 @@ fun DetailsScreenContent(
                         horizontalAlignment = Alignment.Start
                       ) {
                     Text(
-                            text = movieDetails.title,
+                            text = tvSeriesDetails.title,
                             color = MaterialTheme.colorScheme.onSurface,
                             style = MaterialTheme.typography.headlineSmall,
                             fontWeight = FontWeight.Bold,
@@ -191,38 +173,30 @@ fun DetailsScreenContent(
                         )
                     MetaRow(
                             icon = Icons.Default.CalendarMonth,
-                            text = movieDetails.releaseDate.ifBlank { if (isUpcoming) dateTbaLabel else "" }
+                            text = tvSeriesDetails.firstAirDate
                            )
                     MetaRow(
-                            icon = Icons.Default.Schedule,
-                            text = movieDetails.runtime.ifBlank { if (isUpcoming) runtimeTbaLabel else "" }
+                            icon = Icons.Default.Tv,
+                            text = tvSeriesDetails.seasonsLabel
                            )
-                    // Upcoming movies have no votes yet, so the score ring
-                    // would only ever show a meaningless zero.
-                    if (!isUpcoming) {
-                        Row(verticalAlignment = Alignment.CenterVertically) {
-                            UserScoreView(
-                                    score = movieDetails.userScore,
-                                    size = userScoreRingSize
-                                         )
-                            Spacer(modifier = Modifier.width(userScoreRowSpacing))
-                            // Same caption treatment as the list badge in MovieRow,
-                            // just sized for this screen.
-                            Text(
-                                    text = stringResource(R.string.user_score_label),
-                                    color = MaterialTheme.colorScheme.onSurface.copy(
-                                            alpha = SECONDARY_TEXT_ALPHA
-                                                                                    ),
-                                    style = MaterialTheme.typography.labelLarge
-                                )
-                        }
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        UserScoreView(
+                                score = tvSeriesDetails.userScore,
+                                size = userScoreRingSize
+                                     )
+                        Spacer(modifier = Modifier.width(userScoreRowSpacing))
+                        Text(
+                                text = stringResource(R.string.user_score_label),
+                                color = MaterialTheme.colorScheme.onSurface.copy(
+                                        alpha = SECONDARY_TEXT_ALPHA
+                                                                                ),
+                                style = MaterialTheme.typography.labelLarge
+                            )
                     }
                 }
             }
 
-            // An empty FlowRow would still apply its top padding, leaving a
-            // floating 24dp gap under the header for movies with no genres.
-            if (movieDetails.genres.isNotEmpty()) {
+            if (tvSeriesDetails.genres.isNotEmpty()) {
                 FlowRow(
                         modifier = Modifier
                                 .fillMaxWidth()
@@ -230,32 +204,26 @@ fun DetailsScreenContent(
                         horizontalArrangement = Arrangement.spacedBy(chipSpacing),
                         verticalArrangement = Arrangement.spacedBy(chipSpacing)
                        ) {
-                    movieDetails.genres.forEach { genre ->
+                    tvSeriesDetails.genres.forEach { genre ->
                         GenreChip(genre)
                     }
                 }
             }
         }
 
-        // Without an overview the card would collapse to the label plus its
-        // padding — a thin letterboxed strip of backdrop with nothing in it.
-        // Upcoming movies are the exception: the card still renders with a
-        // "To be announced" placeholder instead of disappearing entirely.
-        val overviewText = movieDetails.overview.ifBlank { if (isUpcoming) overviewTbaLabel else "" }
-        if (overviewText.isNotBlank()) {
+        if (tvSeriesDetails.overview.isNotBlank()) {
             OverviewSection(
-                    overview = overviewText,
-                    backdropUrl = movieDetails.backdropUrl
+                    overview = tvSeriesDetails.overview,
+                    backdropUrl = tvSeriesDetails.backdropUrl
                            )
         }
 
-        // Upcoming movies routinely have no cast credited yet on TMDB; show
-        // a TBA line instead of silently dropping the section like the
-        // sparse-data fallback does for other categories.
-        if (movieDetails.cast.isNotEmpty()) {
-            CastSection(cast = movieDetails.cast)
-        } else if (isUpcoming) {
-            CastSection(cast = emptyList(), tbaLabel = castTbaLabel)
+        if (tvSeriesDetails.cast.isNotEmpty()) {
+            CastSection(cast = tvSeriesDetails.cast)
+        }
+
+        if (tvSeriesDetails.seasons.isNotEmpty()) {
+            SeasonsSection(seasons = tvSeriesDetails.seasons, onSeasonClicked = onSeasonClicked)
         }
     }
 }
@@ -263,8 +231,7 @@ fun DetailsScreenContent(
 @Composable
 private fun CastSection(
         cast: List<CastMemberModel>,
-        modifier: Modifier = Modifier,
-        tbaLabel: String? = null
+        modifier: Modifier = Modifier
                        ) {
     // Owned here rather than passed down, since only this section's items
     // can ever open it.
@@ -284,27 +251,18 @@ private fun CastSection(
                 fontWeight = FontWeight.Bold,
                 letterSpacing = castSectionTitleLetterSpacing
             )
-        if (cast.isNotEmpty()) {
-            LazyRow(
-                    modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(top = spacingUnit),
-                    horizontalArrangement = Arrangement.spacedBy(castItemSpacing)
-                   ) {
-                items(cast, key = { it.id }) { castMember ->
-                    CastMemberItem(
-                            castMember = castMember,
-                            onClick = { selectedCastMember = castMember }
-                                  )
-                }
+        LazyRow(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = spacingUnit),
+                horizontalArrangement = Arrangement.spacedBy(castItemSpacing)
+               ) {
+            items(cast, key = { it.id }) { castMember ->
+                CastMemberItem(
+                        castMember = castMember,
+                        onClick = { selectedCastMember = castMember }
+                              )
             }
-        } else if (tbaLabel != null) {
-            Text(
-                    text = tbaLabel,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
-                    style = MaterialTheme.typography.bodyMedium,
-                    modifier = Modifier.padding(top = spacingUnit)
-                )
         }
     }
 
@@ -360,13 +318,97 @@ private fun CastMemberItem(castMember: CastMemberModel, onClick: () -> Unit) {
 }
 
 @Composable
+private fun SeasonsSection(
+        seasons: List<SeasonModel>,
+        modifier: Modifier = Modifier,
+        onSeasonClicked: (seasonNumber: Int) -> Unit = {}
+                          ) {
+    Column(
+            modifier = modifier.padding(
+                    start = screenPadding,
+                    end = screenPadding,
+                    bottom = screenPadding
+                                        )
+          ) {
+        Text(
+                text = stringResource(R.string.details_seasons_label),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = castSectionTitleLetterSpacing
+            )
+        Column(
+                modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = spacingUnit),
+                verticalArrangement = Arrangement.spacedBy(seasonRowSpacing)
+              ) {
+            seasons.forEach { season ->
+                SeasonRow(season, onClick = { onSeasonClicked(season.seasonNumber) })
+            }
+        }
+    }
+}
+
+@Composable
+private fun SeasonRow(season: SeasonModel, onClick: () -> Unit) {
+    Row(
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable(
+                            onClickLabel = stringResource(R.string.movie_open_details_action)
+                              ) { onClick() },
+            verticalAlignment = Alignment.CenterVertically
+       ) {
+        AsyncImage(
+                model = ImageRequest.Builder(LocalContext.current)
+                        .data(season.posterUrl)
+                        .crossfade(true)
+                        .build(),
+                placeholder = painterResource(R.drawable.placeholder),
+                error = painterResource(R.drawable.placeholder),
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                        .size(width = seasonPosterWidth, height = seasonPosterHeight)
+                        .clip(RoundedCornerShape(seasonPosterCornerShape))
+                  )
+        Column(
+                modifier = Modifier
+                        .weight(1f)
+                        .padding(start = seasonRowTextStartPadding)
+              ) {
+            Text(
+                    text = season.name,
+                    color = MaterialTheme.colorScheme.onSurface,
+                    style = MaterialTheme.typography.titleSmall,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
+            // The mapper yields "" for a missing count/date; rendering an
+            // empty line anyway left an unexplained gap under the name.
+            val metaText = listOf(season.episodeCountLabel, season.airDate)
+                    .filter { it.isNotBlank() }
+                    .joinToString(" • ")
+            if (metaText.isNotBlank()) {
+                Text(
+                        text = metaText,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                        style = MaterialTheme.typography.bodySmall,
+                        modifier = Modifier.padding(top = seasonRowMetaTopSpacing)
+                    )
+            }
+        }
+    }
+}
+
+@Composable
 private fun MetaRow(
         icon: ImageVector,
         text: String,
         modifier: Modifier = Modifier
                    ) {
-    // TMDB omits runtime and release date often enough that rendering the row
-    // regardless would leave an orphaned icon with no value beside it.
     if (text.isBlank()) return
 
     Row(
@@ -421,8 +463,6 @@ private fun OverviewSection(
         backdropUrl: String,
         modifier: Modifier = Modifier
                            ) {
-    // No weight(1f): the card now wraps its text height instead of stretching
-    // to fill the screen, which is what created the large empty backdrop below.
     Box(
             modifier = modifier
                     .fillMaxWidth()
@@ -441,8 +481,6 @@ private fun OverviewSection(
                         .build(),
                 placeholder = painterResource(R.drawable.placeholder),
                 error = painterResource(R.drawable.placeholder),
-                // Decorative: it sits behind the overview text and carries no
-                // information the poster and title haven't already announced.
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier.matchParentSize()
@@ -464,8 +502,6 @@ private fun OverviewSection(
                         .fillMaxWidth()
                         .padding(backdropContentPadding)
               ) {
-            // White rather than onSurface: this text sits on an arbitrary
-            // photograph behind a black scrim, not on the app surface.
             Text(
                     text = stringResource(R.string.details_overview_label),
                     color = Color.White,
@@ -482,4 +518,3 @@ private fun OverviewSection(
         }
     }
 }
-

@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.details
+package com.bk.mmovies.ui.screen.tvseriesdetails
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -21,55 +21,54 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
-import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.screen.details.screencomponents.DetailsScreenContent
+import com.bk.mmovies.ui.screen.tvseriesdetails.screencomponents.TvSeriesDetailsScreenContent
 
-private const val TAG = "MovieDetailsScreen"
+private const val TAG = "TvSeriesDetailsScreen"
 
 @Composable
-fun MovieDetailsScreen(
-        movieId: Int,
-        category: MovieCategory,
-        onBack: () -> Unit
-                      ) {
-    val movieDetailsViewModel = hiltViewModel<MovieDetailsViewModel>()
-    val state by movieDetailsViewModel.movieDetailsScreenState.collectAsStateWithLifecycle()
+fun TvSeriesDetailsScreen(
+        seriesId: Int,
+        onBack: () -> Unit,
+        onNavigateToSeasonDetails: (seasonNumber: Int) -> Unit = {}
+                         ) {
+    val tvSeriesDetailsViewModel = hiltViewModel<TvSeriesDetailsViewModel>()
+    val state by tvSeriesDetailsViewModel.tvSeriesDetailsScreenState.collectAsStateWithLifecycle()
 
-    LaunchedEffect(movieId) {
-        movieDetailsViewModel.loadMovieDetails(movieId)
+    LaunchedEffect(seriesId) {
+        tvSeriesDetailsViewModel.loadTvSeriesDetails(seriesId)
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
         // The screen previously relied entirely on the system back gesture,
         // which leaves no visible way out for anyone not using gestures.
-        DetailsTopBar(onBack = onBack)
+        TvSeriesDetailsTopBar(onBack = onBack)
 
         Box(
                 modifier = Modifier.weight(1f),
                 contentAlignment = Alignment.Center
            ) {
             when (val currentState = state) {
-                is MovieDetailsScreenState.Loading -> {
+                is TvSeriesDetailsScreenState.Loading -> {
                     LoaderView()
                 }
 
-                is MovieDetailsScreenState.Content -> {
-                    DetailsScreenContent(
-                            movieDetails = currentState.movieDetails,
-                            category = category,
-                            showFavoriteStar = movieDetailsViewModel.canToggleFavorite,
-                            onFavoriteClicked = { movieDetailsViewModel.onFavoriteClicked() },
+                is TvSeriesDetailsScreenState.Content -> {
+                    TvSeriesDetailsScreenContent(
+                            tvSeriesDetails = currentState.tvSeriesDetails,
+                            showFavoriteStar = tvSeriesDetailsViewModel.canToggleFavorite,
+                            onFavoriteClicked = { tvSeriesDetailsViewModel.onFavoriteClicked() },
+                            onSeasonClicked = onNavigateToSeasonDetails,
                             modifier = Modifier.fillMaxSize()
-                                        )
+                                                 )
                 }
 
-                is MovieDetailsScreenState.Error -> {
+                is TvSeriesDetailsScreenState.Error -> {
                     GenericErrorScreen(
                             currentState.errorMessage,
-                            onTryAgainClicked = { movieDetailsViewModel.retry() }
+                            onTryAgainClicked = { tvSeriesDetailsViewModel.retry() }
                                       )
                 }
             }
@@ -81,7 +80,7 @@ fun MovieDetailsScreen(
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun DetailsTopBar(onBack: () -> Unit) {
+private fun TvSeriesDetailsTopBar(onBack: () -> Unit) {
     TopAppBar(
             // No title: the header below already shows it at full size, and a
             // second copy here would make TalkBack announce it twice more.

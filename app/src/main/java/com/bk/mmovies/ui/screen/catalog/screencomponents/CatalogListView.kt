@@ -1,4 +1,5 @@
-package com.bk.mmovies.ui.screen.movies.screencomponents
+package com.bk.mmovies.ui.screen.catalog.screencomponents
+
 
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -61,8 +62,10 @@ import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
+import com.bk.mmovies.domain.model.CatalogItem
+import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
-import com.bk.mmovies.domain.model.MovieModel
+import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.component.FavoriteStarButton
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.CardSurface
@@ -108,34 +111,32 @@ private const val PLACEHOLDER_DATE_WIDTH_FRACTION = 0.5f
 private val placeholderCornerShape = 8.dp
 
 @Composable
-fun MoviesListView(
-        movies: List<MovieModel>,
-        selectedCategory: MovieCategory,
-        onMovieClicked: (movieId: Int) -> Unit,
+fun CatalogListView(
+        catalogItems: List<CatalogItem>,
+        selectedCategory: Category,
+        onCatalogItemClicked: (itemId: Int) -> Unit,
         isGuest: Boolean = true,
-        onFavoriteClicked: (movie: MovieModel) -> Unit = {}
-                  ) {
-    // Upcoming titles have no votes yet, and frequently no poster art either,
-    // so they get a neutral placeholder instead of the error artwork.
-    val isUpcoming = selectedCategory == MovieCategory.UpcomingMovieCategory
-    // Unreleased movies can't be favorited/rated, and guests have no account
-    // to favorite into — the star is simply absent rather than disabled.
+        onFavoriteClicked: (catalogItem: CatalogItem) -> Unit = {}
+                   ) {
+
+    val isUpcoming =
+            (selectedCategory == MovieCategory.UpcomingMovieCategory || selectedCategory == TvSeriesCategory.UpcomingTvSeriesCategory)
     val showFavoriteStar = !isUpcoming && !isGuest
 
     LazyColumn(
             content = {
                 items(
-                        items = movies,
+                        items = catalogItems,
                         key = { movie -> movie.id }
                      ) { movie ->
-                    MovieRow(
-                            movieModel = movie,
+                    CatalogItemRow(
+                            catalogItem = movie,
                             showUserScore = !isUpcoming,
                             useNeutralImageFallback = isUpcoming,
                             showFavoriteStar = showFavoriteStar,
-                            onMovieClicked = onMovieClicked,
+                            onCatalogItemClicked = onCatalogItemClicked,
                             onFavoriteClicked = onFavoriteClicked
-                            )
+                                  )
                 }
             },
             contentPadding = PaddingValues(
@@ -147,9 +148,15 @@ fun MoviesListView(
               )
 
     DisposableEffect(Unit) {
-        logDebug(TAG, "LAUNCHED")
+        logDebug(
+                TAG,
+                "LAUNCHED"
+                )
         onDispose {
-            logDebug(TAG, "DISPOSED")
+            logDebug(
+                    TAG,
+                    "DISPOSED"
+                    )
         }
     }
 }
@@ -172,23 +179,29 @@ fun MovieRowLoadingPlaceholderList() {
               )
 
     DisposableEffect(Unit) {
-        logDebug("MoviesLoadingList", "LAUNCHED")
+        logDebug(
+                "MoviesLoadingList",
+                "LAUNCHED"
+                )
         onDispose {
-            logDebug("MoviesLoadingList", "DISPOSED")
+            logDebug(
+                    "MoviesLoadingList",
+                    "DISPOSED"
+                    )
         }
     }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun MovieRow(
-        movieModel: MovieModel,
+fun CatalogItemRow(
+        catalogItem: CatalogItem,
         showUserScore: Boolean = true,
         useNeutralImageFallback: Boolean = false,
         showFavoriteStar: Boolean = false,
-        onMovieClicked: (Int) -> Unit,
-        onFavoriteClicked: (MovieModel) -> Unit = {}
-            ) {
+        onCatalogItemClicked: (Int) -> Unit,
+        onFavoriteClicked: (CatalogItem) -> Unit = {}
+                  ) {
     var isPosterZoomed by remember { mutableStateOf(false) }
 
     Card(
@@ -201,7 +214,7 @@ fun MovieRow(
                     .clickable(
                             onClickLabel = stringResource(R.string.movie_open_details_action)
                               ) {
-                        onMovieClicked(movieModel.id)
+                        onCatalogItemClicked(catalogItem.id)
                     },
             shape = RoundedCornerShape(cardCornerShape),
 
@@ -231,7 +244,7 @@ fun MovieRow(
                ) {
                 AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
-                                .data(movieModel.imageUrl)
+                                .data(catalogItem.imageUrl)
                                 .crossfade(true)
                                 .build(),
                         placeholder = painterResource(R.drawable.placeholder),
@@ -252,24 +265,24 @@ fun MovieRow(
                                         onLongClickLabel = stringResource(
                                                 R.string.movie_poster_zoom_action
                                                                          ),
-                                        onClick = { onMovieClicked(movieModel.id) },
+                                        onClick = { onCatalogItemClicked(catalogItem.id) },
                                         onLongClick = { isPosterZoomed = true }
                                                   ),
                         onError = { state ->
                             logError(
                                     TAG,
-                                    "error - loading image from url: ${movieModel.imageUrl} cause: ${state.result.throwable}"
+                                    "error - loading image from url: ${catalogItem.imageUrl} cause: ${state.result.throwable}"
                                     )
                         },
                           )
                 if (showFavoriteStar) {
                     FavoriteStarButton(
-                            isFavorite = movieModel.isFavorite,
-                            onClick = { onFavoriteClicked(movieModel) },
+                            isFavorite = catalogItem.isFavorite,
+                            onClick = { onFavoriteClicked(catalogItem) },
                             modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .padding(favoriteStarPadding)
-                                       )
+                                      )
                 }
             }
             Spacer(modifier = Modifier.width(spacerPadding))
@@ -289,7 +302,7 @@ fun MovieRow(
                                                        )
                           ) {
                         UserScoreView(
-                                score = movieModel.rating,
+                                score = catalogItem.rating,
                                 size = ratingBadgeSize
                                      )
                         Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
@@ -313,7 +326,7 @@ fun MovieRow(
                       ) {
                     Text(
                             modifier = Modifier.fillMaxWidth(),
-                            text = movieModel.title,
+                            text = catalogItem.title,
                             color = MaterialTheme.colorScheme.onSurface,
                             fontSize = titleFontSize,
                             fontWeight = FontWeight.Bold,
@@ -322,9 +335,9 @@ fun MovieRow(
                         )
                     // The mapper yields "" for a missing date; rendering it
                     // anyway left an unexplained gap under the title.
-                    if (movieModel.releaseDate.isNotBlank()) {
+                    if (catalogItem.releaseDate.isNotBlank()) {
                         Text(
-                                text = movieModel.releaseDate,
+                                text = catalogItem.releaseDate,
                                 color = MaterialTheme.colorScheme.onSurface.copy(
                                         alpha = DATE_ALPHA
                                                                                 ),
@@ -351,7 +364,7 @@ fun MovieRow(
                 AsyncImage(
                         model = ImageRequest.Builder(LocalContext.current)
                                 .data(
-                                        movieModel.imageUrl.replace(
+                                        catalogItem.imageUrl.replace(
                                                 POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
                                                 POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
                                                                     )
@@ -360,7 +373,7 @@ fun MovieRow(
                                 .build(),
                         placeholder = painterResource(R.drawable.placeholder),
                         error = painterResource(R.drawable.placeholder),
-                        contentDescription = movieModel.title,
+                        contentDescription = catalogItem.title,
                         contentScale = ContentScale.Fit,
                         modifier = Modifier
                                 .fillMaxWidth()
