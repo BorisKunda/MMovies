@@ -18,6 +18,10 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
 
+// Keeps the logo on screen long enough to read rather than flashing past on a
+// warm start with a cached session.
+private val SPLASH_MINIMUM_VISIBLE_DURATION = 1000.milliseconds
+
 @HiltViewModel
 class SplashViewModel @Inject constructor(
         private val authenticationRepository: AuthenticationRepository,
@@ -56,6 +60,9 @@ class SplashViewModel @Inject constructor(
     val invalidApiKeyToastEvent: SharedFlow<Unit> =
             _invalidApiKeyToastEvent.asSharedFlow()
 
+    // Latched once a navigation event has been emitted; see loadSplashData().
+    private var hasNavigatedAway = false
+
     init {
         viewModelScope.launch {
             internetMonitor.isInternetAvailable
@@ -89,15 +96,20 @@ class SplashViewModel @Inject constructor(
 
     private suspend fun loadSplashData() {
         _screenState.value = SplashScreenState.Loading
-        delay(1000.milliseconds)
-        if (authenticationRepository.getSharedPrefApiKey() != null) {
-            if (authenticationRepository.getSharedPrefLoginSessionId() != null) {
-                _goToMoviesEvent.emit(Unit)
-            } else {
-                _goToAuthEvent.emit(Unit)
-            }
-        } else {
+        delay(SPLASH_MINIMUM_VISIBLE_DURATION)
+        if (authenticationRepository.getSharedPrefApiKey() == null) {
             _screenState.value = SplashScreenState.MissingApiKey
+            return
+        }
+        // Connectivity flapping re-runs this collector, so without a latch a
+        // reconnect after the first pass would fire a second navigate() and
+        // push a duplicate destination onto the back stack.
+        if (hasNavigatedAway) return
+        hasNavigatedAway = true
+        if (authenticationRepository.getSharedPrefLoginSessionId() != null) {
+            _goToMoviesEvent.emit(Unit)
+        } else {
+            _goToAuthEvent.emit(Unit)
         }
     }
 }

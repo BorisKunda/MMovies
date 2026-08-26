@@ -3,9 +3,7 @@ package com.bk.mmovies.di
 
 import android.content.Context
 import androidx.room.Room
-import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
-import com.bk.mmovies.data.source.local.dao.MovieDao
 import com.bk.mmovies.data.source.local.dao.RecentSearchDao
 import com.bk.mmovies.data.source.local.dao.TvFavoriteDao
 import com.bk.mmovies.data.source.local.db.MOVIE_DATABASE_NAME
@@ -35,11 +33,6 @@ object DbModule {
     }
 
     @Provides
-    fun provideMovieDao(db: MovieDb): MovieDao {
-        return db.movieDao()
-    }
-
-    @Provides
     fun provideFavoriteDao(db: MovieDb): FavoriteDao {
         return db.favoriteDao()
     }
@@ -52,11 +45,5 @@ object DbModule {
     @Provides
     fun provideRecentSearchDao(db: MovieDb): RecentSearchDao {
         return db.recentSearchDao()
-    }
-
-    @Singleton
-    @Provides
-    fun provideDbManager(): DbManager {
-        return DbManager()
     }
 }

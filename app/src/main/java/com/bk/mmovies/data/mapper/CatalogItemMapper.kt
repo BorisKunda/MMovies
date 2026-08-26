@@ -1,6 +1,7 @@
 package com.bk.mmovies.data.mapper
 
 import com.bk.mmovies.domain.model.CatalogItem
+import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.domain.model.TvSeriesModel
 import javax.inject.Inject
@@ -14,6 +15,7 @@ class CatalogItemMapper @Inject constructor() {
             title = movie.title,
             imageUrl = movie.imageUrl,
             releaseDate = movie.releaseDate,
+            mediaType = CatalogMediaType.MOVIE,
             rating = movie.rating,
             isFavorite = movie.isFavorite)
 
@@ -24,6 +26,7 @@ class CatalogItemMapper @Inject constructor() {
             title = tvSeries.title,
             imageUrl = tvSeries.imageUrl,
             releaseDate = tvSeries.firstAirDate,
+            mediaType = CatalogMediaType.TV_SERIES,
             rating = tvSeries.rating,
             isFavorite = tvSeries.isFavorite)
 }

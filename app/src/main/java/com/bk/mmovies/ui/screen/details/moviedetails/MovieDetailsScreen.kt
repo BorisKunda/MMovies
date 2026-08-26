@@ -1,5 +1,6 @@
 package com.bk.mmovies.ui.screen.details.moviedetails
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -33,13 +35,21 @@ private const val TAG = "MovieDetailsScreen"
 fun MovieDetailsScreen(
         movieId: Int,
         category: MovieCategory,
-        onBack: () -> Unit
+        onBack: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}
                       ) {
+    val context = LocalContext.current
     val movieDetailsViewModel = hiltViewModel<MovieDetailsViewModel>()
     val state by movieDetailsViewModel.movieDetailsScreenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(movieId) {
         movieDetailsViewModel.loadMovieDetails(movieId)
+    }
+
+    LaunchedEffect(Unit) {
+        movieDetailsViewModel.messageEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -75,7 +85,7 @@ fun MovieDetailsScreen(
             }
         }
 
-        PoweredByTmdbFooter()
+        PoweredByTmdbFooter(onClick = onNavigateToTerms)
     }
 }
 

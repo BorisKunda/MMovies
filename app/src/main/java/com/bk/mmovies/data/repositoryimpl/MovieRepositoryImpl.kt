@@ -5,9 +5,7 @@ import android.content.Context
 import com.bk.mmovies.R
 import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
-import com.bk.mmovies.data.source.local.DbManager
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
-import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.local.entity.FavoriteEntity
 import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS
 import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_AND_ACCOUNT_STATES
@@ -19,6 +17,7 @@ import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteRequestDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteResponseDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.isLastPage
 import com.bk.mmovies.domain.model.result.MovieDetailsResult
 import com.bk.mmovies.domain.model.result.MoviesResult
 import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
@@ -29,17 +28,17 @@ import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
 
+// TMDB returns 20 favorites per page, so this covers 1000 favorited movies.
+private const val MAX_FAVORITE_SYNC_PAGES = 50
+
 class MovieRepositoryImpl @Inject constructor(
         private val api: TmdbApi,
-        private val db: MovieDb,
         private val networkManager: NetworkManager,
-        private val dbManager: DbManager,
         private val favoriteDao: FavoriteDao,
         private val movieMapper: MovieMapper,
         private val movieDetailsMapper: MovieDetailsMapper,
         @ApplicationContext private val context: Context
                                              ) : MovieRepository {
-    private val TAG = "MovieRepositoryImpl"
     private val failureMessage: String
         get() = context.getString(R.string.error_movies_load_failed)
     private val detailsFailureMessage: String
@@ -155,16 +154,25 @@ class MovieRepositoryImpl @Inject constructor(
         }
     }
 
+    // The category endpoints cross-reference this cache to draw stars, so it
+    // has to hold *every* favorite, not just the first page TMDB returns
+    // (20 per page). Bounded so a surprising totalPages can't spin forever.
     override suspend fun syncFavoriteIds(accountId: Int, sessionId: String) {
-        val apiCallResult: ApiCallResult<MovieListDto> = networkManager.executeApiCall(
-                "SyncFavoriteIds",
-                apiCall = { -> api.getFavoriteMovies(accountId, sessionId) })
-
-        if (apiCallResult is ApiCallResult.Success<MovieListDto>) {
-            val ids = apiCallResult.data.movies.orEmpty().mapNotNull { it.id }
-            favoriteDao.clearAll()
-            favoriteDao.insertAll(ids.map { FavoriteEntity(it) })
+        val ids = mutableListOf<Int>()
+        var page = 1
+        while (page <= MAX_FAVORITE_SYNC_PAGES) {
+            val apiCallResult: ApiCallResult<MovieListDto> = networkManager.executeApiCall(
+                    "SyncFavoriteIds",
+                    apiCall = { -> api.getFavoriteMovies(accountId, sessionId, page = page) })
+            // Leave the existing cache alone on a mid-sync failure rather than
+            // replacing it with a partial list — a half list would clear stars
+            // for favorites the account really has.
+            if (apiCallResult !is ApiCallResult.Success<MovieListDto>) return
+            ids += apiCallResult.data.movies.orEmpty().mapNotNull { it.id }
+            if (isLastPage(page, apiCallResult.data.totalPages ?: page)) break
+            page++
         }
+        favoriteDao.replaceAll(ids.map { FavoriteEntity(it) })
     }
 
     override suspend fun getCachedFavoriteIds(): Set<Int> {

@@ -13,25 +13,31 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 private val footerPadding = 16.dp
 private val footerIndicatorSize = 24.dp
 
-// Fires onLoadMore on every layout pass where the user is scrolled within
-// `buffer` items of the end of the list, so the next page starts loading
-// before they hit the bottom edge. Deliberately not deduped on the
-// near-end boolean: if a loaded page doesn't move the last visible item
-// past the buffer window (e.g. a short/filtered list), the boolean never
-// changes and a LaunchedEffect keyed on it would never re-fire even though
-// more pages are still available. onLoadMore's own isLoadingNextPage/
-// endReached guard on the caller side makes the repeated calls harmless.
+// Fires onLoadMore when the user is scrolled within `buffer` items of the end
+// of the list, so the next page starts loading before they hit the bottom edge.
+//
+// Deliberately not deduped on the near-end boolean: if a loaded page doesn't
+// move the last visible item past the buffer window (e.g. a short/filtered
+// list), the boolean never changes and a LaunchedEffect keyed on it would
+// never re-fire even though more pages are still available. Deduping on
+// (lastVisibleIndex, totalItems) keeps that re-fire — appending a page always
+// changes totalItems — while dropping the per-frame repeats: `layoutInfo` is a
+// fresh object on every layout pass, so collecting it undeduped called
+// onLoadMore on each one for the whole time the user sat near the end.
 @Composable
 fun LazyListState.PaginationEffect(buffer: Int = 4, onLoadMore: () -> Unit) {
     LaunchedEffect(this, buffer) {
-        snapshotFlow { layoutInfo }
-                .collect { info ->
-                    val totalItems = info.totalItemsCount
-                    val lastVisibleIndex = info.visibleItemsInfo.lastOrNull()?.index ?: 0
+        snapshotFlow {
+            val info = layoutInfo
+            (info.visibleItemsInfo.lastOrNull()?.index ?: 0) to info.totalItemsCount
+        }
+                .distinctUntilChanged()
+                .collect { (lastVisibleIndex, totalItems) ->
                     if (totalItems > 0 && lastVisibleIndex >= totalItems - 1 - buffer) {
                         onLoadMore()
                     }

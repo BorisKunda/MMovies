@@ -22,7 +22,6 @@ import com.bk.mmovies.data.source.remote.ON_TV_TV_SERIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.POPULAR_MOVIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.POPULAR_TV_SERIES_LIST_ENDPOINT
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_APPEND_TO_RESPONSE
-import com.bk.mmovies.data.source.remote.QUERY_PARAM_LANGUAGE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_PAGE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_QUERY
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_SESSION_ID
@@ -59,6 +58,11 @@ import retrofit2.http.POST
 import retrofit2.http.Path
 import retrofit2.http.Query
 
+// No endpoint here declares a `language` parameter: LanguageInterceptor sets
+// it on every outgoing request from the current app locale. The hardcoded
+// `language = "en-US"` defaults some of these used to carry were dead (the
+// interceptor overwrites via setQueryParameter) but read as if this app were
+// English-only — don't reintroduce them.
 interface TmdbApi {
     @GET(AUTHENTICATION_ENDPOINT)
     suspend fun getIsApiV3TokenValid(): Response<V3TokenValidityDto>
@@ -107,7 +111,6 @@ interface TmdbApi {
     suspend fun getFavoriteMovies(
             @Path("account_id") accountId: Int,
             @Query(QUERY_PARAM_SESSION_ID) sessionId: String,
-            @Query(QUERY_PARAM_LANGUAGE) language: String = "en-US",
             @Query(QUERY_PARAM_PAGE) page: Int = 1,
             @Query(QUERY_PARAM_SORT_BY) sortBy: String = "created_at.asc"
                                   ): Response<MovieListDto>
@@ -116,7 +119,6 @@ interface TmdbApi {
     suspend fun getFavoriteTvSeries(
             @Path("account_id") accountId: Int,
             @Query(QUERY_PARAM_SESSION_ID) sessionId: String,
-            @Query(QUERY_PARAM_LANGUAGE) language: String = "en-US",
             @Query(QUERY_PARAM_PAGE) page: Int = 1,
             @Query(QUERY_PARAM_SORT_BY) sortBy: String = "created_at.asc"
                                     ): Response<TvSeriesListDto>
@@ -129,7 +131,6 @@ interface TmdbApi {
 
     @GET(DISCOVER_MOVIES_LIST_ENDPOINT)
     suspend fun getUpcomingMovies(
-            @Query("language") language: String = "en-US",
             @Query("with_original_language") withOriginalLanguage: String = "en",
             @Query("include_adult") includeAdult: Boolean = false,
             @Query("include_video") includeVideo: Boolean = false,
@@ -171,7 +172,7 @@ interface TmdbApi {
 
     @GET(DISCOVER_TV_SERIES_LIST_ENDPOINT)
     suspend fun getUpcomingTvSeries(
-            @Query("language") language: String = "en-US",
+
             @Query("with_original_language") withOriginalLanguage: String = "en",
             @Query("include_adult") includeAdult: Boolean = false,
             @Query("sort_by") sortBy: String = "popularity.desc",
@@ -203,8 +204,7 @@ interface TmdbApi {
 
     @GET(PERSON_ENDPOINT)
     suspend fun getPersonDetails(
-            @Path("person_id") personId: Int,
-            @Query(QUERY_PARAM_LANGUAGE) language: String = "en-US"
+            @Path("person_id") personId: Int
                                  ): Response<PersonDetailsDto>
 
     @GET(SEARCH_MULTI_ENDPOINT)

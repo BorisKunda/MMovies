@@ -28,6 +28,18 @@
     <string name="error_season_load_failed">Couldn\'t load season details right now. Please try again later.</string>
     <string name="error_episode_load_failed">Couldn\'t load episode details right now. Please try again later.</string>
     <string name="error_search_failed">Couldn\'t search right now. Please try again later.</string>
+    <string name="error_api_key_verify_failed">Couldn\'t verify your API key. Please try again later.</string>
+    <string name="error_api_key_verify_no_network">Couldn\'t verify your API key. Please check your network.</string>
+    <string name="error_api_key_invalid">Invalid API key.</string>
+    <string name="error_login_start_failed">Couldn\'t start login. Please try again later.</string>
+    <string name="error_login_invalid_credentials">Invalid username or password.</string>
+    <string name="error_login_failed">Couldn\'t log in. Please try again later.</string>
+    <string name="error_guest_session_failed">Couldn\'t continue as guest. Please try again later.</string>
+    <string name="error_account_details_failed">Couldn\'t load account details. Please try again later.</string>
+    <string name="error_logout_failed">Couldn\'t log out. Please try again later.</string>
+    <string name="error_favorite_login_required">Log in to save favorites.</string>
+    <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
+    <string name="error_no_network_generic">No connection. Please check your network.</string>
 
     <string name="generic_error_title">Error</string>
     <string name="generic_error_message">Something went wrong</string>
@@ -141,6 +153,23 @@
     <string name="terms_commercial_use_body">This app is not monetized and generates no revenue. It is a personal, non-commercial project and does not sell, sublicense, or redistribute TMDB content or data.</string>
     <string name="terms_changes_heading">Changes to These Terms</string>
     <string name="terms_changes_body">These terms may be updated from time to time. Continued use of the app after changes are made constitutes acceptance of the updated terms.</string>
+    <string name="terms_privacy_policy_link">Privacy Policy</string>
+
+    <!--PRIVACY POLICY-->
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_policy_intro">MMovies is a free, non-commercial personal project. This policy explains what information the app handles and how.</string>
+    <string name="privacy_policy_account_heading">Account Credentials</string>
+    <string name="privacy_policy_account_body">When you log in, your TMDB username and password are sent directly to TMDB\'s servers to create a session and are never stored or seen by anyone other than TMDB. You can also use the app as a guest without providing any credentials.</string>
+    <string name="privacy_policy_local_storage_heading">Locally Stored Data</string>
+    <string name="privacy_policy_local_storage_body">The app stores your TMDB session identifier and account ID on your device to keep you signed in. This data stays on your device and is removed when you log out or clear the app\'s storage.</string>
+    <string name="privacy_policy_third_party_heading">Third-Party Services</string>
+    <string name="privacy_policy_third_party_body">All movie and TV data, images, and account authentication are provided by The Movie Database (TMDB). Use of TMDB\'s services is subject to TMDB\'s own privacy policy.</string>
+    <string name="privacy_policy_no_collection_heading">No Analytics or Tracking</string>
+    <string name="privacy_policy_no_collection_body">MMovies does not collect analytics, does not use advertising, and does not share any data with third parties beyond the TMDB requests needed for the app to function.</string>
+    <string name="privacy_policy_children_heading">Children\'s Privacy</string>
+    <string name="privacy_policy_children_body">This app is not directed at children and does not knowingly collect information from children.</string>
+    <string name="privacy_policy_changes_heading">Changes to This Policy</string>
+    <string name="privacy_policy_changes_body">This policy may be updated from time to time. Continued use of the app after changes are made constitutes acceptance of the updated policy.</string>
 
     <string name="lorem_ipsum_short" translatable="false">Lorem ipsum..</string>
     <string name="lorem_ipsum_medium" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>

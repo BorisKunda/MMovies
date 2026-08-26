@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.bk.mmovies.domain.model.CatalogItem
+import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogListView
 import com.bk.mmovies.ui.screen.catalog.screencomponents.MovieRowLoadingPlaceholder
@@ -24,6 +25,7 @@ private val sampleCatalogItems = listOf(
                 title = "The Matrix",
                 imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
                 releaseDate = "March 31, 1999",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 83,
                 isFavorite = true
                    ),
@@ -32,6 +34,7 @@ private val sampleCatalogItems = listOf(
                 title = "Inception",
                 imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
                 releaseDate = "July 16, 2010",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 91
                    ),
         // No date and no image: both blocks must simply not render/fall back.
@@ -40,6 +43,7 @@ private val sampleCatalogItems = listOf(
                 title = "An Untitled Show With A Very Long Name That Has To Truncate",
                 imageUrl = "",
                 releaseDate = "",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 0
                    )
                                        )
@@ -50,6 +54,7 @@ private val sampleCatalogItemsHebrew = listOf(
                 title = "המטריקס",
                 imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
                 releaseDate = "31 במרץ 1999",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 83,
                 isFavorite = true
                    ),
@@ -58,6 +63,7 @@ private val sampleCatalogItemsHebrew = listOf(
                 title = "התחלה",
                 imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
                 releaseDate = "16 ביולי 2010",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 91
                    )
                                              )
@@ -68,6 +74,7 @@ private val sampleCatalogItemsRussian = listOf(
                 title = "Матрица",
                 imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
                 releaseDate = "31 марта 1999",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 83,
                 isFavorite = true
                    ),
@@ -76,6 +83,7 @@ private val sampleCatalogItemsRussian = listOf(
                 title = "Начало",
                 imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
                 releaseDate = "16 июля 2010",
+                mediaType = CatalogMediaType.MOVIE,
                 rating = 91
                    )
                                               )

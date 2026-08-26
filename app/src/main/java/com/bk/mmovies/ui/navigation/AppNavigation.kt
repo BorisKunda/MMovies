@@ -18,6 +18,7 @@ import com.bk.mmovies.ui.screen.details.moviedetails.MovieDetailsScreen
 import com.bk.mmovies.ui.screen.details.seasondetails.SeasonDetailsScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
 import com.bk.mmovies.ui.screen.details.tvseriesdetails.TvSeriesDetailsScreen
+import com.bk.mmovies.ui.screen.privacypolicy.PrivacyPolicyScreen
 import com.bk.mmovies.ui.screen.search.SearchScreen
 import com.bk.mmovies.ui.screen.terms.TermsScreen
 
@@ -52,6 +53,12 @@ fun AppNavigation(
     val navigateToSearch: () -> Unit = {
         navController.navigate(AppDestination.SearchDestination)
     }
+    val navigateToTerms: () -> Unit = {
+        navController.navigate(AppDestination.TermsDestination)
+    }
+    val navigateToPrivacyPolicy: () -> Unit = {
+        navController.navigate(AppDestination.PrivacyPolicyDestination)
+    }
 
     NavHost(
             navController,
@@ -76,7 +83,7 @@ fun AppNavigation(
                                 inclusive = true
                             }
                         }
-                    })
+                    }, onNavigateToTerms = navigateToTerms)
                 })
 
                 composable<AppDestination.AuthDestination>(content = {
@@ -86,7 +93,7 @@ fun AppNavigation(
                                 inclusive = true
                             }
                         }
-                    })
+                    }, onNavigateToTerms = navigateToTerms)
                 })
 
                 composable<AppDestination.MoviesDestination>(content = {
@@ -104,7 +111,7 @@ fun AppNavigation(
                         }
                     }, onNavigateToSearch = {
                         navigateToSearch()
-                    }
+                    }, onNavigateToTerms = navigateToTerms
                                  )
                 })
                 composable<AppDestination.MovieDetailsDestination>(content = { backStackEntry ->
@@ -114,7 +121,8 @@ fun AppNavigation(
                             movieId = destination.movieId,
                             category = Category.fromCategoryId(destination.categoryId) as? MovieCategory
                                     ?: MovieCategory.PopularMovieCategory,
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            onNavigateToTerms = navigateToTerms
                                       )
                 })
                 composable<AppDestination.TvSeriesDetailsDestination>(content = { backStackEntry ->
@@ -125,7 +133,8 @@ fun AppNavigation(
                             onBack = { navController.popBackStack() },
                             onNavigateToSeasonDetails = { seasonNumber ->
                                 navigateToSeasonDetails(destination.seriesId, seasonNumber)
-                            }
+                            },
+                            onNavigateToTerms = navigateToTerms
                                          )
                 })
                 composable<AppDestination.SeasonDetailsDestination>(content = { backStackEntry ->
@@ -134,11 +143,18 @@ fun AppNavigation(
                     SeasonDetailsScreen(
                             seriesId = destination.seriesId,
                             seasonNumber = destination.seasonNumber,
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            onNavigateToTerms = navigateToTerms
                                        )
                 })
                 composable<AppDestination.TermsDestination>(content = {
-                    TermsScreen(onBack = { navController.popBackStack() })
+                    TermsScreen(
+                            onBack = { navController.popBackStack() },
+                            onNavigateToPrivacyPolicy = navigateToPrivacyPolicy
+                               )
+                })
+                composable<AppDestination.PrivacyPolicyDestination>(content = {
+                    PrivacyPolicyScreen(onBack = { navController.popBackStack() })
                 })
                 composable<AppDestination.SearchDestination>(content = {
                     SearchScreen(

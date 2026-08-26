@@ -84,7 +84,8 @@ private fun authOutlinedTextFieldColors() = OutlinedTextFieldDefaults.colors(
 fun AuthWelcomeScreen(
         onLoginClicked: (username: String, password: String) -> Unit,
         onRegisterOnTmdbClicked: () -> Unit,
-        onContinueAsGuestClicked: () -> Unit
+        onContinueAsGuestClicked: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}
                              ) {
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
@@ -270,7 +271,10 @@ fun AuthWelcomeScreen(
         }
     }
 
-        PoweredByTmdbFooter(modifier = Modifier.align(Alignment.BottomCenter))
+        PoweredByTmdbFooter(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onClick = onNavigateToTerms
+                           )
     }
 }
 

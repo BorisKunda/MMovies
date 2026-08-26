@@ -18,7 +18,10 @@ private const val TAG = "AuthScreen"
 
 
 @Composable
-fun AuthScreen(onNavigateToMoviesScreen: () -> Unit) {
+fun AuthScreen(
+        onNavigateToMoviesScreen: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}
+              ) {
     val context = LocalContext.current
     val authViewModel = hiltViewModel<AuthViewModel>()
     val state by authViewModel.authScreenState.collectAsStateWithLifecycle()
@@ -46,7 +49,8 @@ fun AuthScreen(onNavigateToMoviesScreen: () -> Unit) {
                     },
                     onContinueAsGuestClicked = {
                         authViewModel.onContinueAsGuestClicked()
-                    }
+                    },
+                    onNavigateToTerms = onNavigateToTerms
                              )
         }
         AuthScreenState.Loading                                   -> {

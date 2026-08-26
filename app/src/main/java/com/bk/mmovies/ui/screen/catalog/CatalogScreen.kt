@@ -1,5 +1,6 @@
 package com.bk.mmovies.ui.screen.catalog
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,6 +21,7 @@ import androidx.compose.runtime.saveable.SaveableStateHolder
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -52,8 +54,10 @@ private const val TAG = "CatalogScreen"
 fun CatalogScreen(
         onNavigateToDetailsScreen: (id: Int, category: Category) -> Unit,
         onNavigateToAuthScreen: () -> Unit,
-        onNavigateToSearch: () -> Unit) {
+        onNavigateToSearch: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}) {
     val lifecycleOwner = LocalLifecycleOwner.current
+    val context = LocalContext.current
     val catalogViewModel = hiltViewModel<CatalogViewModel>()
     val state by catalogViewModel.catalogScreenState.collectAsStateWithLifecycle()
     val selectedTab by catalogViewModel.selectedTab.collectAsStateWithLifecycle()
@@ -78,7 +82,8 @@ fun CatalogScreen(
                             onTabSelected = { catalogViewModel.onTabSelected(it) }
                                        )
                     PoweredByTmdbFooter(
-                            modifier = Modifier.padding(top = tmdbFooterTopPadding)
+                            modifier = Modifier.padding(top = tmdbFooterTopPadding),
+                            onClick = onNavigateToTerms
                                        )
                 }
             }
@@ -146,6 +151,11 @@ fun CatalogScreen(
     LaunchedEffect(Unit) {
         catalogViewModel.goToAuthNavEvent.collect {
             onNavigateToAuthScreen()
+        }
+    }
+    LaunchedEffect(Unit) {
+        catalogViewModel.messageEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
         }
     }
     DisposableEffect(lifecycleOwner) {

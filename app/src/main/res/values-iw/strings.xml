@@ -28,6 +28,18 @@
     <string name="error_season_load_failed">לא ניתן היה לטעון את פרטי העונה כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_episode_load_failed">לא ניתן היה לטעון את פרטי הפרק כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_search_failed">לא ניתן היה לבצע חיפוש כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_api_key_verify_failed">לא ניתן היה לאמת את מפתח ה-API שלך. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_api_key_verify_no_network">לא ניתן היה לאמת את מפתח ה-API שלך. אנא בדוק את החיבור לרשת.</string>
+    <string name="error_api_key_invalid">מפתח API לא תקין.</string>
+    <string name="error_login_start_failed">לא ניתן היה להתחיל את ההתחברות. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_login_invalid_credentials">שם משתמש או סיסמה שגויים.</string>
+    <string name="error_login_failed">ההתחברות נכשלה. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_guest_session_failed">לא ניתן היה להמשיך כאורח. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_account_details_failed">לא ניתן היה לטעון את פרטי החשבון. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_logout_failed">ההתנתקות נכשלה. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_favorite_login_required">התחבר כדי לשמור מועדפים.</string>
+    <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
+    <string name="error_no_network_generic">אין חיבור. אנא בדוק את החיבור לרשת.</string>
 
     <string name="generic_error_title">שגיאה</string>
     <string name="generic_error_message">משהו השתבש</string>
@@ -141,4 +153,21 @@
     <string name="terms_commercial_use_body">אפליקציה זו אינה ממומנת ואינה מייצרת הכנסה. מדובר בפרויקט אישי ולא מסחרי, שאינו מוכר, מעניק רישיון משנה או מפיץ מחדש תוכן או נתונים של TMDB.</string>
     <string name="terms_changes_heading">שינויים בתנאים</string>
     <string name="terms_changes_body">תנאים אלה עשויים להתעדכן מעת לעת. המשך השימוש באפליקציה לאחר ביצוע שינויים מהווה הסכמה לתנאים המעודכנים.</string>
+    <string name="terms_privacy_policy_link">מדיניות פרטיות</string>
+
+    <!--PRIVACY POLICY-->
+    <string name="privacy_policy_title">מדיניות פרטיות</string>
+    <string name="privacy_policy_intro">MMovies היא אפליקציה חינמית ולא מסחרית, פרויקט אישי. מדיניות זו מסבירה אילו נתונים האפליקציה מטפלת בהם וכיצד.</string>
+    <string name="privacy_policy_account_heading">פרטי חשבון</string>
+    <string name="privacy_policy_account_body">בעת ההתחברות, שם המשתמש והסיסמה שלך ב-TMDB נשלחים ישירות לשרתי TMDB ליצירת session ואינם נשמרים או נראים לאף גורם מלבד TMDB. ניתן גם להשתמש באפליקציה כאורח ללא מסירת פרטי חשבון.</string>
+    <string name="privacy_policy_local_storage_heading">נתונים המאוחסנים במכשיר</string>
+    <string name="privacy_policy_local_storage_body">האפליקציה שומרת את מזהה ה-session ואת מזהה החשבון שלך ב-TMDB במכשיר שלך כדי לשמור אותך מחובר. נתונים אלה נשארים במכשיר שלך ונמחקים בעת התנתקות או ניקוי אחסון האפליקציה.</string>
+    <string name="privacy_policy_third_party_heading">שירותי צד שלישי</string>
+    <string name="privacy_policy_third_party_body">כל הנתונים על סרטים וסדרות, התמונות ואימות החשבון מסופקים על ידי The Movie Database ‏(TMDB). השימוש בשירותי TMDB כפוף למדיניות הפרטיות של TMDB עצמה.</string>
+    <string name="privacy_policy_no_collection_heading">ללא אנליטיקס או מעקב</string>
+    <string name="privacy_policy_no_collection_body">MMovies אינה אוספת נתוני אנליטיקס, אינה משתמשת בפרסום ואינה משתפת נתונים עם צדדים שלישיים מעבר לבקשות ל-TMDB הנחוצות לפעולת האפליקציה.</string>
+    <string name="privacy_policy_children_heading">פרטיות ילדים</string>
+    <string name="privacy_policy_children_body">אפליקציה זו אינה מיועדת לילדים ואינה אוספת ביודעין מידע מילדים.</string>
+    <string name="privacy_policy_changes_heading">שינויים במדיניות זו</string>
+    <string name="privacy_policy_changes_body">מדיניות זו עשויה להתעדכן מעת לעת. המשך השימוש באפליקציה לאחר ביצוע שינויים מהווה הסכמה למדיניות המעודכנת.</string>
 </resources>

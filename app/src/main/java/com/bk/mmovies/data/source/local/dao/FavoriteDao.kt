@@ -4,6 +4,7 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import androidx.room.Transaction
 import com.bk.mmovies.data.source.local.entity.FavoriteEntity
 
 @Dao
@@ -22,4 +23,15 @@ interface FavoriteDao {
 
     @Query("DELETE FROM favorites")
     suspend fun clearAll()
+
+    /**
+     * Swaps the whole cache for [favorites] atomically. A plain clearAll() +
+     * insertAll() pair leaves the table empty if the coroutine is cancelled
+     * between them (navigating away mid-sync), silently dropping every star.
+     */
+    @Transaction
+    suspend fun replaceAll(favorites: List<FavoriteEntity>) {
+        clearAll()
+        insertAll(favorites)
+    }
 }

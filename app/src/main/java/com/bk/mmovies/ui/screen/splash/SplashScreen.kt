@@ -29,7 +29,8 @@ private const val TAG = "SplashScreen"
 @Composable
 fun SplashScreen(
         onNavigateToAuthScreen: () -> Unit,
-        onNavigateToMoviesScreen: () -> Unit
+        onNavigateToMoviesScreen: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}
                 ) {
     val context = LocalContext.current
     val viewModel: SplashViewModel = hiltViewModel()
@@ -76,7 +77,10 @@ fun SplashScreen(
             }
         }
 
-        PoweredByTmdbFooter(modifier = Modifier.align(Alignment.BottomCenter))
+        PoweredByTmdbFooter(
+                modifier = Modifier.align(Alignment.BottomCenter),
+                onClick = onNavigateToTerms
+                           )
     }
 
     LaunchedEffect(Unit) {
