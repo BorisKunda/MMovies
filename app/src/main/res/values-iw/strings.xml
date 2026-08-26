@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MMovies</string>
+    <string name="app_name">ComposeTMDB</string>
 
     <!--ERRORS-->
     <string name="error_no_internet_connection_title">אין חיבור לאינטרנט</string>
