@@ -8,6 +8,7 @@ import com.bk.mmovies.R
 import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.data.mapper.CatalogItemMapper
 import com.bk.mmovies.domain.model.CatalogItem
+import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.TvSeriesCategory
@@ -98,6 +99,11 @@ class CatalogViewModel @Inject constructor(
             MutableSharedFlow(extraBufferCapacity = 1)
     val goToAuthNavEvent: SharedFlow<Unit> = _goToAuthNavEvent.asSharedFlow()
 
+    /** One-shot user-facing messages (favorite failures, login required). */
+    private val _messageEvent: MutableSharedFlow<String> =
+            MutableSharedFlow(extraBufferCapacity = 1)
+    val messageEvent: SharedFlow<String> = _messageEvent.asSharedFlow()
+
     private var loadCatalogItemsJob: Job? = null
     private var loadNextPageJob: Job? = null
 
@@ -147,7 +153,14 @@ class CatalogViewModel @Inject constructor(
                             result.accountId,
                             loginSessionId
                                                  )
-                    startLoad(_selectedCategory.value)
+                    // Re-mark the loaded list rather than reloading it. This
+                    // used to call startLoad(), which refetched the same page
+                    // the init block had already requested — two round trips
+                    // and a visible Loading→Content→Loading→Content flicker on
+                    // every cold start. Joining first so a list that lands
+                    // after the sync still gets its stars corrected.
+                    loadCatalogItemsJob?.join()
+                    refreshFavoriteMarkers()
                 }
                 is AccountDetailsResult.Failure -> {
                     _userProfileState.value = UserProfileUiState(isGuest = false)
@@ -341,22 +354,32 @@ class CatalogViewModel @Inject constructor(
     }
 
     fun onFavoriteClicked(catalogItem: CatalogItem) {
-        val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
-        val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
+        val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
+        val accountId = authenticationRepository.getSharedPrefAccountId()
+        // Tapping the star used to do nothing at all for guests, and for the
+        // window before account details resolve. Say why instead.
+        if (sessionId == null || accountId == null) {
+            _messageEvent.tryEmit(context.getString(R.string.error_favorite_login_required))
+            return
+        }
         val newIsFavorite = !catalogItem.isFavorite
-        val isMoviesTab = _selectedTab.value == CatalogBottomTab.Movies
 
         // Optimistic: flip the star immediately, revert only if the call fails.
         // The repository persists the toggle to the local favorite-id cache too.
         updateCatalogItemFavoriteState(catalogItem.id, newIsFavorite)
         viewModelScope.launch {
-            val result = if (isMoviesTab) {
-                movieRepository.toggleFavorite(accountId, sessionId, catalogItem.id, newIsFavorite)
-            } else {
-                tvRepository.toggleFavorite(accountId, sessionId, catalogItem.id, newIsFavorite)
+            // Routed on the item's own media type, not the selected tab: the
+            // two can disagree, and the id would then be sent to the wrong
+            // TMDB endpoint and favorite an unrelated title.
+            val result = when (catalogItem.mediaType) {
+                CatalogMediaType.MOVIE     ->
+                    movieRepository.toggleFavorite(accountId, sessionId, catalogItem.id, newIsFavorite)
+                CatalogMediaType.TV_SERIES ->
+                    tvRepository.toggleFavorite(accountId, sessionId, catalogItem.id, newIsFavorite)
             }
             if (result is ToggleFavoriteResult.Failure) {
                 updateCatalogItemFavoriteState(catalogItem.id, catalogItem.isFavorite)
+                _messageEvent.tryEmit(result.errorMessage)
             }
         }
     }
@@ -369,12 +392,15 @@ class CatalogViewModel @Inject constructor(
      */
     fun refreshFavoriteMarkers() {
         if (_catalogScreenState.value !is CatalogScreenState.Content) return
-        val isMoviesTab = _selectedTab.value == CatalogBottomTab.Movies
         viewModelScope.launch {
-            val favoriteIds = if (isMoviesTab) {
-                movieRepository.getCachedFavoriteIds()
-            } else {
-                tvRepository.getCachedFavoriteIds()
+            // Both caches, keyed by the item's own media type — a mixed list
+            // (or a tab that disagrees with what's shown) would otherwise get
+            // every item checked against one media type's id set.
+            val movieFavoriteIds = movieRepository.getCachedFavoriteIds()
+            val tvFavoriteIds = tvRepository.getCachedFavoriteIds()
+            fun CatalogItem.isFavoriteNow(): Boolean = when (mediaType) {
+                CatalogMediaType.MOVIE     -> movieFavoriteIds.contains(id)
+                CatalogMediaType.TV_SERIES -> tvFavoriteIds.contains(id)
             }
             // Re-read the state instead of relying on what was captured
             // before the suspending lookup above — a loadNextPage() can
@@ -386,9 +412,9 @@ class CatalogViewModel @Inject constructor(
                     _selectedCategory.value == TvSeriesCategory.FavoritesTvSeriesCategory
             val items = if (isFavoritesCategory) {
                 // An item unfavorited elsewhere no longer belongs in this list at all.
-                latestState.catalogItems.filter { favoriteIds.contains(it.id) }
+                latestState.catalogItems.filter { it.isFavoriteNow() }
             } else {
-                latestState.catalogItems.map { it.copy(isFavorite = favoriteIds.contains(it.id)) }
+                latestState.catalogItems.map { it.copy(isFavorite = it.isFavoriteNow()) }
             }
             // Re-marking stars on an already-loaded list, not a new page fetch
             // — keep the existing pagination state (page/endReached) intact.

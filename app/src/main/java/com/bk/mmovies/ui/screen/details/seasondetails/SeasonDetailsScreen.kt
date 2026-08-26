@@ -32,7 +32,8 @@ private const val TAG = "SeasonDetailsScreen"
 fun SeasonDetailsScreen(
         seriesId: Int,
         seasonNumber: Int,
-        onBack: () -> Unit
+        onBack: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}
                        ) {
     val seasonDetailsViewModel = hiltViewModel<SeasonDetailsViewModel>()
     val state by seasonDetailsViewModel.seasonDetailsScreenState.collectAsStateWithLifecycle()
@@ -71,7 +72,7 @@ fun SeasonDetailsScreen(
             }
         }
 
-        PoweredByTmdbFooter()
+        PoweredByTmdbFooter(onClick = onNavigateToTerms)
     }
 }
 

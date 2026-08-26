@@ -2,13 +2,11 @@ package com.bk.mmovies.ui.screen.auth
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.result.GuestSessionIdResult
 import com.bk.mmovies.domain.model.result.LoginSessionIdResult
 import com.bk.mmovies.domain.model.result.LoginValidationTokenResult
 import com.bk.mmovies.domain.model.result.LoginWithCredentialsResult
 import com.bk.mmovies.domain.repository.AuthenticationRepository
-import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,9 +19,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class AuthViewModel @Inject constructor(
-        private val authenticationRepository: AuthenticationRepository,
-        localeMonitor: LocaleMonitor,
-        internetMonitor: InternetMonitor
+        private val authenticationRepository: AuthenticationRepository
                                        ) : ViewModel() {
     private val _authScreenState =
             MutableStateFlow<AuthScreenState>(AuthScreenState.Unauthenticated)
@@ -70,6 +66,11 @@ class AuthViewModel @Inject constructor(
                                             sessionResult.loginSessionId
                                                                                           )
                                     _goToMoviesNavEvent.emit(Unit)
+                                    // Navigation pops this screen, but if the
+                                    // event is ever missed, leaving the state
+                                    // on Loading strands a spinner with no way
+                                    // back. Fall back to the form instead.
+                                    _authScreenState.value = AuthScreenState.Unauthenticated
                                 }
                             }
                         }
@@ -90,6 +91,9 @@ class AuthViewModel @Inject constructor(
                 is GuestSessionIdResult.Success -> {
                     authenticationRepository.saveSharedPrefGuestSessionId(result.guestSessionId)
                     _goToMoviesNavEvent.emit(Unit)
+                    // See onLoginClicked: don't leave a spinner behind if the
+                    // navigation event goes undelivered.
+                    _authScreenState.value = AuthScreenState.Unauthenticated
                 }
             }
         }

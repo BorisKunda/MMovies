@@ -55,6 +55,10 @@ import com.bk.mmovies.ui.component.PaginationEffect
 import com.bk.mmovies.ui.screen.search.SearchResultsUiState
 import com.bk.mmovies.ui.theme.CardSurface
 
+// How far the client-side media-type filter will auto-page looking for a
+// match before giving up and showing the empty state.
+private const val MAX_FILTER_AUTO_PAGE = 5
+
 private val listBottomPadding = 8.dp
 private val rowPaddingHorizontal = 20.dp
 private val rowPaddingVertical = 10.dp
@@ -211,12 +215,14 @@ fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<Searc
                         isLoadingNextPage = state.isLoadingNextPage,
                         onLoadNextPage = onLoadNextPage
                                   )
-            } else if (!state.endReached) {
+            } else if (!state.endReached && state.currentPage < MAX_FILTER_AUTO_PAGE) {
                 // Filtering is client-side: the active filter can exclude
                 // every result fetched so far while a later, unfetched page
                 // still holds a match. There's no list here for
                 // PaginationEffect to attach to, so keep paging directly
                 // until either a match turns up or the last page is hit.
+                // Capped so a filter that matches nothing walks a handful of
+                // pages instead of every page TMDB will serve.
                 LaunchedEffect(state.currentPage, state.isLoadingNextPage, selectedFilters) {
                     if (!state.isLoadingNextPage) onLoadNextPage()
                 }

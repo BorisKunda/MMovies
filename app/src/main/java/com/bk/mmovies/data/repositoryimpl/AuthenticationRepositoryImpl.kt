@@ -1,5 +1,8 @@
 package com.bk.mmovies.data.repositoryimpl
 
+import android.content.Context
+import com.bk.mmovies.R
+import com.bk.mmovies.data.source.local.LocalSessionDataCleaner
 import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import com.bk.mmovies.data.source.remote.AVATAR_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.NetworkManager
@@ -17,7 +20,7 @@ import com.bk.mmovies.data.source.remote.dto.LoginWithCredentialsRequestDto
 import com.bk.mmovies.data.source.remote.dto.V3TokenValidityDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
 import com.bk.mmovies.data.source.remote.result.NetworkError
-import com.bk.mmovies.data.source.remote.result.toErrorMessage
+import com.bk.mmovies.data.source.remote.result.isConnectivityFailure
 import com.bk.mmovies.domain.model.result.AccountDetailsResult
 import com.bk.mmovies.domain.model.result.ApiKeyValidationResult
 import com.bk.mmovies.domain.model.result.GuestSessionIdResult
@@ -26,13 +29,25 @@ import com.bk.mmovies.domain.model.result.LoginValidationTokenResult
 import com.bk.mmovies.domain.model.result.LoginWithCredentialsResult
 import com.bk.mmovies.domain.model.result.LogoutResult
 import com.bk.mmovies.domain.repository.AuthenticationRepository
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 class AuthenticationRepositoryImpl @Inject constructor(
         private val api: TmdbApi,
         private val authCredentialsSharedPrefs: AuthCredentialsSharedPrefs,
-        private val networkManager: NetworkManager
+        private val networkManager: NetworkManager,
+        private val localSessionDataCleaner: LocalSessionDataCleaner,
+        @ApplicationContext private val context: Context
                                                       ) : AuthenticationRepository {
+
+    private fun message(resId: Int): String = context.getString(resId)
+
+    // Connectivity failures get one shared message; everything else gets the
+    // caller's operation-specific one. Both are localized, unlike the raw
+    // English text TMDB puts in an error body.
+    private fun NetworkError.toLocalizedMessage(fallbackResId: Int): String =
+            if (isConnectivityFailure) message(R.string.error_no_network_generic)
+            else message(fallbackResId)
 
     override suspend fun getApiKeyValidationResult(): ApiKeyValidationResult {
         val result: ApiCallResult<V3TokenValidityDto> = networkManager.executeApiCall(
@@ -42,7 +57,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
             is ApiCallResult.Failure                     -> {
                 when (result.error) {
                     is NetworkError.ExceptionError, NetworkError.EmptyBody -> {
-                        ApiKeyValidationResult.Failure("Couldn't verify API key, please check your network")
+                        ApiKeyValidationResult.Failure(message(R.string.error_api_key_verify_no_network))
                     }
 
                     is NetworkError.HttpError                              -> {
@@ -50,9 +65,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
                         val errorDto = result.error.errorBody
                         val apiStatusCode = errorDto?.statusCode ?: 0
                         if (httpCode == 401 && (apiStatusCode == TMDB_ERROR_CODE_INVALID_API_KEY || apiStatusCode == TMDB_ERROR_CODE_SUSPENDED_API_KEY)) {
-                            ApiKeyValidationResult.Failure(errorDto?.message ?: "Invalid API key")
+                            ApiKeyValidationResult.Failure(message(R.string.error_api_key_invalid))
                         } else {
-                            ApiKeyValidationResult.Failure("Couldn't verify API key")
+                            ApiKeyValidationResult.Failure(message(R.string.error_api_key_verify_failed))
                         }
                     }
                 }
@@ -63,10 +78,10 @@ class AuthenticationRepositoryImpl @Inject constructor(
                     if (isTokenValid) {
                         ApiKeyValidationResult.Success
                     } else ApiKeyValidationResult.Failure(
-                            "Invalid API key"
+                            message(R.string.error_api_key_invalid)
                                                          )
                 } else {
-                    ApiKeyValidationResult.Failure("Couldn't verify API key")
+                    ApiKeyValidationResult.Failure(message(R.string.error_api_key_verify_failed))
                 }
             }
         }
@@ -78,14 +93,16 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 apiCall = { api.loginStep1GetValidationToken() })
         return when (result) {
             is ApiCallResult.Failure                          -> {
-                LoginValidationTokenResult.Failure(result.error.toErrorMessage("Couldn't start login"))
+                LoginValidationTokenResult.Failure(
+                        result.error.toLocalizedMessage(R.string.error_login_start_failed)
+                                                   )
             }
             is ApiCallResult.Success<LoginValidationTokenDto> -> {
                 val loginValidationToken = result.data.loginValidationToken
                 if (result.data.success == true && loginValidationToken != null) {
                     LoginValidationTokenResult.Success(loginValidationToken)
                 } else {
-                    LoginValidationTokenResult.Failure("Couldn't start login")
+                    LoginValidationTokenResult.Failure(message(R.string.error_login_start_failed))
                 }
             }
         }
@@ -110,7 +127,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         return when (result) {
             is ApiCallResult.Failure                          -> {
                 LoginWithCredentialsResult.Failure(
-                        result.error.toErrorMessage("Invalid username or password")
+                        result.error.toLocalizedMessage(R.string.error_login_invalid_credentials)
                                                    )
             }
             is ApiCallResult.Success<LoginValidationTokenDto> -> {
@@ -118,7 +135,9 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 if (result.data.success == true && validatedToken != null) {
                     LoginWithCredentialsResult.Success(validatedToken)
                 } else {
-                    LoginWithCredentialsResult.Failure("Invalid username or password")
+                    LoginWithCredentialsResult.Failure(
+                            message(R.string.error_login_invalid_credentials)
+                                                       )
                 }
             }
         }
@@ -130,14 +149,16 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 apiCall = { api.loginStep3GetSessionId(loginValidationToken) })
         return when (result) {
             is ApiCallResult.Failure                    -> {
-                LoginSessionIdResult.Failure(result.error.toErrorMessage("Couldn't log in"))
+                LoginSessionIdResult.Failure(
+                        result.error.toLocalizedMessage(R.string.error_login_failed)
+                                             )
             }
             is ApiCallResult.Success<LoginSessionIdDto> -> {
                 val sessionId = result.data.sessionId
                 if (result.data.success == true && sessionId != null) {
                     LoginSessionIdResult.Success(sessionId)
                 } else {
-                    LoginSessionIdResult.Failure("Couldn't log in")
+                    LoginSessionIdResult.Failure(message(R.string.error_login_failed))
                 }
             }
         }
@@ -149,14 +170,16 @@ class AuthenticationRepositoryImpl @Inject constructor(
                 apiCall = { api.getGuestSessionId() })
         return when (result) {
             is ApiCallResult.Failure                    -> {
-                GuestSessionIdResult.Failure(result.error.toErrorMessage("Couldn't continue as guest"))
+                GuestSessionIdResult.Failure(
+                        result.error.toLocalizedMessage(R.string.error_guest_session_failed)
+                                             )
             }
             is ApiCallResult.Success<GuestSessionIdDto> -> {
                 val guestSessionId = result.data.guestSessionId
                 if (result.data.success == true && guestSessionId != null) {
                     GuestSessionIdResult.Success(guestSessionId)
                 } else {
-                    GuestSessionIdResult.Failure("Couldn't continue as guest")
+                    GuestSessionIdResult.Failure(message(R.string.error_guest_session_failed))
                 }
             }
         }
@@ -216,9 +239,13 @@ class AuthenticationRepositoryImpl @Inject constructor(
         }
         return try {
             authCredentialsSharedPrefs.clearSession()
+            // Clearing prefs alone left the favorite-id caches and the search
+            // history on the device, so whoever signed in next inherited the
+            // previous account's stars and saw all of their past searches.
+            localSessionDataCleaner.clearAccountScopedData()
             LogoutResult.Success
         } catch (exception: Exception) {
-            LogoutResult.Failure(exception.message ?: "Couldn't log out")
+            LogoutResult.Failure(message(R.string.error_logout_failed))
         }
     }
 
@@ -229,7 +256,7 @@ class AuthenticationRepositoryImpl @Inject constructor(
         return when (result) {
             is ApiCallResult.Failure                  -> {
                 AccountDetailsResult.Failure(
-                        result.error.toErrorMessage("Couldn't load account details")
+                        result.error.toLocalizedMessage(R.string.error_account_details_failed)
                                              )
             }
             is ApiCallResult.Success<AccountDetailsDto> -> {

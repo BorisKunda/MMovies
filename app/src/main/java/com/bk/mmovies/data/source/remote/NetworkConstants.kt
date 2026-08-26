@@ -1,12 +1,8 @@
 package com.bk.mmovies.data.source.remote
 
-const val TMDB_WEBPAGE_URL = "https://www.themoviedb.org"
 const val TMDB_WEBPAGE_SIGNUP_URL = "https://www.themoviedb.org/signup"
 const val TMDB_WEBPAGE_API_SETTINGS_URL = "https://www.themoviedb.org/settings/api"
 const val TMDB_WEBPAGE_API_GETTING_STARTED_URL = "https://developer.themoviedb.org/docs/getting-started"
-
-const val TMDB_WEBVIEW_LOGIN_URL = "https://www.themoviedb.org/authenticate/"
-const val TMDB_WEBVIEW_LOGIN_REDIRECT_URL = "mmovies://tmdb-auth"
 
 const val TMDB_API_BASE_URL = "https://api.themoviedb.org/3/"
 const val AUTHENTICATION_ENDPOINT = "authentication"

@@ -37,6 +37,9 @@ sealed interface AppDestination {
     object TermsDestination : AppDestination
 
     @Serializable
+    object PrivacyPolicyDestination : AppDestination
+
+    @Serializable
     object SearchDestination : AppDestination
 }
 

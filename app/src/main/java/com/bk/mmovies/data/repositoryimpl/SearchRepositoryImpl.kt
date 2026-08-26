@@ -52,7 +52,10 @@ class SearchRepositoryImpl @Inject constructor(
     override suspend fun addRecentSearch(query: String) {
         val trimmedQuery = query.trim()
         if (trimmedQuery.isEmpty()) return
-        recentSearchDao.upsertIgnoringCase(RecentSearchEntity(trimmedQuery, System.currentTimeMillis()))
+        recentSearchDao.upsertIgnoringCase(
+                RecentSearchEntity(trimmedQuery, System.currentTimeMillis()),
+                keep = MAX_RECENT_SEARCHES
+                                           )
     }
 
     override suspend fun removeRecentSearch(query: String) {

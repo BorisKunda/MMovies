@@ -13,11 +13,10 @@ import com.bk.mmovies.data.repositoryimpl.MovieRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.PersonRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.SearchRepositoryImpl
 import com.bk.mmovies.data.repositoryimpl.TvSeriesRepositoryImpl
-import com.bk.mmovies.data.source.local.DbManager
+import com.bk.mmovies.data.source.local.LocalSessionDataCleaner
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
 import com.bk.mmovies.data.source.local.dao.RecentSearchDao
 import com.bk.mmovies.data.source.local.dao.TvFavoriteDao
-import com.bk.mmovies.data.source.local.db.MovieDb
 import com.bk.mmovies.data.source.local.preferences.AuthCredentialsSharedPrefs
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.TmdbApi
@@ -40,9 +39,7 @@ object RepositoryModule {
     @Singleton
     fun provideMovieRepository(
             api: TmdbApi,
-            db: MovieDb,
             networkManager: NetworkManager,
-            dbManager: DbManager,
             favoriteDao: FavoriteDao,
             movieMapper: MovieMapper,
             movieDetailsMapper: MovieDetailsMapper,
@@ -50,9 +47,7 @@ object RepositoryModule {
                               ): MovieRepository =
             MovieRepositoryImpl(
                     api,
-                    db,
                     networkManager,
-                    dbManager,
                     favoriteDao,
                     movieMapper,
                     movieDetailsMapper,
@@ -117,10 +112,14 @@ object RepositoryModule {
     fun provideAuthenticationRepository(
             api: TmdbApi,
             authCredentialsSharedPrefs: AuthCredentialsSharedPrefs,
-            networkManager: NetworkManager
+            networkManager: NetworkManager,
+            localSessionDataCleaner: LocalSessionDataCleaner,
+            @ApplicationContext context: Context,
                                        ): AuthenticationRepository = AuthenticationRepositoryImpl(
             api,
             authCredentialsSharedPrefs,
-            networkManager
+            networkManager,
+            localSessionDataCleaner,
+            context
                                                                                                   )
 }

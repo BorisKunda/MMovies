@@ -11,8 +11,11 @@ import com.bk.mmovies.domain.repository.TvSeriesRepository
 import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
@@ -34,6 +37,11 @@ class TvSeriesDetailsViewModel @Inject constructor(
                                                                                             )
     val tvSeriesDetailsScreenState: StateFlow<TvSeriesDetailsScreenState> =
             _tvSeriesDetailsScreenState.asStateFlow()
+
+    /** One-shot user-facing messages (favorite toggle failures). */
+    private val _messageEvent: MutableSharedFlow<String> =
+            MutableSharedFlow(extraBufferCapacity = 1)
+    val messageEvent: SharedFlow<String> = _messageEvent.asSharedFlow()
 
     // Doesn't change while this screen is open, so a plain property is
     // enough — no need for a StateFlow the way CatalogViewModel needs one.
@@ -117,7 +125,18 @@ class TvSeriesDetailsViewModel @Inject constructor(
                     newIsFavorite
                                                       )
             if (result is ToggleFavoriteResult.Failure) {
-                _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(tvSeriesDetails)
+                // Re-read rather than writing back the snapshot captured above:
+                // a locale-change reload or retry() can land while the toggle
+                // is in flight, and restoring the old model would throw that
+                // fresher content away.
+                val latestState = _tvSeriesDetailsScreenState.value
+                if (latestState is TvSeriesDetailsScreenState.Content &&
+                    latestState.tvSeriesDetails.id == tvSeriesDetails.id) {
+                    _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(
+                            latestState.tvSeriesDetails.copy(isFavorite = tvSeriesDetails.isFavorite)
+                                                                                           )
+                }
+                _messageEvent.tryEmit(result.errorMessage)
             }
         }
     }

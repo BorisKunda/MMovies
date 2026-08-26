@@ -28,6 +28,18 @@
     <string name="error_season_load_failed">Не удалось загрузить сезон. Пожалуйста, попробуйте позже.</string>
     <string name="error_episode_load_failed">Не удалось загрузить эпизод. Пожалуйста, попробуйте позже.</string>
     <string name="error_search_failed">Не удалось выполнить поиск. Пожалуйста, попробуйте позже.</string>
+    <string name="error_api_key_verify_failed">Не удалось проверить ваш API-ключ. Пожалуйста, попробуйте позже.</string>
+    <string name="error_api_key_verify_no_network">Не удалось проверить ваш API-ключ. Пожалуйста, проверьте подключение к сети.</string>
+    <string name="error_api_key_invalid">Неверный API-ключ.</string>
+    <string name="error_login_start_failed">Не удалось начать вход. Пожалуйста, попробуйте позже.</string>
+    <string name="error_login_invalid_credentials">Неверное имя пользователя или пароль.</string>
+    <string name="error_login_failed">Не удалось войти. Пожалуйста, попробуйте позже.</string>
+    <string name="error_guest_session_failed">Не удалось продолжить как гость. Пожалуйста, попробуйте позже.</string>
+    <string name="error_account_details_failed">Не удалось загрузить данные аккаунта. Пожалуйста, попробуйте позже.</string>
+    <string name="error_logout_failed">Не удалось выйти. Пожалуйста, попробуйте позже.</string>
+    <string name="error_favorite_login_required">Войдите, чтобы сохранять избранное.</string>
+    <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
+    <string name="error_no_network_generic">Нет подключения. Пожалуйста, проверьте подключение к сети.</string>
 
     <string name="generic_error_title">Ошибка</string>
     <string name="generic_error_message">Что-то пошло не так</string>
@@ -141,4 +153,21 @@
     <string name="terms_commercial_use_body">Это приложение не монетизировано и не приносит дохода. Это личный некоммерческий проект, который не продаёт, не сублицензирует и не распространяет данные или контент TMDB.</string>
     <string name="terms_changes_heading">Изменения условий</string>
     <string name="terms_changes_body">Эти условия могут время от времени обновляться. Продолжение использования приложения после внесения изменений означает согласие с обновлёнными условиями.</string>
+    <string name="terms_privacy_policy_link">Политика конфиденциальности</string>
+
+    <!--PRIVACY POLICY-->
+    <string name="privacy_policy_title">Политика конфиденциальности</string>
+    <string name="privacy_policy_intro">MMovies — бесплатный некоммерческий личный проект. Эта политика объясняет, какие данные обрабатывает приложение и как.</string>
+    <string name="privacy_policy_account_heading">Учётные данные</string>
+    <string name="privacy_policy_account_body">При входе ваш логин и пароль TMDB отправляются напрямую на серверы TMDB для создания сессии и никогда не сохраняются и не видны никому, кроме TMDB. Вы также можете использовать приложение как гость, не указывая учётные данные.</string>
+    <string name="privacy_policy_local_storage_heading">Данные, хранимые локально</string>
+    <string name="privacy_policy_local_storage_body">Приложение сохраняет идентификатор сессии TMDB и ID аккаунта на вашем устройстве, чтобы сохранить вход в систему. Эти данные остаются на вашем устройстве и удаляются при выходе из аккаунта или очистке хранилища приложения.</string>
+    <string name="privacy_policy_third_party_heading">Сторонние сервисы</string>
+    <string name="privacy_policy_third_party_body">Все данные о фильмах и сериалах, изображения и аутентификация аккаунта предоставляются The Movie Database (TMDB). Использование сервисов TMDB регулируется собственной политикой конфиденциальности TMDB.</string>
+    <string name="privacy_policy_no_collection_heading">Без аналитики и отслеживания</string>
+    <string name="privacy_policy_no_collection_body">MMovies не собирает аналитику, не использует рекламу и не передаёт никакие данные третьим лицам, за исключением запросов к TMDB, необходимых для работы приложения.</string>
+    <string name="privacy_policy_children_heading">Конфиденциальность детей</string>
+    <string name="privacy_policy_children_body">Это приложение не предназначено для детей и сознательно не собирает данные о детях.</string>
+    <string name="privacy_policy_changes_heading">Изменения политики</string>
+    <string name="privacy_policy_changes_body">Эта политика может время от времени обновляться. Продолжение использования приложения после внесения изменений означает согласие с обновлённой политикой.</string>
 </resources>

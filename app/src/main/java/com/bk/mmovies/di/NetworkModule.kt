@@ -2,10 +2,10 @@ package com.bk.mmovies.di
 
 import com.bk.mmovies.BuildConfig
 import com.bk.mmovies.data.source.remote.NetworkManager
-import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import com.bk.mmovies.data.source.remote.TMDB_API_BASE_URL
 import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.bk.mmovies.data.source.remote.interceptor.ApiKeyInterceptor
+import com.bk.mmovies.data.source.remote.interceptor.DebugLoggingInterceptor
 import com.bk.mmovies.data.source.remote.interceptor.LanguageInterceptor
 import com.bk.mmovies.util.logDebug
 import com.google.gson.Gson
@@ -14,8 +14,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.logging.HttpLoggingInterceptor.Level
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Singleton
@@ -42,16 +40,11 @@ object NetworkModule {
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(
-                                HttpLoggingInterceptor { message ->
+                                DebugLoggingInterceptor { message ->
                                     logDebug(
                                             "Network",
                                             message
                                             )
-                                }.apply {
-                                    level = Level.BODY
-                                    redactQueryParams(
-                                            QUERY_PARAM_API_KEY
-                                                     )
                                 }
                                       )
                     }

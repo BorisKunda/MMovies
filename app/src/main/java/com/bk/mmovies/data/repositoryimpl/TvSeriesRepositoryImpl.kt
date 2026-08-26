@@ -19,6 +19,7 @@ import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesListDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
 import com.bk.mmovies.domain.model.TvSeriesCategory
+import com.bk.mmovies.domain.model.isLastPage
 import com.bk.mmovies.domain.model.result.EpisodeDetailsResult
 import com.bk.mmovies.domain.model.result.SeasonDetailsResult
 import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
@@ -31,6 +32,9 @@ import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
 import javax.inject.Inject
+
+// TMDB returns 20 favorites per page, so this covers 1000 favorited series.
+private const val MAX_FAVORITE_SYNC_PAGES = 50
 
 class TvSeriesRepositoryImpl @Inject constructor(
         private val api: TmdbApi,
@@ -166,16 +170,25 @@ class TvSeriesRepositoryImpl @Inject constructor(
         }
     }
 
+    // The category endpoints cross-reference this cache to draw stars, so it
+    // has to hold *every* favorite, not just the first page TMDB returns
+    // (20 per page). Bounded so a surprising totalPages can't spin forever.
     override suspend fun syncFavoriteIds(accountId: Int, sessionId: String) {
-        val apiCallResult: ApiCallResult<TvSeriesListDto> = networkManager.executeApiCall(
-                "SyncTvFavoriteIds",
-                apiCall = { -> api.getFavoriteTvSeries(accountId, sessionId) })
-
-        if (apiCallResult is ApiCallResult.Success<TvSeriesListDto>) {
-            val ids = apiCallResult.data.tvSeries.orEmpty().mapNotNull { it.id }
-            tvFavoriteDao.clearAll()
-            tvFavoriteDao.insertAll(ids.map { TvFavoriteEntity(it) })
+        val ids = mutableListOf<Int>()
+        var page = 1
+        while (page <= MAX_FAVORITE_SYNC_PAGES) {
+            val apiCallResult: ApiCallResult<TvSeriesListDto> = networkManager.executeApiCall(
+                    "SyncTvFavoriteIds",
+                    apiCall = { -> api.getFavoriteTvSeries(accountId, sessionId, page = page) })
+            // Leave the existing cache alone on a mid-sync failure rather than
+            // replacing it with a partial list — a half list would clear stars
+            // for favorites the account really has.
+            if (apiCallResult !is ApiCallResult.Success<TvSeriesListDto>) return
+            ids += apiCallResult.data.tvSeries.orEmpty().mapNotNull { it.id }
+            if (isLastPage(page, apiCallResult.data.totalPages ?: page)) break
+            page++
         }
+        tvFavoriteDao.replaceAll(ids.map { TvFavoriteEntity(it) })
     }
 
     override suspend fun getCachedFavoriteIds(): Set<Int> {

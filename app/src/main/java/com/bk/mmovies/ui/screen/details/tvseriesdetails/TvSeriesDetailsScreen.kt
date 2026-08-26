@@ -1,5 +1,6 @@
 package com.bk.mmovies.ui.screen.details.tvseriesdetails
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -17,6 +18,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -32,13 +34,21 @@ private const val TAG = "TvSeriesDetailsScreen"
 fun TvSeriesDetailsScreen(
         seriesId: Int,
         onBack: () -> Unit,
-        onNavigateToSeasonDetails: (seasonNumber: Int) -> Unit = {}
+        onNavigateToSeasonDetails: (seasonNumber: Int) -> Unit = {},
+        onNavigateToTerms: () -> Unit = {}
                          ) {
+    val context = LocalContext.current
     val tvSeriesDetailsViewModel = hiltViewModel<TvSeriesDetailsViewModel>()
     val state by tvSeriesDetailsViewModel.tvSeriesDetailsScreenState.collectAsStateWithLifecycle()
 
     LaunchedEffect(seriesId) {
         tvSeriesDetailsViewModel.loadTvSeriesDetails(seriesId)
+    }
+
+    LaunchedEffect(Unit) {
+        tvSeriesDetailsViewModel.messageEvent.collect { message ->
+            Toast.makeText(context, message, Toast.LENGTH_SHORT).show()
+        }
     }
 
     Column(modifier = Modifier.fillMaxSize()) {
@@ -74,7 +84,7 @@ fun TvSeriesDetailsScreen(
             }
         }
 
-        PoweredByTmdbFooter()
+        PoweredByTmdbFooter(onClick = onNavigateToTerms)
     }
 }
 

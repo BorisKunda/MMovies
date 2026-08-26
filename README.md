@@ -24,8 +24,8 @@ com.bk.mmovies
 └── util/              # Shared utilities
 ```
 
-- **Domain layer** (`domain/`) defines plain Kotlin models (`MovieModel`, `MovieDetailsModel`, `MovieCategory`) and repository contracts (`MovieRepository`, `ApiKeyRepository`), independent of any framework.
-- **Data layer** (`data/`) implements those contracts. Remote calls go through a Retrofit `TmdbApi`, wrapped by a `NetworkManager` that returns a sealed `ApiCallResult` (Success/Failure). Local persistence uses Room (`MovieDb`, `MovieDao`, `MovieEntity`) via a `DbManager` returning `DbCallResult`. Mappers (`MovieMapper`, `MovieDetailsMapper`) convert DTOs to domain models. `MovieRepositoryImpl` orchestrates remote/local sources and returns sealed results (`MoviesResult`, `MovieDetailsResult`).
+- **Domain layer** (`domain/`) defines plain Kotlin models (`MovieModel`, `MovieDetailsModel`, `CatalogItem`, `MovieCategory`) and repository contracts (`MovieRepository`, `TvSeriesRepository`, `SearchRepository`, `AuthenticationRepository`), independent of any framework.
+- **Data layer** (`data/`) implements those contracts. Remote calls go through a Retrofit `TmdbApi`, wrapped by a `NetworkManager` that returns a sealed `ApiCallResult` (Success/Failure); `ApiKeyInterceptor` and `LanguageInterceptor` attach the user's API key and the current app locale to every request. Room (`MovieDb`) backs three caches — favorite movie ids, favorite TV ids, and recent searches — reached through their DAOs; the TMDB API remains the source of truth and `LocalSessionDataCleaner` wipes all three on logout. The user's API key and session id live in `AuthCredentialsSharedPrefs` (excluded from cloud backup and device transfer). Mappers (`MovieMapper`, `MovieDetailsMapper`, `CatalogItemMapper`, …) convert DTOs to domain models, and the repository impls return sealed results (`MoviesResult`, `MovieDetailsResult`).
 - **Presentation layer** (`ui/`) uses Jetpack Compose screens paired with `ViewModel`s that expose UI state via `StateFlow`/`SharedFlow`. Navigation is type-safe Compose Navigation (`AppNavigation.kt`) with sealed `AppDestination` routes.
 
 ## Screens

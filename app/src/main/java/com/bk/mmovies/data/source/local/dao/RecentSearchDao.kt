@@ -21,10 +21,19 @@ interface RecentSearchDao {
     @Query("DELETE FROM recent_searches WHERE query = :query COLLATE NOCASE")
     suspend fun deleteByQueryIgnoreCase(query: String)
 
+    // getRecentSearches() only LIMITs what it reads back, so without this the
+    // table keeps every query the user has ever typed, forever.
+    @Query(
+            "DELETE FROM recent_searches WHERE query NOT IN " +
+            "(SELECT query FROM recent_searches ORDER BY searchedAt DESC LIMIT :keep)"
+          )
+    suspend fun trimToMostRecent(keep: Int)
+
     @Transaction
-    suspend fun upsertIgnoringCase(recentSearch: RecentSearchEntity) {
+    suspend fun upsertIgnoringCase(recentSearch: RecentSearchEntity, keep: Int) {
         deleteByQueryIgnoreCase(recentSearch.query)
         insert(recentSearch)
+        trimToMostRecent(keep)
     }
 
     @Query("DELETE FROM recent_searches WHERE query = :query")
