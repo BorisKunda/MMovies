@@ -6,6 +6,7 @@ import com.bk.mmovies.data.mapper.MovieMapper
 import com.bk.mmovies.data.mapper.PersonDetailsMapper
 import com.bk.mmovies.data.mapper.SearchResultMapper
 import com.bk.mmovies.data.mapper.SeasonMapper
+import com.bk.mmovies.data.mapper.SeriesAirDateLabelFormatter
 import com.bk.mmovies.data.mapper.TvSeriesDetailsMapper
 import com.bk.mmovies.data.mapper.TvSeriesMapper
 import com.bk.mmovies.data.repositoryimpl.AuthenticationRepositoryImpl
@@ -62,6 +63,7 @@ object RepositoryModule {
             tvSeriesMapper: TvSeriesMapper,
             seasonMapper: SeasonMapper,
             tvSeriesDetailsMapper: TvSeriesDetailsMapper,
+            seriesAirDateLabelFormatter: SeriesAirDateLabelFormatter,
             tvFavoriteDao: TvFavoriteDao,
             @ApplicationContext context: Context,
                                  ): TvSeriesRepository =
@@ -71,6 +73,7 @@ object RepositoryModule {
                     tvSeriesMapper,
                     seasonMapper,
                     tvSeriesDetailsMapper,
+                    seriesAirDateLabelFormatter,
                     tvFavoriteDao,
                     context
                                    )

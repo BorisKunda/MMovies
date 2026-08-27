@@ -12,6 +12,9 @@ data class TvSeriesDetailsDto(
         val backdropPath: String?,
         @SerializedName("first_air_date")
         val firstAirDate: String?,
+        @SerializedName("last_air_date")
+        val lastAirDate: String?,
+        val status: String?,
         @SerializedName("number_of_seasons")
         val numberOfSeasons: Int?,
         val genres: List<GenreDto>?,
@@ -20,8 +23,21 @@ data class TvSeriesDetailsDto(
         val credits: CreditsDto?,
         @SerializedName("account_states")
         val accountStates: AccountStatesDto?,
-        val seasons: List<SeasonSummaryDto>?
+        val seasons: List<SeasonSummaryDto>?,
+        // TV shows rarely carry a per-series "Director"/"Writer" job in
+        // credits.crew (those are episode-level); TMDB's series-level
+        // equivalent is this dedicated field instead.
+        @SerializedName("created_by")
+        val createdBy: List<CreatedByDto>?,
+        val videos: VideosDto?
                              )
+
+data class CreatedByDto(
+        val id: Int?,
+        val name: String?,
+        @SerializedName("profile_path")
+        val profilePath: String?
+                        )
 
 data class SeasonSummaryDto(
         val id: Int?,

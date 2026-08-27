@@ -9,5 +9,7 @@ data class EpisodeModel(
         val seasonNumber: Int,
         val stillUrl: String,
         val rating: Int = 0,
-        val runtime: String
+        val runtime: String,
+        val director: CastMemberModel? = null,
+        val writers: List<CastMemberModel> = emptyList()
                        )

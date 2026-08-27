@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -55,6 +56,7 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.ui.component.ActorDetailsDialog
 import com.bk.mmovies.ui.component.FavoriteStarButton
+import com.bk.mmovies.ui.component.TrailerSection
 import com.bk.mmovies.ui.component.UserScoreView
 
 // --- Spacing scale -----------------------------------------------------------
@@ -116,6 +118,10 @@ private val castImageNameSpacing = 8.dp
 private val castNameCharacterSpacing = 2.dp
 private const val CAST_ITEM_TEXT_MAX_LINES = 2
 
+private val crewRowSpacing = 8.dp
+private val crewRoleNameSpacing = 6.dp
+private val crewMultiNameSpacing = 4.dp
+
 @Composable
 fun DetailsScreenContent(
         movieDetails: MovieDetailsModel,
@@ -135,6 +141,11 @@ fun DetailsScreenContent(
     val runtimeTbaLabel = stringResource(R.string.details_runtime_tba)
     val overviewTbaLabel = stringResource(R.string.details_overview_tba)
     val castTbaLabel = stringResource(R.string.details_cast_tba)
+
+    // Tapping a cast/crew member opens ActorDetailsDialog over this screen —
+    // the trailer would otherwise keep playing audio underneath it.
+    var isCrewDialogOpen by remember { mutableStateOf(false) }
+    var isCastDialogOpen by remember { mutableStateOf(false) }
 
     Column(
             modifier = modifier
@@ -249,13 +260,156 @@ fun DetailsScreenContent(
                            )
         }
 
+        // Only movies TMDB actually has a YouTube trailer for get the
+        // player — an upcoming release or a sparse catalog entry often has
+        // no video yet.
+        if (movieDetails.trailerUrl != null) {
+            TrailerSection(
+                    trailerUrl = movieDetails.trailerUrl,
+                    pause = isCrewDialogOpen || isCastDialogOpen,
+                    modifier = Modifier.padding(
+                            start = screenPadding,
+                            end = screenPadding,
+                            bottom = screenPadding
+                                                )
+                           )
+        }
+
+        if (movieDetails.director != null || movieDetails.writers.isNotEmpty()) {
+            CrewSection(
+                    director = movieDetails.director,
+                    writers = movieDetails.writers,
+                    onDialogOpenChanged = { isCrewDialogOpen = it }
+                       )
+        }
+
         // Upcoming movies routinely have no cast credited yet on TMDB; show
         // a TBA line instead of silently dropping the section like the
         // sparse-data fallback does for other categories.
         if (movieDetails.cast.isNotEmpty()) {
-            CastSection(cast = movieDetails.cast)
+            CastSection(cast = movieDetails.cast, onDialogOpenChanged = { isCastDialogOpen = it })
         } else if (isUpcoming) {
             CastSection(cast = emptyList(), tbaLabel = castTbaLabel)
+        }
+    }
+}
+
+@Composable
+private fun CrewSection(
+        director: CastMemberModel?,
+        writers: List<CastMemberModel>,
+        modifier: Modifier = Modifier,
+        onDialogOpenChanged: (Boolean) -> Unit = {}
+                       ) {
+    // Owned here rather than passed down, since only this section's rows
+    // can ever open it. Reuses ActorDetailsDialog: director/writer credits
+    // carry the same TMDB person id, so the same bio lookup applies.
+    var selectedCrewMember by remember { mutableStateOf<CastMemberModel?>(null) }
+    LaunchedEffect(selectedCrewMember) { onDialogOpenChanged(selectedCrewMember != null) }
+
+    Column(
+            modifier = modifier.padding(
+                    start = screenPadding,
+                    end = screenPadding,
+                    bottom = screenPadding
+                                        ),
+            verticalArrangement = Arrangement.spacedBy(crewRowSpacing)
+          ) {
+        Text(
+                text = stringResource(R.string.details_crew_label),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = castSectionTitleLetterSpacing
+            )
+        director?.let {
+            CrewMemberRow(
+                    role = stringResource(R.string.details_director_role),
+                    crewMember = it,
+                    onClick = { selectedCrewMember = it }
+                         )
+        }
+        if (writers.size > 1) {
+            // Repeating "Writer" per row read as noise once a movie credits
+            // several — one "Writers:" row with each name still separately
+            // clickable reads the same as the single-writer case below.
+            MultiNameCrewRow(
+                    role = stringResource(R.string.details_writers_label),
+                    crewMembers = writers,
+                    onCrewMemberClicked = { writer -> selectedCrewMember = writer }
+                             )
+        } else {
+            writers.forEach { writer ->
+                CrewMemberRow(
+                        role = stringResource(R.string.details_writer_role),
+                        crewMember = writer,
+                        onClick = { selectedCrewMember = writer }
+                             )
+            }
+        }
+    }
+
+    selectedCrewMember?.let { crewMember ->
+        ActorDetailsDialog(
+                castMember = crewMember,
+                onDismiss = { selectedCrewMember = null }
+                           )
+    }
+}
+
+@Composable
+private fun CrewMemberRow(
+        role: String,
+        crewMember: CastMemberModel,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+                         ) {
+    Row(
+            modifier = modifier.clickable(onClickLabel = crewMember.name, onClick = onClick),
+            verticalAlignment = Alignment.CenterVertically
+       ) {
+        Text(
+                text = role,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium
+            )
+        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
+        Text(
+                text = crewMember.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+    }
+}
+
+@Composable
+private fun MultiNameCrewRow(
+        role: String,
+        crewMembers: List<CastMemberModel>,
+        onCrewMemberClicked: (CastMemberModel) -> Unit,
+        modifier: Modifier = Modifier
+                            ) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+                text = role,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium
+            )
+        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(crewMultiNameSpacing)) {
+            crewMembers.forEachIndexed { index, crewMember ->
+                val nameText = if (index < crewMembers.lastIndex) "${crewMember.name}," else crewMember.name
+                Text(
+                        text = nameText,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable(
+                                onClickLabel = crewMember.name
+                                                      ) { onCrewMemberClicked(crewMember) }
+                    )
+            }
         }
     }
 }
@@ -264,11 +418,13 @@ fun DetailsScreenContent(
 private fun CastSection(
         cast: List<CastMemberModel>,
         modifier: Modifier = Modifier,
-        tbaLabel: String? = null
+        tbaLabel: String? = null,
+        onDialogOpenChanged: (Boolean) -> Unit = {}
                        ) {
     // Owned here rather than passed down, since only this section's items
     // can ever open it.
     var selectedCastMember by remember { mutableStateOf<CastMemberModel?>(null) }
+    LaunchedEffect(selectedCastMember) { onDialogOpenChanged(selectedCastMember != null) }
 
     Column(
             modifier = modifier.padding(
@@ -482,4 +638,3 @@ private fun OverviewSection(
         }
     }
 }
-

@@ -118,7 +118,10 @@ fun CatalogScreen(
                             onCatalogItemClicked = { id -> catalogViewModel.handleCatalogItemClicked(id) },
                             onRetry = { catalogViewModel.retry() },
                             onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) },
-                            onLoadNextPage = { catalogViewModel.loadNextPage() }
+                            onLoadNextPage = { catalogViewModel.loadNextPage() },
+                            getTvSeriesAirDateLabel = { seriesId ->
+                                catalogViewModel.getTvSeriesAirDateLabel(seriesId)
+                            }
                                          )
                 }
             }

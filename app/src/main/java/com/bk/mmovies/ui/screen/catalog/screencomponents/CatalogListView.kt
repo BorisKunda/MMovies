@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,8 +65,10 @@ import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.domain.model.CatalogItem
+import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.component.FavoriteStarButton
 import com.bk.mmovies.ui.component.LoadingMoreFooter
@@ -121,7 +124,8 @@ fun CatalogListView(
         isGuest: Boolean = true,
         onFavoriteClicked: (catalogItem: CatalogItem) -> Unit = {},
         isLoadingNextPage: Boolean = false,
-        onLoadNextPage: () -> Unit = {}
+        onLoadNextPage: () -> Unit = {},
+        getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }
                    ) {
 
     val isUpcoming =
@@ -144,7 +148,8 @@ fun CatalogListView(
                             useNeutralImageFallback = isUpcoming,
                             showFavoriteStar = showFavoriteStar,
                             onCatalogItemClicked = onCatalogItemClicked,
-                            onFavoriteClicked = onFavoriteClicked
+                            onFavoriteClicked = onFavoriteClicked,
+                            getTvSeriesAirDateLabel = getTvSeriesAirDateLabel
                                   )
                 }
                 if (isLoadingNextPage) {
@@ -212,9 +217,20 @@ fun CatalogItemRow(
         useNeutralImageFallback: Boolean = false,
         showFavoriteStar: Boolean = false,
         onCatalogItemClicked: (Int) -> Unit,
-        onFavoriteClicked: (CatalogItem) -> Unit = {}
+        onFavoriteClicked: (CatalogItem) -> Unit = {},
+        getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }
                   ) {
     var isPosterZoomed by remember { mutableStateOf(false) }
+
+    // Movie list endpoints already carry releaseDate; TV list endpoints
+    // don't carry status/last_air_date, so that half of the row is fetched
+    // (and cached) lazily per item instead.
+    var tvAirDateLabel by remember(catalogItem.id) { mutableStateOf<SeriesAirDateLabel?>(null) }
+    LaunchedEffect(catalogItem.id) {
+        if (catalogItem.mediaType == CatalogMediaType.TV_SERIES) {
+            tvAirDateLabel = getTvSeriesAirDateLabel(catalogItem.id)
+        }
+    }
 
     Card(
             modifier = Modifier
@@ -345,16 +361,25 @@ fun CatalogItemRow(
                             maxLines = TITLE_MAX_LINES,
                             overflow = TextOverflow.Ellipsis
                         )
-                    // The mapper yields "" for a missing date; rendering it
-                    // anyway left an unexplained gap under the title.
-                    if (catalogItem.releaseDate.isNotBlank()) {
-                        Text(
-                                text = catalogItem.releaseDate,
-                                color = MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = DATE_ALPHA
-                                                                                ),
-                                fontSize = metadataFontSize
-                            )
+                    when (catalogItem.mediaType) {
+                        CatalogMediaType.MOVIE     -> {
+                            // The mapper yields "" for a missing date; rendering it
+                            // anyway left an unexplained gap under the title.
+                            if (catalogItem.releaseDate.isNotBlank()) {
+                                Text(
+                                        text = catalogItem.releaseDate,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(
+                                                alpha = DATE_ALPHA
+                                                                                        ),
+                                        fontSize = metadataFontSize
+                                    )
+                            }
+                        }
+                        CatalogMediaType.TV_SERIES -> {
+                            tvAirDateLabel?.let { label ->
+                                SeriesAirDateLabelText(label)
+                            }
+                        }
                     }
                 }
             }
@@ -394,6 +419,42 @@ fun CatalogItemRow(
                                 .clip(RoundedCornerShape(posterCornerShape))
                           )
             }
+        }
+    }
+}
+
+@Composable
+private fun SeriesAirDateLabelText(label: SeriesAirDateLabel) {
+    when (label) {
+        is SeriesAirDateLabel.Ended    -> {
+            if (label.yearRange.isNotBlank()) {
+                Text(
+                        text = label.yearRange,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
+                        fontSize = metadataFontSize
+                    )
+            }
+        }
+        is SeriesAirDateLabel.Ongoing  -> {
+            if (label.text.isNotBlank()) {
+                Text(
+                        text = label.text,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
+                        fontSize = metadataFontSize
+                    )
+            }
+        }
+        is SeriesAirDateLabel.Upcoming -> {
+            Text(
+                    text = label.premiereLabel,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
+                    fontSize = metadataFontSize
+                )
+            Text(
+                    text = label.dateText,
+                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
+                    fontSize = metadataFontSize
+                )
         }
     }
 }

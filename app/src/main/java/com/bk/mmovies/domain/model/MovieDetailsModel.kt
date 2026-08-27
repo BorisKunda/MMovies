@@ -11,5 +11,8 @@ data class MovieDetailsModel(
         val genres: List<String>,
         val overview: String,
         val cast: List<CastMemberModel> = emptyList(),
-        val isFavorite: Boolean = false
+        val director: CastMemberModel? = null,
+        val writers: List<CastMemberModel> = emptyList(),
+        val isFavorite: Boolean = false,
+        val trailerUrl: String? = null
                             )

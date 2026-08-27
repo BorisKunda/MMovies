@@ -27,6 +27,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,9 +53,11 @@ import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.SeasonModel
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesDetailsModel
 import com.bk.mmovies.ui.component.ActorDetailsDialog
 import com.bk.mmovies.ui.component.FavoriteStarButton
+import com.bk.mmovies.ui.component.TrailerSection
 import com.bk.mmovies.ui.component.UserScoreView
 
 // --- Spacing scale -----------------------------------------------------------
@@ -105,6 +108,10 @@ private val castImageNameSpacing = 8.dp
 private val castNameCharacterSpacing = 2.dp
 private const val CAST_ITEM_TEXT_MAX_LINES = 2
 
+private val crewRowSpacing = 8.dp
+private val crewRoleNameSpacing = 6.dp
+private val crewCreatorNameSpacing = 4.dp
+
 private val seasonRowSpacing = 16.dp
 private val seasonPosterWidth = 64.dp
 private val seasonPosterHeight = 96.dp
@@ -120,6 +127,11 @@ fun TvSeriesDetailsScreenContent(
         onFavoriteClicked: () -> Unit = {},
         onSeasonClicked: (seasonNumber: Int) -> Unit = {}
                                  ) {
+    // Tapping a cast/crew member opens ActorDetailsDialog over this screen —
+    // the trailer would otherwise keep playing audio underneath it.
+    var isCrewDialogOpen by remember { mutableStateOf(false) }
+    var isCastDialogOpen by remember { mutableStateOf(false) }
+
     Column(
             modifier = modifier
                     .fillMaxSize()
@@ -171,27 +183,32 @@ fun TvSeriesDetailsScreenContent(
                             maxLines = TITLE_MAX_LINES,
                             overflow = TextOverflow.Ellipsis
                         )
-                    MetaRow(
+                    AirDateMetaRow(
                             icon = Icons.Default.CalendarMonth,
-                            text = tvSeriesDetails.firstAirDate
-                           )
+                            label = tvSeriesDetails.airDateLabel
+                                  )
                     MetaRow(
                             icon = Icons.Default.Tv,
                             text = tvSeriesDetails.seasonsLabel
                            )
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        UserScoreView(
-                                score = tvSeriesDetails.userScore,
-                                size = userScoreRingSize
-                                     )
-                        Spacer(modifier = Modifier.width(userScoreRowSpacing))
-                        Text(
-                                text = stringResource(R.string.user_score_label),
-                                color = MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = SECONDARY_TEXT_ALPHA
-                                                                                ),
-                                style = MaterialTheme.typography.labelLarge
-                            )
+                    // An upcoming/unaired series has no votes yet, so the
+                    // score ring would only ever show a meaningless zero —
+                    // same rule the movie details screen applies by category.
+                    if (tvSeriesDetails.userScore > 0) {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            UserScoreView(
+                                    score = tvSeriesDetails.userScore,
+                                    size = userScoreRingSize
+                                         )
+                            Spacer(modifier = Modifier.width(userScoreRowSpacing))
+                            Text(
+                                    text = stringResource(R.string.user_score_label),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(
+                                            alpha = SECONDARY_TEXT_ALPHA
+                                                                                    ),
+                                    style = MaterialTheme.typography.labelLarge
+                                )
+                        }
                     }
                 }
             }
@@ -218,8 +235,30 @@ fun TvSeriesDetailsScreenContent(
                            )
         }
 
+        // Only series TMDB actually has a YouTube trailer for get the
+        // player — a freshly-announced or sparse catalog entry often has no
+        // video yet.
+        if (tvSeriesDetails.trailerUrl != null) {
+            TrailerSection(
+                    trailerUrl = tvSeriesDetails.trailerUrl,
+                    pause = isCrewDialogOpen || isCastDialogOpen,
+                    modifier = Modifier.padding(
+                            start = screenPadding,
+                            end = screenPadding,
+                            bottom = screenPadding
+                                                )
+                           )
+        }
+
+        if (tvSeriesDetails.creators.isNotEmpty()) {
+            CrewSection(
+                    creators = tvSeriesDetails.creators,
+                    onDialogOpenChanged = { isCrewDialogOpen = it }
+                       )
+        }
+
         if (tvSeriesDetails.cast.isNotEmpty()) {
-            CastSection(cast = tvSeriesDetails.cast)
+            CastSection(cast = tvSeriesDetails.cast, onDialogOpenChanged = { isCastDialogOpen = it })
         }
 
         if (tvSeriesDetails.seasons.isNotEmpty()) {
@@ -229,13 +268,125 @@ fun TvSeriesDetailsScreenContent(
 }
 
 @Composable
+private fun CrewSection(
+        creators: List<CastMemberModel>,
+        modifier: Modifier = Modifier,
+        onDialogOpenChanged: (Boolean) -> Unit = {}
+                       ) {
+    // Owned here rather than passed down, since only this section's rows
+    // can ever open it. Reuses ActorDetailsDialog: creator credits carry
+    // the same TMDB person id, so the same bio lookup applies.
+    var selectedCrewMember by remember { mutableStateOf<CastMemberModel?>(null) }
+    LaunchedEffect(selectedCrewMember) { onDialogOpenChanged(selectedCrewMember != null) }
+
+    Column(
+            modifier = modifier.padding(
+                    start = screenPadding,
+                    end = screenPadding,
+                    bottom = screenPadding
+                                        ),
+            verticalArrangement = Arrangement.spacedBy(crewRowSpacing)
+          ) {
+        Text(
+                text = stringResource(R.string.details_tv_crew_label),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.titleSmall,
+                fontWeight = FontWeight.Bold,
+                letterSpacing = castSectionTitleLetterSpacing
+            )
+        if (creators.size > 1) {
+            // Repeating "Creator" per row read as noise once a show credits
+            // several — one "Creators:" row with each name still separately
+            // clickable reads the same as the single-creator case below.
+            CreatorsRow(
+                    creators = creators,
+                    onCreatorClicked = { creator -> selectedCrewMember = creator }
+                       )
+        } else {
+            creators.forEach { creator ->
+                CrewMemberRow(
+                        role = stringResource(R.string.details_creator_role),
+                        crewMember = creator,
+                        onClick = { selectedCrewMember = creator }
+                             )
+            }
+        }
+    }
+
+    selectedCrewMember?.let { crewMember ->
+        ActorDetailsDialog(
+                castMember = crewMember,
+                onDismiss = { selectedCrewMember = null }
+                           )
+    }
+}
+
+@Composable
+private fun CreatorsRow(
+        creators: List<CastMemberModel>,
+        onCreatorClicked: (CastMemberModel) -> Unit,
+        modifier: Modifier = Modifier
+                       ) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+                text = stringResource(R.string.details_creators_label),
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium
+            )
+        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(crewCreatorNameSpacing)) {
+            creators.forEachIndexed { index, creator ->
+                val nameText = if (index < creators.lastIndex) "${creator.name}," else creator.name
+                Text(
+                        text = nameText,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable(
+                                onClickLabel = creator.name
+                                                      ) { onCreatorClicked(creator) }
+                    )
+            }
+        }
+    }
+}
+
+@Composable
+private fun CrewMemberRow(
+        role: String,
+        crewMember: CastMemberModel,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+                         ) {
+    Row(
+            modifier = modifier.clickable(onClickLabel = crewMember.name, onClick = onClick),
+            verticalAlignment = Alignment.CenterVertically
+       ) {
+        Text(
+                text = role,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium
+            )
+        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
+        Text(
+                text = crewMember.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+    }
+}
+
+@Composable
 private fun CastSection(
         cast: List<CastMemberModel>,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        onDialogOpenChanged: (Boolean) -> Unit = {}
                        ) {
     // Owned here rather than passed down, since only this section's items
     // can ever open it.
     var selectedCastMember by remember { mutableStateOf<CastMemberModel?>(null) }
+    LaunchedEffect(selectedCastMember) { onDialogOpenChanged(selectedCastMember != null) }
 
     Column(
             modifier = modifier.padding(
@@ -398,6 +549,63 @@ private fun SeasonRow(season: SeasonModel, onClick: () -> Unit) {
                         style = MaterialTheme.typography.bodySmall,
                         modifier = Modifier.padding(top = seasonRowMetaTopSpacing)
                     )
+            }
+        }
+    }
+}
+
+@Composable
+private fun AirDateMetaRow(
+        icon: ImageVector,
+        label: SeriesAirDateLabel,
+        modifier: Modifier = Modifier
+                          ) {
+    val isBlank = when (label) {
+        is SeriesAirDateLabel.Ended    -> label.yearRange.isBlank()
+        is SeriesAirDateLabel.Ongoing  -> label.text.isBlank()
+        is SeriesAirDateLabel.Upcoming -> false
+    }
+    if (isBlank) return
+
+    Row(
+            modifier = modifier,
+            verticalAlignment = Alignment.CenterVertically
+       ) {
+        Icon(
+                imageVector = icon,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                modifier = Modifier.size(metaIconSize)
+            )
+        Spacer(modifier = Modifier.width(metaIconTextSpacing))
+        when (label) {
+            is SeriesAirDateLabel.Ended    -> {
+                Text(
+                        text = label.yearRange,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+            }
+            is SeriesAirDateLabel.Ongoing  -> {
+                Text(
+                        text = label.text,
+                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                        style = MaterialTheme.typography.bodyMedium
+                    )
+            }
+            is SeriesAirDateLabel.Upcoming -> {
+                Column {
+                    Text(
+                            text = label.premiereLabel,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                    Text(
+                            text = label.dateText,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+                            style = MaterialTheme.typography.bodyMedium
+                        )
+                }
             }
         }
     }

@@ -97,6 +97,7 @@
     <!--MOVIE LIST-->
     <string name="movie_poster_zoom_action">Zoom poster</string>
     <string name="movie_open_details_action">Open details</string>
+    <string name="details_premiere_date">Premiere: %1$s</string>
     <string name="favorite_add_action">Add to favorites</string>
     <string name="favorite_remove_action">Remove from favorites</string>
 
@@ -105,6 +106,7 @@
     <string name="details_back">Back</string>
     <string name="action_close">Close</string>
     <string name="details_biography_label">BIOGRAPHY</string>
+    <string name="details_biography_unavailable">Biography unavailable</string>
     <string name="details_born_on">Born %1$s</string>
     <string name="details_date_tba">Date: To be announced</string>
     <string name="details_runtime_tba">Runtime: To be announced</string>
@@ -114,6 +116,14 @@
     <string name="details_episodes_label">EPISODES</string>
     <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">Cast: To be announced</string>
+    <string name="details_crew_label">DIRECTOR &amp; WRITER</string>
+    <string name="details_tv_crew_label">CREATED BY</string>
+    <string name="details_director_role">Director</string>
+    <string name="details_writer_role">Writer</string>
+    <string name="details_writers_label">Writers:</string>
+    <string name="details_creator_role">Creator</string>
+    <string name="details_creators_label">Creators:</string>
+    <string name="details_watch_trailer_action">Watch Trailer</string>
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">USER\nSCORE</string>

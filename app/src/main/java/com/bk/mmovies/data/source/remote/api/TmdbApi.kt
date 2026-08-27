@@ -47,6 +47,7 @@ import com.bk.mmovies.data.source.remote.dto.PersonDetailsDto
 import com.bk.mmovies.data.source.remote.dto.SeasonDetailsDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteRequestDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteResponseDto
+import com.bk.mmovies.data.source.remote.dto.TvSeriesAirDateInfoDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesListDto
 import com.bk.mmovies.data.source.remote.dto.V3TokenValidityDto
@@ -188,6 +189,14 @@ interface TmdbApi {
             // status) is included solely when it can actually be resolved.
             @Query(QUERY_PARAM_SESSION_ID) sessionId: String? = null
                                    ): Response<TvSeriesDetailsDto>
+
+    // Lightweight companion to getTvSeriesDetails: the catalog list only has
+    // first_air_date from TMDB's list endpoints, so each TV row fetches just
+    // status/last_air_date here instead of the full details+credits payload.
+    @GET(TV_SERIES_ENDPOINT)
+    suspend fun getTvSeriesAirDateInfo(
+            @Path("series_id") seriesId: Int
+                                       ): Response<TvSeriesAirDateInfoDto>
 
     @GET(TV_SEASON_ENDPOINT)
     suspend fun getSeasonDetails(

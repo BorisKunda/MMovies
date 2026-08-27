@@ -9,6 +9,7 @@ import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
@@ -22,7 +23,8 @@ fun CatalogScreenContent(
         onCatalogItemClicked: (id: Int) -> Unit,
         onRetry: () -> Unit,
         onFavoriteClicked: (catalogItem: CatalogItem) -> Unit = {},
-        onLoadNextPage: () -> Unit = {}
+        onLoadNextPage: () -> Unit = {},
+        getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }
                          ) {
     Column(modifier = Modifier.fillMaxSize()) {
         when (state) {
@@ -38,7 +40,8 @@ fun CatalogScreenContent(
                         onCatalogItemClicked = onCatalogItemClicked,
                         onFavoriteClicked = onFavoriteClicked,
                         isLoadingNextPage = state.isLoadingNextPage,
-                        onLoadNextPage = onLoadNextPage
+                        onLoadNextPage = onLoadNextPage,
+                        getTvSeriesAirDateLabel = getTvSeriesAirDateLabel
                                )
             }
 

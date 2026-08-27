@@ -22,6 +22,7 @@ room_version = "2.8.4"
 retrofit_version = "3.0.0"
 okhttp_version = "5.4.0"
 lottieVersion = "6.7.1"
+androidYoutubePlayerVersion = "13.0.0"
 leakCanaryVersion = "2.14"
 materialVersion = "1.14.0"
 constraintlayoutVersion = "2.2.1"
@@ -73,6 +74,7 @@ okhttp-logging = { group = "com.squareup.okhttp3", name = "logging-interceptor",
 okhttp-mockwebserver = { group = "com.squareup.okhttp3", name = "mockwebserver", version.ref = "okhttp_version" }
 okhttp-tls = { group = "com.squareup.okhttp3", name = "okhttp-tls", version.ref = "okhttp_version" }
 lottie = { group = "com.airbnb.android", name = "lottie-compose", version.ref = "lottieVersion" }
+android-youtube-player = { group = "com.pierfrancescosoffritti.androidyoutubeplayer", name = "core", version.ref = "androidYoutubePlayerVersion" }
 leakcanary-android = { group = "com.squareup.leakcanary", name = "leakcanary-android", version.ref = "leakCanaryVersion" }
 leakcanary-android-instrumentation = { group = "com.squareup.leakcanary", name = "leakcanary-android-instrumentation", version.ref = "leakCanaryVersion" }
 coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil3ComposeVersion" }

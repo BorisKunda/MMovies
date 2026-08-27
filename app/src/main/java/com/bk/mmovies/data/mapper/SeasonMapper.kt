@@ -1,11 +1,14 @@
 package com.bk.mmovies.data.mapper
 
+import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.STILL_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
+import com.bk.mmovies.data.source.remote.dto.CrewMemberDto
 import com.bk.mmovies.data.source.remote.dto.EpisodeDto
 import com.bk.mmovies.data.source.remote.dto.SeasonDetailsDto
 import com.bk.mmovies.data.source.remote.dto.SeasonSummaryDto
+import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.domain.model.SeasonModel
 import com.bk.mmovies.locale.AppLanguage
@@ -14,6 +17,9 @@ import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
 import javax.inject.Inject
+
+private const val DIRECTOR_JOB = "Director"
+private val WRITER_JOBS = setOf("Writer", "Screenplay", "Story")
 
 class SeasonMapper @Inject constructor(
         private val localeMonitor: LocaleMonitor
@@ -49,7 +55,26 @@ class SeasonMapper @Inject constructor(
             seasonNumber = dto.seasonNumber ?: 0,
             stillUrl = dto.stillPath?.let { getFullImageUrl(it, STILL_PATH_SIZE_SEGMENT) } ?: "",
             rating = dto.voteAverage.toRatingPercent(),
-            runtime = dto.runtime.toFormattedRuntime())
+            runtime = dto.runtime.toFormattedRuntime(),
+            director = dto.crew.toCrewModels(setOf(DIRECTOR_JOB)).firstOrNull(),
+            writers = dto.crew.toCrewModels(WRITER_JOBS))
+
+    // Crew credits list every job (editor, composer, etc.); only the
+    // director/writer names are shown, keyed by TMDB's job labels.
+    private fun List<CrewMemberDto>?.toCrewModels(jobs: Set<String>): List<CastMemberModel> = this
+            ?.filter { it.job in jobs }
+            ?.distinctBy { it.id }
+            ?.mapNotNull { crewMemberDto ->
+                val id = crewMemberDto.id ?: return@mapNotNull null
+                val name = crewMemberDto.name ?: return@mapNotNull null
+                CastMemberModel(
+                        id = id,
+                        name = name,
+                        character = crewMemberDto.job ?: "",
+                        profileUrl = crewMemberDto.profilePath
+                                ?.let { getFullImageUrl(it, CAST_PROFILE_PATH_SIZE_SEGMENT) } ?: ""
+                                )
+            } ?: emptyList()
 
     private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
 

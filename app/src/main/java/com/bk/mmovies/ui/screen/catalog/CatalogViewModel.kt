@@ -11,6 +11,7 @@ import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.domain.model.UnknownCategory
 import com.bk.mmovies.domain.model.canLoadNextPage
@@ -168,6 +169,12 @@ class CatalogViewModel @Inject constructor(
             }
         }
     }
+
+    // Catalog list rows only carry first_air_date from the list endpoints;
+    // this fetches (and the repository caches) status/last_air_date so a TV
+    // row can derive the same air-date label as the details screen.
+    suspend fun getTvSeriesAirDateLabel(seriesId: Int): SeriesAirDateLabel =
+            tvRepository.getAirDateLabel(seriesId)
 
     fun onLogoutClicked() {
         viewModelScope.launch {

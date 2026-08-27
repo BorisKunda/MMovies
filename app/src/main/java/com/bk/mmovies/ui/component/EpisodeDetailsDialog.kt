@@ -1,8 +1,11 @@
 package com.bk.mmovies.ui.component
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -22,6 +25,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -38,6 +45,7 @@ import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
 import com.bk.mmovies.R
+import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.EpisodeModel
 
 private val dialogWidthFraction = 0.92f
@@ -49,9 +57,14 @@ private val titleToMetaSpacing = 8.dp
 private val metaToOverviewSpacing = 16.dp
 private val scoreRingSize = 32.dp
 private val scoreRowSpacing = 12.dp
+private val crewSectionTitleTopSpacing = 16.dp
+private val crewRowSpacing = 8.dp
+private val crewRoleNameSpacing = 6.dp
+private val crewMultiNameSpacing = 4.dp
 
 private const val SCRIM_ALPHA = 0.7f
 private const val SECONDARY_TEXT_ALPHA = 0.85f
+private const val TERTIARY_TEXT_ALPHA = 0.70f
 
 @Composable
 fun EpisodeDetailsDialog(
@@ -158,7 +171,114 @@ fun EpisodeDetailsDialog(
                                 modifier = Modifier.padding(top = metaToOverviewSpacing)
                             )
                     }
+
+                    if (episode.director != null || episode.writers.isNotEmpty()) {
+                        CrewSection(director = episode.director, writers = episode.writers)
+                    }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CrewSection(director: CastMemberModel?, writers: List<CastMemberModel>) {
+    // Owned here rather than passed down, since only this section's rows
+    // can ever open it. Reuses ActorDetailsDialog: director/writer credits
+    // carry the same TMDB person id, so the same bio lookup applies.
+    var selectedCrewMember by remember { mutableStateOf<CastMemberModel?>(null) }
+
+    Column(
+            modifier = Modifier.padding(top = crewSectionTitleTopSpacing),
+            verticalArrangement = Arrangement.spacedBy(crewRowSpacing)
+          ) {
+        director?.let {
+            CrewMemberRow(
+                    role = stringResource(R.string.details_director_role),
+                    crewMember = it,
+                    onClick = { selectedCrewMember = it }
+                         )
+        }
+        if (writers.size > 1) {
+            // Repeating "Writer" per row read as noise once an episode
+            // credits several — one "Writers:" row with each name still
+            // separately clickable reads the same as the single-writer case.
+            MultiNameCrewRow(
+                    role = stringResource(R.string.details_writers_label),
+                    crewMembers = writers,
+                    onCrewMemberClicked = { writer -> selectedCrewMember = writer }
+                             )
+        } else {
+            writers.forEach { writer ->
+                CrewMemberRow(
+                        role = stringResource(R.string.details_writer_role),
+                        crewMember = writer,
+                        onClick = { selectedCrewMember = writer }
+                             )
+            }
+        }
+    }
+
+    selectedCrewMember?.let { crewMember ->
+        ActorDetailsDialog(
+                castMember = crewMember,
+                onDismiss = { selectedCrewMember = null }
+                           )
+    }
+}
+
+@Composable
+private fun CrewMemberRow(
+        role: String,
+        crewMember: CastMemberModel,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier
+                         ) {
+    Row(
+            modifier = modifier.clickable(onClickLabel = crewMember.name, onClick = onClick),
+            verticalAlignment = Alignment.CenterVertically
+       ) {
+        Text(
+                text = role,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium
+            )
+        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
+        Text(
+                text = crewMember.name,
+                color = MaterialTheme.colorScheme.onSurface,
+                style = MaterialTheme.typography.bodyMedium,
+                fontWeight = FontWeight.Bold
+            )
+    }
+}
+
+@Composable
+private fun MultiNameCrewRow(
+        role: String,
+        crewMembers: List<CastMemberModel>,
+        onCrewMemberClicked: (CastMemberModel) -> Unit,
+        modifier: Modifier = Modifier
+                            ) {
+    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
+        Text(
+                text = role,
+                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
+                style = MaterialTheme.typography.labelMedium
+            )
+        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
+        FlowRow(horizontalArrangement = Arrangement.spacedBy(crewMultiNameSpacing)) {
+            crewMembers.forEachIndexed { index, crewMember ->
+                val nameText = if (index < crewMembers.lastIndex) "${crewMember.name}," else crewMember.name
+                Text(
+                        text = nameText,
+                        color = MaterialTheme.colorScheme.onSurface,
+                        style = MaterialTheme.typography.bodyMedium,
+                        fontWeight = FontWeight.Bold,
+                        modifier = Modifier.clickable(
+                                onClickLabel = crewMember.name
+                                                      ) { onCrewMemberClicked(crewMember) }
+                    )
             }
         }
     }

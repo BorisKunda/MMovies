@@ -210,20 +210,18 @@ private fun PersonDetailsBody(
                 modifier = Modifier.padding(top = characterToBodySpacing)
             )
     }
-    if (biography.isNotBlank()) {
-        Text(
-                text = stringResource(R.string.details_biography_label),
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                letterSpacing = bioTitleLetterSpacing,
-                modifier = Modifier.padding(top = characterToBodySpacing)
-            )
-        Text(
-                text = biography,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = bioTitleTopSpacing)
-            )
-    }
+    Text(
+            text = stringResource(R.string.details_biography_label),
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+            style = MaterialTheme.typography.titleSmall,
+            fontWeight = FontWeight.Bold,
+            letterSpacing = bioTitleLetterSpacing,
+            modifier = Modifier.padding(top = characterToBodySpacing)
+        )
+    Text(
+            text = biography.ifBlank { stringResource(R.string.details_biography_unavailable) },
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(top = bioTitleTopSpacing)
+        )
 }
