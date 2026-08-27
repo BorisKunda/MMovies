@@ -59,6 +59,7 @@ dependencies {
     okHttp()
     lottie()
     coil()
+    youtubePlayer()
 
     testImplementation(libs.junit)
     androidTestImplementation(platform(libs.androidx.compose.bom))
@@ -129,5 +130,9 @@ fun DependencyHandler.lottie() {
 fun DependencyHandler.coil() {
     implementation(libs.coil)
     implementation(libs.coil.network.okhttp)
+}
+
+fun DependencyHandler.youtubePlayer() {
+    implementation(libs.android.youtube.player)
 }
 

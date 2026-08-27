@@ -97,6 +97,7 @@
 
     <string name="movie_poster_zoom_action">הגדל פוסטר</string>
     <string name="movie_open_details_action">פתח פרטים</string>
+    <string name="details_premiere_date">בכורה: %1$s</string>
     <string name="favorite_add_action">הוסף למועדפים</string>
     <string name="favorite_remove_action">הסר מהמועדפים</string>
 
@@ -105,6 +106,7 @@
     <string name="details_back">חזור</string>
     <string name="action_close">סגור</string>
     <string name="details_biography_label">ביוגרפיה</string>
+    <string name="details_biography_unavailable">ביוגרפיה אינה זמינה</string>
     <string name="details_born_on">נולד/ה %1$s</string>
     <string name="details_date_tba">תאריך: טרם נקבע</string>
     <string name="details_runtime_tba">משך: טרם ידוע</string>
@@ -114,6 +116,14 @@
     <string name="details_episodes_label">פרקים</string>
     <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">שחקנים: טרם נקבע</string>
+    <string name="details_crew_label">במאי ותסריטאי</string>
+    <string name="details_tv_crew_label">נוצר על ידי</string>
+    <string name="details_director_role">במאי</string>
+    <string name="details_writer_role">תסריטאי</string>
+    <string name="details_writers_label">תסריטאים:</string>
+    <string name="details_creator_role">יוצר</string>
+    <string name="details_creators_label">יוצרים:</string>
+    <string name="details_watch_trailer_action">צפה בטריילר</string>
 
     <!--Shared by the movies list badge and the details' header.-->
     <string name="user_score_label">דירוג\nמשתמשים</string>

@@ -7,8 +7,8 @@ import com.bk.mmovies.data.mapper.MovieDetailsMapper
 import com.bk.mmovies.data.mapper.MovieMapper
 import com.bk.mmovies.data.source.local.dao.FavoriteDao
 import com.bk.mmovies.data.source.local.entity.FavoriteEntity
-import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS
-import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_AND_ACCOUNT_STATES
+import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_AND_VIDEOS
+import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_ACCOUNT_STATES_AND_VIDEOS
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.bk.mmovies.data.source.remote.dto.MovieDetailsDto
@@ -116,9 +116,9 @@ class MovieRepositoryImpl @Inject constructor(
         // account_states (and thus favorite status) is only returned by TMDB
         // when a session_id accompanies the request.
         val appendToResponse = if (sessionId != null) {
-            APPEND_TO_RESPONSE_CREDITS_AND_ACCOUNT_STATES
+            APPEND_TO_RESPONSE_CREDITS_ACCOUNT_STATES_AND_VIDEOS
         } else {
-            APPEND_TO_RESPONSE_CREDITS
+            APPEND_TO_RESPONSE_CREDITS_AND_VIDEOS
         }
         val apiCallResult: ApiCallResult<MovieDetailsDto> = networkManager.executeApiCall(
                 "GetMovieDetails",

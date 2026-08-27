@@ -3,21 +3,24 @@ package com.bk.mmovies.data.repositoryimpl
 import android.content.Context
 import com.bk.mmovies.R
 import com.bk.mmovies.data.mapper.SeasonMapper
+import com.bk.mmovies.data.mapper.SeriesAirDateLabelFormatter
 import com.bk.mmovies.data.mapper.TvSeriesDetailsMapper
 import com.bk.mmovies.data.mapper.TvSeriesMapper
 import com.bk.mmovies.data.source.local.dao.TvFavoriteDao
 import com.bk.mmovies.data.source.local.entity.TvFavoriteEntity
-import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS
-import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_AND_ACCOUNT_STATES
+import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_AND_VIDEOS
+import com.bk.mmovies.data.source.remote.APPEND_TO_RESPONSE_CREDITS_ACCOUNT_STATES_AND_VIDEOS
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.TmdbApi
 import com.bk.mmovies.data.source.remote.dto.EpisodeDto
 import com.bk.mmovies.data.source.remote.dto.SeasonDetailsDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteRequestDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteResponseDto
+import com.bk.mmovies.data.source.remote.dto.TvSeriesAirDateInfoDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesListDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.domain.model.isLastPage
 import com.bk.mmovies.domain.model.result.EpisodeDetailsResult
@@ -31,6 +34,7 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.SimpleDateFormat
 import java.util.Calendar
 import java.util.Locale
+import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
 // TMDB returns 20 favorites per page, so this covers 1000 favorited series.
@@ -42,9 +46,15 @@ class TvSeriesRepositoryImpl @Inject constructor(
         private val tvSeriesMapper: TvSeriesMapper,
         private val seasonMapper: SeasonMapper,
         private val tvSeriesDetailsMapper: TvSeriesDetailsMapper,
+        private val seriesAirDateLabelFormatter: SeriesAirDateLabelFormatter,
         private val tvFavoriteDao: TvFavoriteDao,
         @ApplicationContext private val context: Context
                                                  ) : TvSeriesRepository {
+    // Unbounded but keyed by series id, which stays small relative to how
+    // long the process lives; a failed lookup is deliberately not cached so
+    // scrolling back to the row retries it instead of getting stuck on TBA.
+    private val airDateLabelCache = ConcurrentHashMap<Int, SeriesAirDateLabel>()
+
     private val failureMessage: String
         get() = context.getString(R.string.error_tv_series_load_failed)
     private val seasonFailureMessage: String
@@ -132,9 +142,9 @@ class TvSeriesRepositoryImpl @Inject constructor(
         // account_states (and thus favorite status) is only returned by TMDB
         // when a session_id accompanies the request.
         val appendToResponse = if (sessionId != null) {
-            APPEND_TO_RESPONSE_CREDITS_AND_ACCOUNT_STATES
+            APPEND_TO_RESPONSE_CREDITS_ACCOUNT_STATES_AND_VIDEOS
         } else {
-            APPEND_TO_RESPONSE_CREDITS
+            APPEND_TO_RESPONSE_CREDITS_AND_VIDEOS
         }
         val apiCallResult: ApiCallResult<TvSeriesDetailsDto> = networkManager.executeApiCall(
                 "GetTvSeriesDetails",
@@ -148,6 +158,32 @@ class TvSeriesRepositoryImpl @Inject constructor(
                 TvSeriesDetailsResult.Failure(detailsFailureMessage)
             }
         }
+    }
+
+    override suspend fun getAirDateLabel(seriesId: Int): SeriesAirDateLabel {
+        airDateLabelCache[seriesId]?.let { return it }
+
+        val apiCallResult: ApiCallResult<TvSeriesAirDateInfoDto> = networkManager.executeApiCall(
+                "GetTvSeriesAirDateInfo",
+                apiCall = { -> api.getTvSeriesAirDateInfo(seriesId) })
+
+        val label = when (apiCallResult) {
+            is ApiCallResult.Success<TvSeriesAirDateInfoDto> -> seriesAirDateLabelFormatter.format(
+                    status = apiCallResult.data.status,
+                    firstAirDate = apiCallResult.data.firstAirDate,
+                    lastAirDate = apiCallResult.data.lastAirDate
+                                                                                                    )
+            // Same "no date yet" fallback the formatter itself uses for a
+            // missing first_air_date — a failed lookup reads no differently
+            // to the user than a series TMDB hasn't dated yet.
+            is ApiCallResult.Failure                          ->
+                seriesAirDateLabelFormatter.format(status = null, firstAirDate = null, lastAirDate = null)
+        }
+
+        if (apiCallResult is ApiCallResult.Success<TvSeriesAirDateInfoDto>) {
+            airDateLabelCache[seriesId] = label
+        }
+        return label
     }
 
     override suspend fun getFavoriteTvSeries(accountId: Int, sessionId: String, page: Int): TvSeriesResult {

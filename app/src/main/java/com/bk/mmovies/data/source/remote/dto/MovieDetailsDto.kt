@@ -18,7 +18,8 @@ data class MovieDetailsDto(
         val voteAverage: Double?,
         val credits: CreditsDto?,
         @SerializedName("account_states")
-        val accountStates: AccountStatesDto?
+        val accountStates: AccountStatesDto?,
+        val videos: VideosDto?
                           )
 
 data class AccountStatesDto(
@@ -32,7 +33,8 @@ data class GenreDto(
                     )
 
 data class CreditsDto(
-        val cast: List<CastMemberDto>?
+        val cast: List<CastMemberDto>?,
+        val crew: List<CrewMemberDto>?
                       )
 
 data class CastMemberDto(
@@ -42,4 +44,12 @@ data class CastMemberDto(
         @SerializedName("profile_path")
         val profilePath: String?,
         val order: Int?
+                         )
+
+data class CrewMemberDto(
+        val id: Int?,
+        val name: String?,
+        val job: String?,
+        @SerializedName("profile_path")
+        val profilePath: String?
                          )

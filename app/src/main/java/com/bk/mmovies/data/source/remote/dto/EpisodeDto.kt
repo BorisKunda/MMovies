@@ -16,5 +16,8 @@ data class EpisodeDto(
         val stillPath: String?,
         @SerializedName("vote_average")
         val voteAverage: Double?,
-        val runtime: Int?
+        val runtime: Int?,
+        // Unlike movie/TV-series credits (nested under append_to_response=credits),
+        // TMDB's episode endpoint returns crew as a top-level field already.
+        val crew: List<CrewMemberDto>?
                      )

@@ -5,21 +5,25 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.CastMemberDto
+import com.bk.mmovies.data.source.remote.dto.CreatedByDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
+import com.bk.mmovies.data.source.remote.dto.VideoDto
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.TvSeriesDetailsModel
 import com.bk.mmovies.locale.AppLanguage
 import com.bk.mmovies.locale.LocaleMonitor
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 private const val CAST_LIST_LIMIT = 20
+private const val CREATOR_ROLE = "Creator"
+private const val VIDEO_SITE_YOUTUBE = "YouTube"
+private const val VIDEO_TYPE_TRAILER = "Trailer"
+private const val YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
 
 class TvSeriesDetailsMapper @Inject constructor(
         private val localeMonitor: LocaleMonitor,
-        private val seasonMapper: SeasonMapper
+        private val seasonMapper: SeasonMapper,
+        private val seriesAirDateLabelFormatter: SeriesAirDateLabelFormatter
                                                 ) {
 
     fun toModel(dto: TvSeriesDetailsDto): TvSeriesDetailsModel = TvSeriesDetailsModel(
@@ -27,19 +31,21 @@ class TvSeriesDetailsMapper @Inject constructor(
             title = dto.name ?: "",
             posterUrl = dto.posterPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM) } ?: "",
             backdropUrl = dto.backdropPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM) } ?: "",
-            firstAirDate = dto.firstAirDate?.let { getFormattedDate(it) } ?: "",
+            airDateLabel = seriesAirDateLabelFormatter.format(dto.status, dto.firstAirDate, dto.lastAirDate),
             seasonsLabel = dto.numberOfSeasons.toSeasonsLabel(),
             userScore = dto.voteAverage.toRatingPercent(),
             genres = dto.genres?.mapNotNull { it.name } ?: emptyList(),
             overview = dto.overview ?: "",
             cast = dto.credits?.cast.toCastModels(),
+            creators = dto.createdBy.toCreatorModels(),
             // A "season 0" entry is TMDB's convention for specials; hide it
             // from what is meant to be the regular season list.
             seasons = dto.seasons.orEmpty()
                     .filter { (it.seasonNumber ?: 0) > 0 }
                     .sortedBy { it.seasonNumber }
                     .map { seasonMapper.toModel(it) },
-            isFavorite = dto.accountStates?.favorite ?: false
+            isFavorite = dto.accountStates?.favorite ?: false,
+            trailerUrl = dto.videos?.results.toTrailerUrl()
                                                                                       )
 
     // TMDB returns the full credited cast, often 30+ names; the app only
@@ -62,6 +68,23 @@ class TvSeriesDetailsMapper @Inject constructor(
                         name = name,
                         character = castMemberDto.character ?: "",
                         profileUrl = castMemberDto.profilePath
+                                ?.let { getFullImageUrl(it, CAST_PROFILE_PATH_SIZE_SEGMENT) } ?: ""
+                                )
+            } ?: emptyList()
+
+    // TV shows are credited with named creators at the series level (TMDB's
+    // "created_by"), unlike movies whose single director sits in the crew
+    // list — so this reads a different field entirely rather than a job filter.
+    private fun List<CreatedByDto>?.toCreatorModels(): List<CastMemberModel> = this
+            ?.distinctBy { it.id }
+            ?.mapNotNull { createdByDto ->
+                val id = createdByDto.id ?: return@mapNotNull null
+                val name = createdByDto.name ?: return@mapNotNull null
+                CastMemberModel(
+                        id = id,
+                        name = name,
+                        character = CREATOR_ROLE,
+                        profileUrl = createdByDto.profilePath
                                 ?.let { getFullImageUrl(it, CAST_PROFILE_PATH_SIZE_SEGMENT) } ?: ""
                                 )
             } ?: emptyList()
@@ -89,13 +112,15 @@ class TvSeriesDetailsMapper @Inject constructor(
         }
     }
 
-    private fun getFormattedDate(firstAirDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(firstAirDate)
-        date?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: firstAirDate
-    } catch (e: ParseException) {
-        firstAirDate
+    // TMDB lists every clip/teaser/featurette alongside the actual trailer;
+    // prefer an official YouTube trailer, then fall back progressively so a
+    // show with no "official" flag set still gets a playable link.
+    private fun List<VideoDto>?.toTrailerUrl(): String? {
+        val youtubeVideos = this?.filter { it.site == VIDEO_SITE_YOUTUBE && it.key != null } ?: return null
+        val trailer = youtubeVideos.firstOrNull { it.type == VIDEO_TYPE_TRAILER && it.official == true }
+                ?: youtubeVideos.firstOrNull { it.type == VIDEO_TYPE_TRAILER }
+                ?: youtubeVideos.firstOrNull()
+        return trailer?.key?.let { "$YOUTUBE_WATCH_URL$it" }
     }
 
     private fun getFullImageUrl(imagePath: String, sizeSegment: String): String {
