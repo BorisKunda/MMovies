@@ -44,7 +44,7 @@ private val apikeyStepIndicatorSize = 44.dp
 private val apikeyStepHeaderPaddingBottom = 20.dp
 private val apiKeyStepHeaderTextPadding = 16.dp
 
-private val linkTextStartEndTopPadding = 10.dp
+private val linkTextStartEndTopPadding = 15.dp
 private val linkTextBottomPadding = 36.dp
 
 private val outlineButtonBorderStrokeWidth = 1.dp
@@ -119,6 +119,7 @@ fun InvalidApiKeyView(
 
                 TextButton(
                         onClick = onApiKeyHelpClicked,
+                        modifier = Modifier.fillMaxWidth(),
                         contentPadding = PaddingValues(
                                 start = linkTextStartEndTopPadding,
                                 end = linkTextStartEndTopPadding,

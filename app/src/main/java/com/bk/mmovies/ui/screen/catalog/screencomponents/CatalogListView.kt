@@ -48,6 +48,7 @@ import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -108,6 +109,12 @@ private val scoreLabelTopSpacing = 6.dp
 private val scoreLabelFontSize = 8.sp
 private val scoreLabelLetterSpacing = 0.5.sp
 private const val SCORE_LABEL_ALPHA = 0.45f
+
+// Below this the "USER SCORE" caption crowds out the title on top of a
+// small poster + fixed-width badge column — drop just the caption on narrow
+// screens (e.g. Galaxy S9 at 360dp) and keep the ring+percentage, which
+// carries the same information on its own.
+private val minScreenWidthForScoreLabel = 360.dp
 
 // The title has to win: the date is supporting metadata and was previously
 // rendered at the same size and full opacity as the title.
@@ -229,6 +236,9 @@ fun CatalogItemRow(
                   ) {
     var isPosterZoomed by remember { mutableStateOf(false) }
 
+    val hasRoomForScoreLabel =
+            LocalConfiguration.current.screenWidthDp.dp > minScreenWidthForScoreLabel
+
     // Movie list endpoints already carry releaseDate; TV list endpoints
     // don't carry status/last_air_date, so that half of the row is fetched
     // (and cached) lazily per item instead.
@@ -341,20 +351,22 @@ fun CatalogItemRow(
                                 score = catalogItem.rating,
                                 size = ratingBadgeSize
                                      )
-                        Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
-                        Text(
-                                modifier = Modifier.width(ratingBadgeSize),
-                                text = stringResource(R.string.user_score_label),
-                                color = MaterialTheme.colorScheme.onSurface.copy(
-                                        alpha = SCORE_LABEL_ALPHA
-                                                                                ),
-                                fontSize = scoreLabelFontSize,
-                                lineHeight = scoreLabelFontSize,
-                                letterSpacing = scoreLabelLetterSpacing,
-                                fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center,
-                                maxLines = 2
-                            )
+                        if (hasRoomForScoreLabel) {
+                            Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
+                            Text(
+                                    modifier = Modifier.width(ratingBadgeSize),
+                                    text = stringResource(R.string.user_score_label),
+                                    color = MaterialTheme.colorScheme.onSurface.copy(
+                                            alpha = SCORE_LABEL_ALPHA
+                                                                                    ),
+                                    fontSize = scoreLabelFontSize,
+                                    lineHeight = scoreLabelFontSize,
+                                    letterSpacing = scoreLabelLetterSpacing,
+                                    fontWeight = FontWeight.Medium,
+                                    textAlign = TextAlign.Center,
+                                    maxLines = 2
+                                )
+                        }
                     }
                     Spacer(modifier = Modifier.width(badgeSpacerPadding))
                 }

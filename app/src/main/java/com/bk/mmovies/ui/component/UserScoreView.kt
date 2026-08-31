@@ -17,7 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.text.PlatformTextStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.LineHeightStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -85,7 +88,20 @@ fun UserScoreView(
             text = "$clampedScore%",
             color = Color.White,
             fontSize = numeralFontSize,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
+            // Text's default font padding is asymmetric (extra space above the
+            // glyph for ascent/descent), so Box's Alignment.Center still leaves
+            // the numeral visually off-center inside the ring. Disabling font
+            // padding and trimming the line height centers it on the glyph
+            // itself instead.
+            style = TextStyle(
+                lineHeight = numeralFontSize,
+                lineHeightStyle = LineHeightStyle(
+                    alignment = LineHeightStyle.Alignment.Center,
+                    trim = LineHeightStyle.Trim.Both
+                ),
+                platformStyle = PlatformTextStyle(includeFontPadding = false)
+            )
         )
     }
 }
