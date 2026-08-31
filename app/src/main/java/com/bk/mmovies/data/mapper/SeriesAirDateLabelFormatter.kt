@@ -1,8 +1,10 @@
 package com.bk.mmovies.data.mapper
 
+import android.content.Context
+import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.SeriesAirDateLabel
-import com.bk.mmovies.locale.AppLanguage
 import com.bk.mmovies.locale.LocaleMonitor
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.text.ParseException
 import java.text.SimpleDateFormat
 import java.util.Locale
@@ -20,7 +22,8 @@ private const val ONGOING_STATUS = "Returning Series"
  * series payload.
  */
 class SeriesAirDateLabelFormatter @Inject constructor(
-        private val localeMonitor: LocaleMonitor
+        private val localeMonitor: LocaleMonitor,
+        @ApplicationContext private val context: Context
                                                        ) {
 
     fun format(status: String?, firstAirDate: String?, lastAirDate: String?): SeriesAirDateLabel {
@@ -45,23 +48,11 @@ class SeriesAirDateLabelFormatter @Inject constructor(
 
     private fun String?.toYear(): String = this?.take(4).orEmpty()
 
-    private fun seriesPremiereLabel(): String = when (localeMonitor.currentLanguage.value) {
-        AppLanguage.RUSSIAN -> "Премьера сериала"
-        AppLanguage.HEBREW  -> "בכורת הסדרה"
-        AppLanguage.ENGLISH -> "Series Premiere"
-    }
+    private fun seriesPremiereLabel(): String = context.getString(R.string.series_premiere_label)
 
-    private fun ongoingLabel(): String = when (localeMonitor.currentLanguage.value) {
-        AppLanguage.RUSSIAN -> "Идёт показ"
-        AppLanguage.HEBREW  -> "בשידור"
-        AppLanguage.ENGLISH -> "Ongoing"
-    }
+    private fun ongoingLabel(): String = context.getString(R.string.series_ongoing_label)
 
-    private fun tbaLabel(): String = when (localeMonitor.currentLanguage.value) {
-        AppLanguage.RUSSIAN -> "Дата уточняется"
-        AppLanguage.HEBREW  -> "טרם נקבע"
-        AppLanguage.ENGLISH -> "TBA"
-    }
+    private fun tbaLabel(): String = context.getString(R.string.series_tba_label)
 
     private fun getFormattedDate(date: String): String = try {
         val parsed = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(date)

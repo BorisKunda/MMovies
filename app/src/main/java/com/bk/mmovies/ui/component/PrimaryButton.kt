@@ -1,7 +1,6 @@
 package com.bk.mmovies.ui.component
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -13,16 +12,17 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import com.bk.mmovies.R
 import com.bk.mmovies.ui.theme.MMoviesTheme
+import com.bk.mmovies.ui.theme.primaryButtonContainerColor
 import com.bk.mmovies.ui.theme.primaryButtonContentColor
 import com.bk.mmovies.ui.theme.primaryButtonCornerSize
 import com.bk.mmovies.ui.theme.primaryButtonDisabledContainerColor
@@ -48,8 +48,8 @@ fun PrimaryButton(
                             primaryButtonHeight
                            ),
             colors = ButtonDefaults.buttonColors(
-                    containerColor = Color.White,
-                    contentColor = Color(primaryButtonContentColor),
+                    containerColor = primaryButtonContainerColor,
+                    contentColor = primaryButtonContentColor,
                     disabledContainerColor = primaryButtonDisabledContainerColor,
                     disabledContentColor = primaryButtonDisabledContentColor
                                                 ),
@@ -75,28 +75,30 @@ fun PrimaryButton(
     }
 }
 
-@Composable
 @Preview(showBackground = true)
+@Composable
 private fun PrimaryButtonPreview() {
     MMoviesTheme {
-        Box(
-                modifier = Modifier
-                        .fillMaxSize()
-                        .background(MaterialTheme.colorScheme.background),
-                contentAlignment = Alignment.Center,
-                content = {
-                    PrimaryButton(
-                            imageResId = R.drawable.ic_settings,
-                            label = "Open network settings",
-                            {
-                                logDebug(
-                                        "PrimaryButtonPreview",
-                                        "Open network settings clicked"
-                                        )
-                            },
-                            true
-                                 )
-                }
-           )
+        Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+            Box(
+                    modifier = Modifier
+                            .fillMaxSize()
+                            .padding(padding),
+                    contentAlignment = Alignment.Center,
+                    content = {
+                        PrimaryButton(
+                                imageResId = R.drawable.ic_settings,
+                                label = "Open network settings",
+                                {
+                                    logDebug(
+                                            "PrimaryButtonPreview",
+                                            "Open network settings clicked"
+                                            )
+                                },
+                                true
+                                     )
+                    }
+               )
+        }
     }
 }

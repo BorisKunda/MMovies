@@ -5,11 +5,13 @@ import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.canLoadNextPage
 import com.bk.mmovies.domain.model.isLastPage
 import com.bk.mmovies.domain.model.mergePagedItems
 import com.bk.mmovies.domain.model.result.SearchResult
 import com.bk.mmovies.domain.repository.SearchRepository
+import com.bk.mmovies.domain.repository.TvSeriesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -28,7 +30,8 @@ private const val SEARCH_DEBOUNCE_MILLIS = 400L
 
 @HiltViewModel
 class SearchViewModel @Inject constructor(
-        private val searchRepository: SearchRepository
+        private val searchRepository: SearchRepository,
+        private val tvSeriesRepository: TvSeriesRepository
                                           ) : ViewModel() {
 
     private val _query = MutableStateFlow("")
@@ -148,6 +151,12 @@ class SearchViewModel @Inject constructor(
             SearchResultMediaType.PERSON    -> Unit
         }
     }
+
+    // Search results only carry first_air_date; this fetches (and the
+    // repository caches) status/last_air_date so a TV row can derive the
+    // same air-date label as the catalog list and details screen.
+    suspend fun getTvSeriesAirDateLabel(seriesId: Int): SeriesAirDateLabel =
+            tvSeriesRepository.getAirDateLabel(seriesId)
 
     fun retry() {
         val trimmedQuery = _query.value.trim()

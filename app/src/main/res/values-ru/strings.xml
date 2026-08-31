@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ComposeTMDB</string>
+    <string name="app_name">MMovies</string>
 
     <!--ERRORS-->
     <string name="error_no_internet_connection_title">Нет подключения к интернету</string>
@@ -82,6 +82,7 @@
     <!--SEARCH-->
     <string name="search_action">Поиск</string>
     <string name="search_field_hint">Поиск фильмов, сериалов, людей</string>
+    <string name="search_screen_field_hint">Поиск</string>
     <string name="search_field_clear_action">Очистить поиск</string>
     <string name="search_back_action">Назад</string>
     <string name="search_recent_title">Недавние запросы</string>
@@ -89,7 +90,7 @@
     <string name="search_recent_remove_action">Удалить из недавних запросов</string>
     <string name="search_empty_title">Ничего не найдено</string>
     <string name="search_empty_message">Попробуйте другой запрос.</string>
-    <string name="search_idle_title">Поиск в MMovies</string>
+    <string name="search_idle_title">Поиск на TMDB</string>
     <string name="search_idle_message">Находите фильмы, сериалы и людей.</string>
     <string name="search_result_type_movie">Фильм</string>
     <string name="search_result_type_tv_series">Сериал</string>
@@ -124,6 +125,33 @@
     <string name="details_creator_role">Создатель</string>
     <string name="details_creators_label">Создатели:</string>
     <string name="details_watch_trailer_action">Смотреть трейлер</string>
+
+    <!--SERIES AIR DATE-->
+    <string name="series_premiere_label">Премьера сериала</string>
+    <string name="series_ongoing_label">Идёт показ</string>
+    <string name="series_tba_label">Дата уточняется</string>
+
+    <!--RUNTIME-->
+    <plurals name="runtime_hours">
+        <item quantity="one">%dч</item>
+        <item quantity="few">%dч</item>
+        <item quantity="many">%dч</item>
+        <item quantity="other">%dч</item>
+    </plurals>
+    <plurals name="runtime_minutes">
+        <item quantity="one">%dмин</item>
+        <item quantity="few">%dмин</item>
+        <item quantity="many">%dмин</item>
+        <item quantity="other">%dмин</item>
+    </plurals>
+
+    <!--EPISODE COUNT-->
+    <plurals name="episode_count">
+        <item quantity="one">%d эпизод</item>
+        <item quantity="few">%d эпизода</item>
+        <item quantity="many">%d эпизодов</item>
+        <item quantity="other">%d эпизодов</item>
+    </plurals>
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">ОЦЕНКА\nЗРИТЕЛЕЙ</string>

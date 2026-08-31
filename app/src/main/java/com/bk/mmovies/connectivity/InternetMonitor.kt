@@ -15,11 +15,12 @@ import kotlinx.coroutines.flow.asStateFlow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+private const val TAG = "InternetMonitor"
+
 @Singleton
 class InternetMonitor @Inject constructor(
         @ApplicationContext context: Context
                                          ) {
-    private val TAG = "InternetMonitor"
     private val connectivityManager: ConnectivityManager =
             context.applicationContext.getSystemService(ConnectivityManager::class.java)
 

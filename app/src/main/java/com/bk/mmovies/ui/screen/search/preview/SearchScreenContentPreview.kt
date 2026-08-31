@@ -14,6 +14,7 @@ import com.bk.mmovies.ui.screen.search.SearchResultsUiState
 import com.bk.mmovies.ui.screen.search.screencomponents.SearchIdleContent
 import com.bk.mmovies.ui.screen.search.screencomponents.SearchResultsContent
 import com.bk.mmovies.ui.theme.MMoviesTheme
+import com.bk.mmovies.ui.theme.PhoneSizePreviews
 
 private val sampleResults = listOf(
         SearchResultModel(
@@ -41,7 +42,7 @@ private val sampleResults = listOf(
 
 private val sampleRecentSearches = listOf("Matrix", "Breaking Bad", "Keanu Reeves")
 
-@Preview(showBackground = true, name = "Results")
+@PhoneSizePreviews
 @Composable
 private fun SearchResultsContentPreview() {
     MMoviesTheme {

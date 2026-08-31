@@ -3,9 +3,13 @@ package com.bk.mmovies.ui.screen.catalog
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -32,16 +36,20 @@ import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTab
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTabBar
-import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogHeaderBar
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogScreenContent
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogSearchBar
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryListPopupView
+import com.bk.mmovies.ui.screen.catalog.screencomponents.CategorySelector
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryType
+import com.bk.mmovies.ui.screen.catalog.screencomponents.UserProfileBar
 import com.bk.mmovies.util.logDebug
 import kotlinx.coroutines.launch
 
-// Gap between the fixed header bar and the tab content below it.
-private val tabContentTopSpacing = 6.dp
+// Zero: CategorySelector already carries its own 12dp bottom margin
+// (categorySelectorVerticalMargin), which is exactly the gap between the
+// search capsule and CategorySelector above it — adding more here would
+// make the two gaps uneven.
+private val tabContentTopSpacing = 0.dp
 
 // Gap between the nav bar and the footer above it; the footer's own bottom
 // margin is fixed inside PoweredByTmdbFooter.
@@ -75,6 +83,15 @@ fun CatalogScreen(
 
     Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
+            // MainActivity's own outer Scaffold already pads its content by
+            // the full safe-drawing insets (see AppNavigation's
+            // Modifier.padding(padding)) — this Scaffold applying the
+            // default insets again on top of that doubled the gap above the
+            // status bar. Only the bottom (nav bar/gesture inset) still
+            // needs to be reserved here, for the bottom tab bar/footer.
+            contentWindowInsets = WindowInsets.safeDrawing.only(
+                    WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
+                                                                ),
             bottomBar = {
                 Column {
                     CatalogBottomTabBar(
@@ -93,16 +110,21 @@ fun CatalogScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
               ) {
+            // The user profile chip sits at the very top-right of the screen,
+            // above the search bar.
+            UserProfileBar(
+                    userProfileState = userProfileState,
+                    onLogout = { catalogViewModel.onLogoutClicked() }
+                          )
+
             CatalogSearchBar(onClick = onNavigateToSearch)
 
             // Fixed above the tab content so switching tabs never resets the
-            // selected category or logs out the user's selection state.
-            CatalogHeaderBar(
+            // selected category.
+            CategorySelector(
                     selectedCategory = selectedCategory,
-                    userProfileState = userProfileState,
-                    onCategoryClick = { isCategoryPopupVisible = true },
-                    onLogout = { catalogViewModel.onLogoutClicked() }
-                            )
+                    onClick = { isCategoryPopupVisible = true }
+                             )
 
             Box(
                     modifier = Modifier

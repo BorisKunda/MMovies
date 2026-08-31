@@ -69,7 +69,7 @@ fun SplashScreen(
                             viewModel.saveApiKey(key)
                             logDebug(
                                     TAG,
-                                    "onSaveClicked key: $key"
+                                    "onSaveClicked key present: ${key.isNotBlank()}, length: ${key.length}"
                                     )
                         },
                         missingKey = true

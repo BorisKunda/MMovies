@@ -42,8 +42,9 @@ private val categoryIconSize = 16.dp
 private val categoryArrowSize = 18.dp
 private val categoryArrowStartPadding = 4.dp
 
-// Matches the poster's start margin in MovieRow: cardPaddingHorizontal (12dp) + rowPaddingHorizontal (16dp).
-private val categorySelectorStartPadding = 28.dp
+// Matches CatalogListView's cardPaddingHorizontal so this chip's start edge
+// lines up with each catalog card's start edge below it.
+private val categorySelectorStartPadding = 12.dp
 
 private const val CATEGORY_SELECTOR_CONTAINER_ALPHA = 0.06f
 private const val CATEGORY_SELECTOR_BORDER_ALPHA = 0.18f

@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.net.Uri
+import android.os.Build
 import android.view.WindowManager
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -311,9 +312,13 @@ private fun FullscreenYoutubePlayer(
             // Activity window already opts into this via enableEdgeToEdge(),
             // but a Dialog opens a separate Window that needs it applied
             // again.
-            window?.let {
-                it.attributes = it.attributes.apply {
-                    layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+            // layoutInDisplayCutoutMode was only added to LayoutParams in API
+            // 28 — referencing it on API 23-27 throws NoSuchFieldError.
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
+                window?.let {
+                    it.attributes = it.attributes.apply {
+                        layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_ALWAYS
+                    }
                 }
             }
             // Resizing and hiding the bars isn't enough on its own: with

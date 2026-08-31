@@ -1,6 +1,5 @@
 package com.bk.mmovies.ui.screen.details.tvseriesdetails
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.TvSeriesDetailsModel
@@ -9,17 +8,14 @@ import com.bk.mmovies.domain.model.result.TvSeriesDetailsResult
 import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.TvSeriesRepository
 import com.bk.mmovies.locale.LocaleMonitor
+import com.bk.mmovies.ui.screen.details.DetailsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +25,7 @@ class TvSeriesDetailsViewModel @Inject constructor(
         private val authenticationRepository: AuthenticationRepository,
         localeMonitor: LocaleMonitor,
         internetMonitor: InternetMonitor
-                                                   ) :
-        ViewModel() {
+                                                   ) : DetailsViewModel<Int>(localeMonitor, internetMonitor) {
 
     private val _tvSeriesDetailsScreenState = MutableStateFlow<TvSeriesDetailsScreenState>(
             TvSeriesDetailsScreenState.Loading
@@ -54,53 +49,24 @@ class TvSeriesDetailsViewModel @Inject constructor(
         get() = authenticationRepository.getSharedPrefLoginSessionId() != null &&
                 authenticationRepository.getSharedPrefAccountId() != null
 
-    private var seriesId: Int? = null
-    private var loadTvSeriesDetailsJob: Job? = null
+    fun loadTvSeriesDetails(seriesId: Int) = load(seriesId)
 
-    init {
-        // Reload the currently displayed series in the new language whenever
-        // the device/app language changes, including while the app is backgrounded.
-        // A locale change often lands right as the OS is mid-reconnect (seen as
-        // an immediate UnknownHostException), so wait for connectivity before firing.
-        viewModelScope.launch {
-            localeMonitor.currentLanguage
-                    .drop(1)
-                    .collectLatest {
-                        val currentSeriesId = seriesId ?: return@collectLatest
-                        internetMonitor.isInternetAvailable.first { it }
-                        _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Loading
-                        fetchTvSeriesDetails(currentSeriesId)
-                    }
-        }
-    }
-
-    fun loadTvSeriesDetails(seriesId: Int) {
-        if (this.seriesId == seriesId) return
-        this.seriesId = seriesId
-        fetchTvSeriesDetails(seriesId)
-    }
-
-    fun retry() {
-        val seriesId = seriesId ?: return
+    override fun onReload() {
         _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Loading
-        fetchTvSeriesDetails(seriesId)
     }
 
-    private fun fetchTvSeriesDetails(seriesId: Int) {
+    override suspend fun fetchDetails(id: Int) {
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
-        loadTvSeriesDetailsJob?.cancel()
-        loadTvSeriesDetailsJob = viewModelScope.launch {
-            when (val result = tvRepository.getTvSeriesDetails(seriesId, sessionId)) {
-                is TvSeriesDetailsResult.Success -> {
-                    _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(
-                            result.tvSeriesDetails
-                                                                                           )
-                }
-                is TvSeriesDetailsResult.Failure -> {
-                    _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Error(
-                            result.errorMessage
-                                                                                        )
-                }
+        when (val result = tvRepository.getTvSeriesDetails(id, sessionId)) {
+            is TvSeriesDetailsResult.Success -> {
+                _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(
+                        result.tvSeriesDetails
+                                                                                       )
+            }
+            is TvSeriesDetailsResult.Failure -> {
+                _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Error(
+                        result.errorMessage
+                                                                                    )
             }
         }
     }
@@ -110,40 +76,38 @@ class TvSeriesDetailsViewModel @Inject constructor(
         if (currentState !is TvSeriesDetailsScreenState.Content) return
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
         val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
-        val tvSeriesDetails = currentState.tvSeriesDetails
-        val newIsFavorite = !tvSeriesDetails.isFavorite
+        val tvSeriesDetailsModel = currentState.tvSeriesDetailsModel
+        val newIsFavorite = !tvSeriesDetailsModel.isFavorite
 
         // Optimistic: flip the star immediately, revert only if the call fails.
         _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(
-                tvSeriesDetails.copy(isFavorite = newIsFavorite)
+                tvSeriesDetailsModel.copy(isFavorite = newIsFavorite)
                                                                                )
         viewModelScope.launch {
             val result = tvRepository.toggleFavorite(
                     accountId,
                     sessionId,
-                    tvSeriesDetails.id,
+                    tvSeriesDetailsModel.id,
                     newIsFavorite
                                                       )
-            if (result is ToggleFavoriteResult.Failure) {
-                // Re-read rather than writing back the snapshot captured above:
-                // a locale-change reload or retry() can land while the toggle
-                // is in flight, and restoring the old model would throw that
-                // fresher content away.
-                val latestState = _tvSeriesDetailsScreenState.value
-                if (latestState is TvSeriesDetailsScreenState.Content &&
-                    latestState.tvSeriesDetails.id == tvSeriesDetails.id) {
-                    _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(
-                            latestState.tvSeriesDetails.copy(isFavorite = tvSeriesDetails.isFavorite)
-                                                                                           )
-                }
-                _messageEvent.tryEmit(result.errorMessage)
-            }
+            revertFavoriteOnFailure(
+                    content = tvSeriesDetailsModel,
+                    previousIsFavorite = tvSeriesDetailsModel.isFavorite,
+                    contentId = { it.id },
+                    withFavorite = { details, isFavorite -> details.copy(isFavorite = isFavorite) },
+                    currentContent = {
+                        (_tvSeriesDetailsScreenState.value as? TvSeriesDetailsScreenState.Content)?.tvSeriesDetailsModel
+                    },
+                    applyContent = { _tvSeriesDetailsScreenState.value = TvSeriesDetailsScreenState.Content(it) },
+                    onFailureMessage = { _messageEvent.tryEmit(it) },
+                    result = result
+                                    )
         }
     }
 }
 
 sealed interface TvSeriesDetailsScreenState {
     object Loading : TvSeriesDetailsScreenState
-    data class Content(val tvSeriesDetails: TvSeriesDetailsModel) : TvSeriesDetailsScreenState
+    data class Content(val tvSeriesDetailsModel: TvSeriesDetailsModel) : TvSeriesDetailsScreenState
     data class Error(val errorMessage: String) : TvSeriesDetailsScreenState
 }

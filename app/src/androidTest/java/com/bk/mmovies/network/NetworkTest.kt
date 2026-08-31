@@ -9,6 +9,7 @@ import com.google.gson.Gson
 import junit.framework.TestCase.assertEquals
 import junit.framework.TestCase.assertFalse
 import junit.framework.TestCase.assertNotNull
+import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import okhttp3.Interceptor
@@ -132,6 +133,10 @@ class NetworkTest {
             val response = api.getIsApiV3TokenValid()
             assertFalse(response.isSuccessful)
             assertTrue(response.code() == 401)
+            assertNull(response.body())
+            assertTrue(
+                    response.errorBody()?.string()?.contains("Invalid API key") == true
+                      )
         }
     }
 

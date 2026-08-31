@@ -21,9 +21,11 @@ import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
 
@@ -61,8 +63,8 @@ fun CatalogBottomTabBar(
                                     )
                 }
                 val isSelected = selectedTab == tab
-                val contentColor = if (isSelected) {
-                    MaterialTheme.colorScheme.primary
+                val contentColor: Color = if (isSelected) {
+                    MaterialTheme.colorScheme.onSurface
                 } else {
                     MaterialTheme.colorScheme.onSurfaceVariant
                 }
@@ -87,7 +89,9 @@ fun CatalogBottomTabBar(
                     Text(
                             text = stringResource(tab.labelResId),
                             color = contentColor,
-                            style = MaterialTheme.typography.labelMedium
+                            style = MaterialTheme.typography.labelMedium,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                 }
             }

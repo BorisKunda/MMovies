@@ -23,9 +23,6 @@ import com.bk.mmovies.domain.model.result.MoviesResult
 import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
 import com.bk.mmovies.domain.repository.MovieRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 import javax.inject.Inject
 
 // TMDB returns 20 favorites per page, so this covers 1000 favorited movies.
@@ -45,12 +42,6 @@ class MovieRepositoryImpl @Inject constructor(
         get() = context.getString(R.string.error_movie_details_load_failed)
     private val favoriteToggleFailureMessage: String
         get() = context.getString(R.string.error_favorite_toggle_failed)
-
-    private fun tomorrowDate(): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        return SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(calendar.time)
-    }
 
     override suspend fun getMoviesByCategory(category: MovieCategory, page: Int): MoviesResult {
         var apiCallResult: ApiCallResult<MovieListDto>? = null

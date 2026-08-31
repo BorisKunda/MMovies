@@ -15,15 +15,12 @@ import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.screen.auth.AuthScreen
 import com.bk.mmovies.ui.screen.catalog.CatalogScreen
 import com.bk.mmovies.ui.screen.details.moviedetails.MovieDetailsScreen
-import com.bk.mmovies.ui.screen.details.seasondetails.SeasonDetailsScreen
+import com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.SeasonDetailsScreen
 import com.bk.mmovies.ui.screen.splash.SplashScreen
 import com.bk.mmovies.ui.screen.details.tvseriesdetails.TvSeriesDetailsScreen
 import com.bk.mmovies.ui.screen.privacypolicy.PrivacyPolicyScreen
 import com.bk.mmovies.ui.screen.search.SearchScreen
 import com.bk.mmovies.ui.screen.terms.TermsScreen
-
-
-private const val TAG = "AppNavigation"
 
 @Composable
 fun AppNavigation(
@@ -164,7 +161,8 @@ fun AppNavigation(
                             onNavigateToTvSeriesDetails = { seriesId ->
                                 navigateToTvSeriesDetails(seriesId)
                             },
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            onNavigateToTerms = navigateToTerms
                                 )
                 })
             },

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">ComposeTMDB</string>
+    <string name="app_name">MMovies</string>
 
     <!--ERRORS-->
     <string name="error_no_internet_connection_title">No internet connection</string>
@@ -81,6 +81,7 @@
     <!--SEARCH-->
     <string name="search_action">Search</string>
     <string name="search_field_hint">Search movies, TV shows, people</string>
+    <string name="search_screen_field_hint">Search</string>
     <string name="search_field_clear_action">Clear search</string>
     <string name="search_back_action">Back</string>
     <string name="search_recent_title">Recent searches</string>
@@ -88,7 +89,7 @@
     <string name="search_recent_remove_action">Remove from recent searches</string>
     <string name="search_empty_title">No results found</string>
     <string name="search_empty_message">Try a different search term.</string>
-    <string name="search_idle_title">Search MMovies</string>
+    <string name="search_idle_title">Search on TMDB</string>
     <string name="search_idle_message">Find movies, TV shows, and people.</string>
     <string name="search_result_type_movie">Movie</string>
     <string name="search_result_type_tv_series">TV Series</string>
@@ -124,6 +125,27 @@
     <string name="details_creator_role">Creator</string>
     <string name="details_creators_label">Creators:</string>
     <string name="details_watch_trailer_action">Watch Trailer</string>
+
+    <!--SERIES AIR DATE-->
+    <string name="series_premiere_label">Series Premiere</string>
+    <string name="series_ongoing_label">Ongoing</string>
+    <string name="series_tba_label">TBA</string>
+
+    <!--RUNTIME-->
+    <plurals name="runtime_hours">
+        <item quantity="one">%dh</item>
+        <item quantity="other">%dh</item>
+    </plurals>
+    <plurals name="runtime_minutes">
+        <item quantity="one">%dm</item>
+        <item quantity="other">%dm</item>
+    </plurals>
+
+    <!--EPISODE COUNT-->
+    <plurals name="episode_count">
+        <item quantity="one">%d Episode</item>
+        <item quantity="other">%d Episodes</item>
+    </plurals>
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">USER\nSCORE</string>

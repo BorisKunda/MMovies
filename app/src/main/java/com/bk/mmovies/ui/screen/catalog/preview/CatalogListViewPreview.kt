@@ -16,6 +16,7 @@ import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogListView
 import com.bk.mmovies.ui.screen.catalog.screencomponents.MovieRowLoadingPlaceholder
 import com.bk.mmovies.ui.screen.catalog.screencomponents.MovieRowLoadingPlaceholderList
 import com.bk.mmovies.ui.theme.MMoviesTheme
+import com.bk.mmovies.ui.theme.PhoneSizePreviews
 
 private val sampleCatalogItems = listOf(
         // isFavorite = true so the preview shows both the filled and
@@ -48,50 +49,7 @@ private val sampleCatalogItems = listOf(
                    )
                                        )
 
-private val sampleCatalogItemsHebrew = listOf(
-        CatalogItem(
-                id = 1,
-                title = "המטריקס",
-                imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
-                releaseDate = "31 במרץ 1999",
-                mediaType = CatalogMediaType.MOVIE,
-                rating = 83,
-                isFavorite = true
-                   ),
-        CatalogItem(
-                id = 2,
-                title = "התחלה",
-                imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
-                releaseDate = "16 ביולי 2010",
-                mediaType = CatalogMediaType.MOVIE,
-                rating = 91
-                   )
-                                             )
-
-private val sampleCatalogItemsRussian = listOf(
-        CatalogItem(
-                id = 1,
-                title = "Матрица",
-                imageUrl = "https://image.tmdb.org/t/p/w342/dXNAPwY7VrqMAo51EKhhCJfaGb5.jpg",
-                releaseDate = "31 марта 1999",
-                mediaType = CatalogMediaType.MOVIE,
-                rating = 83,
-                isFavorite = true
-                   ),
-        CatalogItem(
-                id = 2,
-                title = "Начало",
-                imageUrl = "https://image.tmdb.org/t/p/w342/xlaY2zyzMfkhk0HSC5VUwzoZPU1.jpg",
-                releaseDate = "16 июля 2010",
-                mediaType = CatalogMediaType.MOVIE,
-                rating = 91
-                   )
-                                              )
-
-@Preview(
-        showBackground = true,
-        name = "Content"
-        )
+@PhoneSizePreviews
 @Composable
 private fun CatalogListViewPreview() {
     MMoviesTheme {
@@ -151,56 +109,6 @@ private fun CatalogListViewUpcomingPreview() {
                 CatalogListView(
                         catalogItems = sampleCatalogItems,
                         selectedCategory = MovieCategory.UpcomingMovieCategory,
-                        onCatalogItemClicked = {},
-                        isGuest = false,
-                        onFavoriteClicked = {}
-                               )
-            }
-        }
-    }
-}
-
-@Preview(
-        showBackground = true,
-        locale = "iw",
-        name = "Hebrew (RTL)"
-        )
-@Composable
-private fun CatalogListViewHebrewPreview() {
-    MMoviesTheme {
-        Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
-                CatalogListView(
-                        catalogItems = sampleCatalogItemsHebrew,
-                        selectedCategory = MovieCategory.PopularMovieCategory,
-                        onCatalogItemClicked = {},
-                        isGuest = false,
-                        onFavoriteClicked = {}
-                               )
-            }
-        }
-    }
-}
-
-@Preview(
-        showBackground = true,
-        locale = "ru",
-        name = "Russian (long text)"
-        )
-@Composable
-private fun CatalogListViewRussianPreview() {
-    MMoviesTheme {
-        Scaffold(
-                modifier = Modifier.fillMaxSize(),
-                containerColor = MaterialTheme.colorScheme.background
-                ) { innerPadding ->
-            Box(modifier = Modifier.padding(innerPadding)) {
-                CatalogListView(
-                        catalogItems = sampleCatalogItemsRussian,
-                        selectedCategory = MovieCategory.PopularMovieCategory,
                         onCatalogItemClicked = {},
                         isGuest = false,
                         onFavoriteClicked = {}

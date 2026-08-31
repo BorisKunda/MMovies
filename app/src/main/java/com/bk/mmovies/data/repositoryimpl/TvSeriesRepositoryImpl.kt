@@ -2,6 +2,7 @@ package com.bk.mmovies.data.repositoryimpl
 
 import android.content.Context
 import com.bk.mmovies.R
+import com.bk.mmovies.data.mapper.MEDIA_TYPE_TV
 import com.bk.mmovies.data.mapper.SeasonMapper
 import com.bk.mmovies.data.mapper.SeriesAirDateLabelFormatter
 import com.bk.mmovies.data.mapper.TvSeriesDetailsMapper
@@ -31,9 +32,6 @@ import com.bk.mmovies.domain.model.result.TvSeriesResult
 import com.bk.mmovies.domain.model.result.TvSeriesResult.*
 import com.bk.mmovies.domain.repository.TvSeriesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.text.SimpleDateFormat
-import java.util.Calendar
-import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
 
@@ -65,12 +63,6 @@ class TvSeriesRepositoryImpl @Inject constructor(
         get() = context.getString(R.string.error_tv_series_details_load_failed)
     private val favoriteToggleFailureMessage: String
         get() = context.getString(R.string.error_favorite_toggle_failed)
-
-    private fun tomorrowDate(): String {
-        val calendar = Calendar.getInstance()
-        calendar.add(Calendar.DAY_OF_YEAR, 1)
-        return SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).format(calendar.time)
-    }
 
     override suspend fun getTvSeriesByCategory(category: TvSeriesCategory, page: Int): TvSeriesResult {
         val apiCallResult: ApiCallResult<TvSeriesListDto> = when (category) {
@@ -244,7 +236,7 @@ class TvSeriesRepositoryImpl @Inject constructor(
                     api.toggleFavorite(
                             accountId,
                             sessionId,
-                            ToggleFavoriteRequestDto(mediaType = "tv", mediaId = tvSeriesId, favorite = isFavorite)
+                            ToggleFavoriteRequestDto(mediaType = MEDIA_TYPE_TV, mediaId = tvSeriesId, favorite = isFavorite)
                                        )
                 })
 
