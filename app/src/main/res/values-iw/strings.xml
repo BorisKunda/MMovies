@@ -82,6 +82,7 @@
     <!--SEARCH-->
     <string name="search_action">חיפוש</string>
     <string name="search_field_hint">חיפוש סרטים, סדרות ואנשים</string>
+    <string name="search_screen_field_hint">חיפוש</string>
     <string name="search_field_clear_action">נקה חיפוש</string>
     <string name="search_back_action">חזרה</string>
     <string name="search_recent_title">חיפושים אחרונים</string>
@@ -89,7 +90,7 @@
     <string name="search_recent_remove_action">הסר מחיפושים אחרונים</string>
     <string name="search_empty_title">לא נמצאו תוצאות</string>
     <string name="search_empty_message">נסה מונח חיפוש אחר.</string>
-    <string name="search_idle_title">חיפוש ב-MMovies</string>
+    <string name="search_idle_title">חיפוש ב-TMDB</string>
     <string name="search_idle_message">מצא סרטים, סדרות ואנשים.</string>
     <string name="search_result_type_movie">סרט</string>
     <string name="search_result_type_tv_series">סדרה</string>
@@ -124,6 +125,30 @@
     <string name="details_creator_role">יוצר</string>
     <string name="details_creators_label">יוצרים:</string>
     <string name="details_watch_trailer_action">צפה בטריילר</string>
+
+    <!--SERIES AIR DATE-->
+    <string name="series_premiere_label">בכורת הסדרה</string>
+    <string name="series_ongoing_label">בשידור</string>
+    <string name="series_tba_label">טרם נקבע</string>
+
+    <!--RUNTIME-->
+    <plurals name="runtime_hours">
+        <item quantity="one">שעה</item>
+        <item quantity="two">שעתיים</item>
+        <item quantity="other">%d שעות</item>
+    </plurals>
+    <plurals name="runtime_minutes">
+        <item quantity="one">דקה אחת</item>
+        <item quantity="two">שתי דקות</item>
+        <item quantity="other">%d דקות</item>
+    </plurals>
+
+    <!--EPISODE COUNT-->
+    <plurals name="episode_count">
+        <item quantity="one">פרק אחד</item>
+        <item quantity="two">שני פרקים</item>
+        <item quantity="other">%d פרקים</item>
+    </plurals>
 
     <!--Shared by the movies list badge and the details' header.-->
     <string name="user_score_label">דירוג\nמשתמשים</string>
@@ -169,7 +194,7 @@
     <string name="privacy_policy_title">מדיניות פרטיות</string>
     <string name="privacy_policy_intro">MMovies היא אפליקציה חינמית ולא מסחרית, פרויקט אישי. מדיניות זו מסבירה אילו נתונים האפליקציה מטפלת בהם וכיצד.</string>
     <string name="privacy_policy_account_heading">פרטי חשבון</string>
-    <string name="privacy_policy_account_body">בעת ההתחברות, שם המשתמש והסיסמה שלך ב-TMDB נשלחים ישירות לשרתי TMDB ליצירת session ואינם נשמרים או נראים לאף גורם מלבד TMDB. ניתן גם להשתמש באפליקציה כאורח ללא מסירת פרטי חשבון.</string>
+    <string name="privacy_policy_account_body">בעת ההתחברות, שם המשתמש והסיסמה שלך ב-TMDB נשלחים ישירות לשרתי TMDB ליצירת הפעלה ואינם נשמרים או נראים לאף גורם מלבד TMDB. ניתן גם להשתמש באפליקציה כאורח ללא מסירת פרטי חשבון.</string>
     <string name="privacy_policy_local_storage_heading">נתונים המאוחסנים במכשיר</string>
     <string name="privacy_policy_local_storage_body">האפליקציה שומרת את מזהה ה-session ואת מזהה החשבון שלך ב-TMDB במכשיר שלך כדי לשמור אותך מחובר. נתונים אלה נשארים במכשיר שלך ונמחקים בעת התנתקות או ניקוי אחסון האפליקציה.</string>
     <string name="privacy_policy_third_party_heading">שירותי צד שלישי</string>

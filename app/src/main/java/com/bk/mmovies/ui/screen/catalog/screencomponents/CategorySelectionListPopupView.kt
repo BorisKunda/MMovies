@@ -8,7 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -33,6 +33,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.Category
@@ -161,7 +162,11 @@ private fun CategoryRow(
     Row(
             modifier = Modifier
                     .fillMaxWidth()
-                    .height(itemHeight)
+                    // A minimum rather than exact height lets a category label
+                    // that wraps to a second line (longer Russian/Hebrew
+                    // translations, or a larger system font scale) grow the
+                    // row instead of being clipped by it.
+                    .heightIn(min = itemHeight)
                     .clip(itemShape)
                     .background(containerColor)
                     .border(
@@ -189,6 +194,8 @@ private fun CategoryRow(
                 color = contentColor,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 modifier = Modifier.weight(1f)
             )
         if (isSelected) {

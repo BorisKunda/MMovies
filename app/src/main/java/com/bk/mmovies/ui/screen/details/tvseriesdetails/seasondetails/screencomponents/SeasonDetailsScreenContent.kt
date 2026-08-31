@@ -1,4 +1,4 @@
-package com.bk.mmovies.ui.screen.details.seasondetails.screencomponents
+package com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.screencomponents
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -36,7 +36,7 @@ import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.domain.model.SeasonModel
-import com.bk.mmovies.ui.component.EpisodeDetailsDialog
+import com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.episodedetails.EpisodeDetailsDialog
 
 private val screenPadding = 16.dp
 private val spacingUnit = 12.dp
@@ -220,7 +220,13 @@ private fun EpisodeRow(
                                     episode.episodeNumber,
                                     episode.name
                                                          )
-                              ) { onClick() }
+                              ) { onClick() },
+            // The text column can grow past the still image's fixed height
+            // once the overview wraps to its 2-line cap (more likely in
+            // longer Russian/Hebrew translations) — centering keeps the
+            // image looking balanced against it instead of pinned to the
+            // top with a gap opening up below it.
+            verticalAlignment = Alignment.CenterVertically
        ) {
         AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)

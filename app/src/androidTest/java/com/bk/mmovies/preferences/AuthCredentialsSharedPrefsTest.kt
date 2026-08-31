@@ -38,7 +38,6 @@ class AuthCredentialsSharedPrefsTest {
                 dummyKey,
                 savedKey
                     )
-        apiKeyStorage.clearStorage()
     }
 
     @Test

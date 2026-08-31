@@ -27,7 +27,7 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.screen.details.moviedetails.screencomponents.DetailsScreenContent
+import com.bk.mmovies.ui.screen.details.moviedetails.screencomponents.MovieDetailsScreenContent
 
 private const val TAG = "MovieDetailsScreen"
 
@@ -67,13 +67,13 @@ fun MovieDetailsScreen(
                 }
 
                 is MovieDetailsScreenState.Content -> {
-                    DetailsScreenContent(
+                    MovieDetailsScreenContent(
                             movieDetails = currentState.movieDetails,
                             category = category,
                             showFavoriteStar = movieDetailsViewModel.canToggleFavorite,
                             onFavoriteClicked = { movieDetailsViewModel.onFavoriteClicked() },
                             modifier = Modifier.fillMaxSize()
-                                        )
+                                             )
                 }
 
                 is MovieDetailsScreenState.Error -> {

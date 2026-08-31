@@ -67,7 +67,7 @@ fun TvSeriesDetailsScreen(
 
                 is TvSeriesDetailsScreenState.Content -> {
                     TvSeriesDetailsScreenContent(
-                            tvSeriesDetails = currentState.tvSeriesDetails,
+                            tvSeriesDetails = currentState.tvSeriesDetailsModel,
                             showFavoriteStar = tvSeriesDetailsViewModel.canToggleFavorite,
                             onFavoriteClicked = { tvSeriesDetailsViewModel.onFavoriteClicked() },
                             onSeasonClicked = onNavigateToSeasonDetails,

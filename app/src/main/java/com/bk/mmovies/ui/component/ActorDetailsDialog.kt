@@ -136,7 +136,7 @@ fun ActorDetailsDialog(
                     if (castMember.character.isNotBlank()) {
                         Text(
                                 text = castMember.character,
-                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
+                                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
                                 style = MaterialTheme.typography.bodyLarge,
                                 modifier = Modifier.padding(top = nameToCharacterSpacing)
                             )

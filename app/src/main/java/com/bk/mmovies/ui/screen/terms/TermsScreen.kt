@@ -13,7 +13,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -23,12 +22,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bk.mmovies.R
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
-import com.bk.mmovies.ui.theme.MMoviesTheme
 
 private val screenPadding = 16.dp
 private val sectionSpacing = 24.dp
@@ -133,14 +130,4 @@ private fun TermsTopBar(onBack: () -> Unit) {
              )
 }
 
-@Preview
-@Composable
-private fun TermsScreenPreview() {
-    MMoviesTheme {
-        Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
-            Column(modifier = Modifier.padding(padding)) {
-                TermsScreen(onBack = {})
-            }
-        }
-    }
-}
+

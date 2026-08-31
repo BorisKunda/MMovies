@@ -30,6 +30,7 @@ googleGmsGoogleServicesVersion = "4.5.0"
 firebaseCrashlyticsVersion = "20.0.6"
 googleFirebaseCrashlyticsVersion = "3.0.7"
 firebaseBomVersion = "34.15.0"
+desugarJdkLibsVersion = "2.1.5"
 
 #testing
 junit_version = "4.13.2"
@@ -81,6 +82,7 @@ coil = { group = "io.coil-kt.coil3", name = "coil-compose", version.ref = "coil3
 coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp", version.ref = "coil3ComposeVersion" }
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlyticsVersion" }
+desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibsVersion" }
 
 #testing
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }

@@ -19,13 +19,22 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
 import com.bk.mmovies.ui.theme.MMoviesTheme
 
-private val touchTargetSize = 32.dp
-private val starIconSize = 16.dp
+val favoriteStarDefaultIconSize = 32.dp
+
+// Scrim/touch target grow past the icon by the same margins regardless of
+// the caller's icon size, so the circle always reads as a background behind
+// the star rather than an outline hugging its edges.
+private val scrimSizeMargin = 12.dp
+private val touchTargetSizeMargin = 24.dp
 private const val SCRIM_ALPHA = 0.35f
+
+// Color.Gray (0xFF888888) darkened by 25% (136 * 0.75 ≈ 102 = 0x66).
+private val scrimColor = Color(0xFF666666)
 
 /**
  * Filled/outline favorite toggle meant to sit over a poster's top-right
@@ -37,11 +46,14 @@ private const val SCRIM_ALPHA = 0.35f
 fun FavoriteStarButton(
         isFavorite: Boolean,
         onClick: () -> Unit,
-        modifier: Modifier = Modifier
+        modifier: Modifier = Modifier,
+        starIconSize: Dp = favoriteStarDefaultIconSize
                       ) {
     val contentDescription = stringResource(
             if (isFavorite) R.string.favorite_remove_action else R.string.favorite_add_action
                                            )
+    val scrimSize = starIconSize + scrimSizeMargin
+    val touchTargetSize = starIconSize + touchTargetSizeMargin
 
     Box(
             modifier = modifier
@@ -50,23 +62,22 @@ fun FavoriteStarButton(
                             role = Role.Button,
                             onClickLabel = contentDescription
                               ) { onClick() },
-            contentAlignment = Alignment.Center
+            // TopEnd, not Center: the touch target is padded larger than the
+            // visible circle for tap comfort, but the circle itself should
+            // sit flush against the poster's corner, not centered within
+            // that extra invisible padding.
+            contentAlignment = Alignment.TopEnd
        ) {
         Box(
                 modifier = Modifier
-                        .size(starIconSize)
+                        .size(scrimSize)
                         .clip(CircleShape)
-                        // Only the unfilled star needs the scrim, sized to just
-                        // the icon: it's a thin outline that disappears against
-                        // a light poster, whereas the filled star is solid and
-                        // reads fine on its own.
-                        .then(
-                                if (isFavorite) {
-                                    Modifier
-                                } else {
-                                    Modifier.background(Color.Gray.copy(alpha = SCRIM_ALPHA))
-                                }
-                             ),
+                        // Larger than the icon so the scrim reads as a
+                        // background circle behind it, not just an outline
+                        // hugging the star's edges. Shown for both states so
+                        // the star stays legible against bright poster art
+                        // even when filled.
+                        .background(scrimColor.copy(alpha = SCRIM_ALPHA)),
                 contentAlignment = Alignment.Center
            ) {
             Icon(

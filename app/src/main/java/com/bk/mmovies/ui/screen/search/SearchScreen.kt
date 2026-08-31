@@ -32,6 +32,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -41,6 +42,7 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
 import com.bk.mmovies.ui.component.ActorDetailsDialog
+import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.screen.search.screencomponents.SearchFilterRow
 import com.bk.mmovies.ui.screen.search.screencomponents.SearchIdleContent
 import com.bk.mmovies.ui.screen.search.screencomponents.SearchResultsContent
@@ -54,7 +56,8 @@ private val searchBarVerticalPadding = 4.dp
 fun SearchScreen(
         onNavigateToMovieDetails: (movieId: Int, category: MovieCategory) -> Unit,
         onNavigateToTvSeriesDetails: (seriesId: Int) -> Unit,
-        onBack: () -> Unit
+        onBack: () -> Unit,
+        onNavigateToTerms: () -> Unit = {}
                  ) {
     val searchViewModel = hiltViewModel<SearchViewModel>()
     val query by searchViewModel.query.collectAsStateWithLifecycle()
@@ -68,6 +71,7 @@ fun SearchScreen(
 
     Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
+            bottomBar = { PoweredByTmdbFooter(onClick = onNavigateToTerms) },
             topBar = {
                 Column {
                     Row(
@@ -93,7 +97,13 @@ fun SearchScreen(
                                         .weight(1f)
                                         .padding(horizontal = searchFieldHorizontalPadding)
                                         .focusRequester(focusRequester),
-                                placeholder = { Text(stringResource(R.string.search_field_hint)) },
+                                placeholder = {
+                                    Text(
+                                            text = stringResource(R.string.search_screen_field_hint),
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                },
                                 singleLine = true,
                                 trailingIcon = {
                                     if (query.isNotEmpty()) {
@@ -147,7 +157,8 @@ fun SearchScreen(
                             }
                         },
                         onRetry = { searchViewModel.retry() },
-                        onLoadNextPage = { searchViewModel.loadNextPage() }
+                        onLoadNextPage = { searchViewModel.loadNextPage() },
+                        getTvSeriesAirDateLabel = { seriesId -> searchViewModel.getTvSeriesAirDateLabel(seriesId) }
                                      )
             }
         }

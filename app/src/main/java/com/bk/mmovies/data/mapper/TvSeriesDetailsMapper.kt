@@ -3,7 +3,6 @@ package com.bk.mmovies.data.mapper
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
-import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.CastMemberDto
 import com.bk.mmovies.data.source.remote.dto.CreatedByDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
@@ -29,8 +28,8 @@ class TvSeriesDetailsMapper @Inject constructor(
     fun toModel(dto: TvSeriesDetailsDto): TvSeriesDetailsModel = TvSeriesDetailsModel(
             id = dto.id ?: 0,
             title = dto.name ?: "",
-            posterUrl = dto.posterPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM) } ?: "",
-            backdropUrl = dto.backdropPath?.let { getFullImageUrl(it, POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM) } ?: "",
+            posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
+            backdropUrl = dto.backdropPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM, it) } ?: "",
             airDateLabel = seriesAirDateLabelFormatter.format(dto.status, dto.firstAirDate, dto.lastAirDate),
             seasonsLabel = dto.numberOfSeasons.toSeasonsLabel(),
             userScore = dto.voteAverage.toRatingPercent(),
@@ -43,7 +42,7 @@ class TvSeriesDetailsMapper @Inject constructor(
             seasons = dto.seasons.orEmpty()
                     .filter { (it.seasonNumber ?: 0) > 0 }
                     .sortedBy { it.seasonNumber }
-                    .map { seasonMapper.toModel(it) },
+                    .mapNotNull { seasonMapper.toModel(it) },
             isFavorite = dto.accountStates?.favorite ?: false,
             trailerUrl = dto.videos?.results.toTrailerUrl()
                                                                                       )
@@ -68,7 +67,7 @@ class TvSeriesDetailsMapper @Inject constructor(
                         name = name,
                         character = castMemberDto.character ?: "",
                         profileUrl = castMemberDto.profilePath
-                                ?.let { getFullImageUrl(it, CAST_PROFILE_PATH_SIZE_SEGMENT) } ?: ""
+                                ?.let { getFullImageUrl(CAST_PROFILE_PATH_SIZE_SEGMENT, it) } ?: ""
                                 )
             } ?: emptyList()
 
@@ -85,11 +84,9 @@ class TvSeriesDetailsMapper @Inject constructor(
                         name = name,
                         character = CREATOR_ROLE,
                         profileUrl = createdByDto.profilePath
-                                ?.let { getFullImageUrl(it, CAST_PROFILE_PATH_SIZE_SEGMENT) } ?: ""
+                                ?.let { getFullImageUrl(CAST_PROFILE_PATH_SIZE_SEGMENT, it) } ?: ""
                                 )
             } ?: emptyList()
-
-    private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
 
     private fun Int?.toSeasonsLabel(): String {
         val seasons = this?.takeIf { it > 0 } ?: return ""
@@ -121,15 +118,5 @@ class TvSeriesDetailsMapper @Inject constructor(
                 ?: youtubeVideos.firstOrNull { it.type == VIDEO_TYPE_TRAILER }
                 ?: youtubeVideos.firstOrNull()
         return trailer?.key?.let { "$YOUTUBE_WATCH_URL$it" }
-    }
-
-    private fun getFullImageUrl(imagePath: String, sizeSegment: String): String {
-        val stringBuilder = StringBuilder()
-        stringBuilder.apply {
-            append(TMDB_IMAGE_BASE_URL)
-            append(sizeSegment)
-            append(imagePath)
-        }
-        return stringBuilder.toString()
     }
 }

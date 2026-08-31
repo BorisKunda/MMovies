@@ -1,7 +1,6 @@
 package com.bk.mmovies.data.mapper
 
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
-import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.MovieDto
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.locale.LocaleMonitor
@@ -14,17 +13,21 @@ class MovieMapper @Inject constructor(
         private val localeMonitor: LocaleMonitor
                                      ) {
 
-    fun toModels(dtos: List<MovieDto>): List<MovieModel> = dtos.map { toModel(it) }
+    // A null id can't back a stable LazyColumn key, so an item TMDB somehow
+    // sends without one is dropped rather than collapsed onto id 0 and
+    // risking a key collision with a real movie.
+    fun toModels(dtos: List<MovieDto>): List<MovieModel> = dtos.mapNotNull { toModel(it) }
 
-    fun toModel(dto: MovieDto): MovieModel = MovieModel(
-            id = dto.id ?: 0,
-            title = dto.title ?: "",
-            desc = dto.desc ?: "",
-            imageUrl = dto.imageUrl?.let { getFullImageUrl(it) } ?: "",
-            releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
-            rating = dto.rating.toRatingPercent())
-
-    private fun Double?.toRatingPercent(): Int = this?.let { (it * 10).toInt() } ?: 0
+    fun toModel(dto: MovieDto): MovieModel? {
+        val id = dto.id ?: return null
+        return MovieModel(
+                id = id,
+                title = dto.title ?: "",
+                desc = dto.desc ?: "",
+                imageUrl = dto.imageUrl?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
+                releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
+                rating = dto.rating.toRatingPercent())
+    }
 
     private fun getFormattedDate(releaseDate: String): String = try {
         val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)
@@ -33,15 +36,5 @@ class MovieMapper @Inject constructor(
         } ?: releaseDate
     } catch (e: ParseException) {
         releaseDate
-    }
-
-    private fun getFullImageUrl(posterEndpoint: String): String {
-        val stringBuilder = StringBuilder()
-        stringBuilder.apply {
-            append(TMDB_IMAGE_BASE_URL)
-            append(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM)
-            append(posterEndpoint)
-        }
-        return stringBuilder.toString()
     }
 }

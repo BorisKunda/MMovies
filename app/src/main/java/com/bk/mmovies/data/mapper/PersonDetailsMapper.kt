@@ -1,7 +1,6 @@
 package com.bk.mmovies.data.mapper
 
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
-import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import com.bk.mmovies.data.source.remote.dto.PersonDetailsDto
 import com.bk.mmovies.domain.model.PersonDetailsModel
 import com.bk.mmovies.locale.LocaleMonitor
@@ -20,7 +19,7 @@ class PersonDetailsMapper @Inject constructor(
             biography = dto.biography ?: "",
             birthday = dto.birthday?.let { getFormattedDate(it) } ?: "",
             placeOfBirth = dto.placeOfBirth ?: "",
-            profileUrl = dto.profilePath?.let { getFullImageUrl(it) } ?: "")
+            profileUrl = dto.profilePath?.let { getFullImageUrl(CAST_PROFILE_PATH_SIZE_SEGMENT, it) } ?: "")
 
     private fun getFormattedDate(date: String): String = try {
         val parsedDate = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(date)
@@ -29,15 +28,5 @@ class PersonDetailsMapper @Inject constructor(
         } ?: date
     } catch (e: ParseException) {
         date
-    }
-
-    private fun getFullImageUrl(imagePath: String): String {
-        val stringBuilder = StringBuilder()
-        stringBuilder.apply {
-            append(TMDB_IMAGE_BASE_URL)
-            append(CAST_PROFILE_PATH_SIZE_SEGMENT)
-            append(imagePath)
-        }
-        return stringBuilder.toString()
     }
 }

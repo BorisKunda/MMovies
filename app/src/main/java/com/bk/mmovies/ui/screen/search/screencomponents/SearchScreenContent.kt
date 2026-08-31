@@ -44,14 +44,20 @@ import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
 import coil3.request.crossfade
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
+import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
 import com.bk.mmovies.ui.component.LoaderView
 import com.bk.mmovies.ui.component.LoadingMoreFooter
 import com.bk.mmovies.ui.component.PaginationEffect
+import com.bk.mmovies.ui.component.SeriesAirDateLabelText
 import com.bk.mmovies.ui.screen.search.SearchResultsUiState
 import com.bk.mmovies.ui.theme.CardSurface
 
@@ -108,7 +114,7 @@ fun SearchIdleContent(recentSearches: List<String>, onRecentSearchClicked: (Stri
         onRemoveRecentSearchClicked: (String) -> Unit, onClearRecentSearchesClicked: () -> Unit) {
     if (recentSearches.isEmpty()) {
         EmptyStateView(
-                imageResId = R.drawable.ic_popcorn_bucket,
+                imageResId = R.drawable.tmdb_logo_square,
                 title = stringResource(R.string.search_idle_title),
                 message = stringResource(R.string.search_idle_message)
                       )
@@ -193,7 +199,8 @@ private fun RecentSearchRow(query: String, onClick: () -> Unit, onRemoveClick: (
 
 @Composable
 fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<SearchResultMediaType>,
-        onResultClicked: (SearchResultModel) -> Unit, onRetry: () -> Unit, onLoadNextPage: () -> Unit = {}) {
+        onResultClicked: (SearchResultModel) -> Unit, onRetry: () -> Unit, onLoadNextPage: () -> Unit = {},
+        getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }) {
     when (state) {
         is SearchResultsUiState.Idle    -> Unit
         is SearchResultsUiState.Loading -> {
@@ -213,7 +220,8 @@ fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<Searc
                         results = filteredResults,
                         onResultClicked = onResultClicked,
                         isLoadingNextPage = state.isLoadingNextPage,
-                        onLoadNextPage = onLoadNextPage
+                        onLoadNextPage = onLoadNextPage,
+                        getTvSeriesAirDateLabel = getTvSeriesAirDateLabel
                                   )
             } else if (!state.endReached && state.currentPage < MAX_FILTER_AUTO_PAGE) {
                 // Filtering is client-side: the active filter can exclude
@@ -231,7 +239,7 @@ fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<Searc
                 }
             } else {
                 EmptyStateView(
-                        imageResId = R.drawable.ic_popcorn_bucket,
+                        imageResId = R.drawable.tmdb_logo_square,
                         title = stringResource(R.string.search_empty_title),
                         message = stringResource(R.string.search_empty_message)
                               )
@@ -240,7 +248,7 @@ fun SearchResultsContent(state: SearchResultsUiState, selectedFilters: Set<Searc
 
         is SearchResultsUiState.Empty   -> {
             EmptyStateView(
-                    imageResId = R.drawable.ic_popcorn_bucket,
+                    imageResId = R.drawable.tmdb_logo_square,
                     title = stringResource(R.string.search_empty_title),
                     message = stringResource(R.string.search_empty_message)
                           )
@@ -257,7 +265,8 @@ private fun SearchResultsList(
         results: List<SearchResultModel>,
         onResultClicked: (SearchResultModel) -> Unit,
         isLoadingNextPage: Boolean = false,
-        onLoadNextPage: () -> Unit = {}
+        onLoadNextPage: () -> Unit = {},
+        getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }
                               ) {
     val listState = rememberLazyListState()
     listState.PaginationEffect(onLoadMore = onLoadNextPage)
@@ -268,7 +277,8 @@ private fun SearchResultsList(
                 items(items = results, key = { "${it.mediaType}_${it.id}" }) { result ->
                     SearchResultRow(
                             result = result,
-                            onClick = { onResultClicked(result) }
+                            onClick = { onResultClicked(result) },
+                            getTvSeriesAirDateLabel = getTvSeriesAirDateLabel
                                    )
                 }
                 if (isLoadingNextPage) {
@@ -281,7 +291,21 @@ private fun SearchResultsList(
 }
 
 @Composable
-private fun SearchResultRow(result: SearchResultModel, onClick: () -> Unit) {
+private fun SearchResultRow(
+        result: SearchResultModel,
+        onClick: () -> Unit,
+        getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }
+                            ) {
+    // Search results only carry first_air_date, not status/last_air_date, so
+    // a TV row's status-based label (year range / ongoing / upcoming) is
+    // fetched lazily per row instead — same as the catalog list.
+    var tvAirDateLabel by remember(result.id) { mutableStateOf<SeriesAirDateLabel?>(null) }
+    LaunchedEffect(result.id) {
+        if (result.mediaType == SearchResultMediaType.TV_SERIES) {
+            tvAirDateLabel = getTvSeriesAirDateLabel(result.id)
+        }
+    }
+
     Row(
             modifier = Modifier
                     .fillMaxWidth()
@@ -315,7 +339,16 @@ private fun SearchResultRow(result: SearchResultModel, onClick: () -> Unit) {
                     maxLines = TITLE_MAX_LINES,
                     overflow = TextOverflow.Ellipsis
                 )
-            if (result.subtitle.isNotBlank()) {
+            if (result.mediaType == SearchResultMediaType.TV_SERIES) {
+                tvAirDateLabel?.let { label ->
+                    SeriesAirDateLabelText(
+                            label = label,
+                            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(top = subtitlePaddingTop)
+                                           )
+                }
+            } else if (result.subtitle.isNotBlank()) {
                 Text(
                         text = result.subtitle,
                         color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
@@ -340,7 +373,7 @@ private fun MediaTypeBadge(mediaType: SearchResultMediaType, modifier: Modifier 
         Text(
                 text = label,
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.75f),
-                fontSize = 10.sp
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
             )
     }
 }

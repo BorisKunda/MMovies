@@ -1,11 +1,9 @@
-package com.bk.mmovies.ui.component
+package com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.episodedetails
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -47,6 +45,10 @@ import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.EpisodeModel
+import com.bk.mmovies.ui.component.ActorDetailsDialog
+import com.bk.mmovies.ui.component.CrewMemberRow
+import com.bk.mmovies.ui.component.MultiNameCrewRow
+import com.bk.mmovies.ui.component.UserScoreView
 
 private val dialogWidthFraction = 0.92f
 private val dialogHeightFraction = 0.88f
@@ -59,12 +61,9 @@ private val scoreRingSize = 32.dp
 private val scoreRowSpacing = 12.dp
 private val crewSectionTitleTopSpacing = 16.dp
 private val crewRowSpacing = 8.dp
-private val crewRoleNameSpacing = 6.dp
-private val crewMultiNameSpacing = 4.dp
 
 private const val SCRIM_ALPHA = 0.7f
 private const val SECONDARY_TEXT_ALPHA = 0.85f
-private const val TERTIARY_TEXT_ALPHA = 0.70f
 
 @Composable
 fun EpisodeDetailsDialog(
@@ -227,59 +226,3 @@ private fun CrewSection(director: CastMemberModel?, writers: List<CastMemberMode
     }
 }
 
-@Composable
-private fun CrewMemberRow(
-        role: String,
-        crewMember: CastMemberModel,
-        onClick: () -> Unit,
-        modifier: Modifier = Modifier
-                         ) {
-    Row(
-            modifier = modifier.clickable(onClickLabel = crewMember.name, onClick = onClick),
-            verticalAlignment = Alignment.CenterVertically
-       ) {
-        Text(
-                text = role,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
-                style = MaterialTheme.typography.labelMedium
-            )
-        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
-        Text(
-                text = crewMember.name,
-                color = MaterialTheme.colorScheme.onSurface,
-                style = MaterialTheme.typography.bodyMedium,
-                fontWeight = FontWeight.Bold
-            )
-    }
-}
-
-@Composable
-private fun MultiNameCrewRow(
-        role: String,
-        crewMembers: List<CastMemberModel>,
-        onCrewMemberClicked: (CastMemberModel) -> Unit,
-        modifier: Modifier = Modifier
-                            ) {
-    Row(modifier = modifier, verticalAlignment = Alignment.CenterVertically) {
-        Text(
-                text = role,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = TERTIARY_TEXT_ALPHA),
-                style = MaterialTheme.typography.labelMedium
-            )
-        Spacer(modifier = Modifier.width(crewRoleNameSpacing))
-        FlowRow(horizontalArrangement = Arrangement.spacedBy(crewMultiNameSpacing)) {
-            crewMembers.forEachIndexed { index, crewMember ->
-                val nameText = if (index < crewMembers.lastIndex) "${crewMember.name}," else crewMember.name
-                Text(
-                        text = nameText,
-                        color = MaterialTheme.colorScheme.onSurface,
-                        style = MaterialTheme.typography.bodyMedium,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable(
-                                onClickLabel = crewMember.name
-                                                      ) { onCrewMemberClicked(crewMember) }
-                    )
-            }
-        }
-    }
-}

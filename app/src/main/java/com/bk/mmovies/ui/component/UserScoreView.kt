@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -20,6 +22,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.ui.theme.CardSurface
+import com.bk.mmovies.ui.theme.MMoviesTheme
 
 private val backgroundColor = CardSurface
 private val ringColor = Color(0xFF3D3D3D)
@@ -96,8 +99,17 @@ private fun scoreColor(score: Int): Color = when {
 @Preview
 @Composable
 private fun UserScoreViewPreview() {
-    Box(modifier = Modifier.size(120.dp), contentAlignment = Alignment.Center) {
-        UserScoreView(score = 50)
+    MMoviesTheme {
+        Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+            Box(
+                modifier = Modifier
+                    .padding(padding)
+                    .size(120.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                UserScoreView(score = 50)
+            }
+        }
     }
 }
 
@@ -105,13 +117,19 @@ private fun UserScoreViewPreview() {
 @Preview
 @Composable
 private fun UserScoreViewSizesPreview() {
-    Row(
-        modifier = Modifier.padding(8.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        UserScoreView(score = 28, size = 28.dp)
-        UserScoreView(score = 55, size = 40.dp)
-        UserScoreView(score = 85, size = 52.dp)
+    MMoviesTheme {
+        Scaffold(containerColor = MaterialTheme.colorScheme.background) { padding ->
+            Row(
+                modifier = Modifier
+                    .padding(padding)
+                    .padding(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                UserScoreView(score = 28, size = 28.dp)
+                UserScoreView(score = 55, size = 40.dp)
+                UserScoreView(score = 85, size = 52.dp)
+            }
+        }
     }
 }

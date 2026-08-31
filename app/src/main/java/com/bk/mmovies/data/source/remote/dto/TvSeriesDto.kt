@@ -12,7 +12,5 @@ data class TvSeriesDto(
         val imageUrl: String?,
         @SerializedName("first_air_date")
         val firstAirDate: String?,
-        @SerializedName("backdrop_path")
-        val backdropImageUrl: String?,
         @SerializedName("vote_average")
         val rating: Double?)

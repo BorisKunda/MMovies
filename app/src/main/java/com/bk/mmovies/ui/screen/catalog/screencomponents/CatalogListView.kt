@@ -32,6 +32,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -71,8 +72,10 @@ import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.component.FavoriteStarButton
+import com.bk.mmovies.ui.component.favoriteStarDefaultIconSize
 import com.bk.mmovies.ui.component.LoadingMoreFooter
 import com.bk.mmovies.ui.component.PaginationEffect
+import com.bk.mmovies.ui.component.SeriesAirDateLabelText
 import com.bk.mmovies.ui.component.UserScoreView
 import com.bk.mmovies.ui.theme.CardSurface
 import com.bk.mmovies.util.logDebug
@@ -94,7 +97,11 @@ private val posterWidth = 92.dp
 private val posterHeight = 130.dp
 private val posterCornerShape = 8.dp
 private val ratingBadgeSize = 28.dp
-private val favoriteStarPadding = 4.dp
+private val favoriteStarPadding = 0.dp
+
+// Half the default size: the catalog list's posters are much smaller than
+// the details screen's, so the star needs to shrink to match.
+private val catalogFavoriteStarIconSize = favoriteStarDefaultIconSize / 2
 
 // Styling for the score caption under the badge.
 private val scoreLabelTopSpacing = 6.dp
@@ -309,7 +316,8 @@ fun CatalogItemRow(
                             onClick = { onFavoriteClicked(catalogItem) },
                             modifier = Modifier
                                     .align(Alignment.TopEnd)
-                                    .padding(favoriteStarPadding)
+                                    .padding(favoriteStarPadding),
+                            starIconSize = catalogFavoriteStarIconSize
                                       )
                 }
             }
@@ -335,6 +343,7 @@ fun CatalogItemRow(
                                      )
                         Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
                         Text(
+                                modifier = Modifier.width(ratingBadgeSize),
                                 text = stringResource(R.string.user_score_label),
                                 color = MaterialTheme.colorScheme.onSurface.copy(
                                         alpha = SCORE_LABEL_ALPHA
@@ -343,7 +352,8 @@ fun CatalogItemRow(
                                 lineHeight = scoreLabelFontSize,
                                 letterSpacing = scoreLabelLetterSpacing,
                                 fontWeight = FontWeight.Medium,
-                                textAlign = TextAlign.Center
+                                textAlign = TextAlign.Center,
+                                maxLines = 2
                             )
                     }
                     Spacer(modifier = Modifier.width(badgeSpacerPadding))
@@ -377,7 +387,11 @@ fun CatalogItemRow(
                         }
                         CatalogMediaType.TV_SERIES -> {
                             tvAirDateLabel?.let { label ->
-                                SeriesAirDateLabelText(label)
+                                SeriesAirDateLabelText(
+                                        label = label,
+                                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
+                                        style = LocalTextStyle.current.copy(fontSize = metadataFontSize)
+                                                       )
                             }
                         }
                     }
@@ -419,42 +433,6 @@ fun CatalogItemRow(
                                 .clip(RoundedCornerShape(posterCornerShape))
                           )
             }
-        }
-    }
-}
-
-@Composable
-private fun SeriesAirDateLabelText(label: SeriesAirDateLabel) {
-    when (label) {
-        is SeriesAirDateLabel.Ended    -> {
-            if (label.yearRange.isNotBlank()) {
-                Text(
-                        text = label.yearRange,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
-                        fontSize = metadataFontSize
-                    )
-            }
-        }
-        is SeriesAirDateLabel.Ongoing  -> {
-            if (label.text.isNotBlank()) {
-                Text(
-                        text = label.text,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
-                        fontSize = metadataFontSize
-                    )
-            }
-        }
-        is SeriesAirDateLabel.Upcoming -> {
-            Text(
-                    text = label.premiereLabel,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
-                    fontSize = metadataFontSize
-                )
-            Text(
-                    text = label.dateText,
-                    color = MaterialTheme.colorScheme.onSurface.copy(alpha = DATE_ALPHA),
-                    fontSize = metadataFontSize
-                )
         }
     }
 }
@@ -522,7 +500,7 @@ fun MovieRowLoadingPlaceholder() {
                             .size(ratingBadgeSize)
                             .alpha(loadingAlpha)
                             .background(
-                                    color = Color.Gray,
+                                    color = MaterialTheme.colorScheme.surfaceVariant,
                                     shape = CircleShape
                                        )
                )
@@ -558,7 +536,7 @@ private fun PlaceholderLine(
                     .height(height)
                     .alpha(alpha)
                     .background(
-                            color = Color.Gray,
+                            color = MaterialTheme.colorScheme.surfaceVariant,
                             shape = RoundedCornerShape(placeholderCornerShape)
                                )
        )

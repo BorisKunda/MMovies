@@ -1,6 +1,5 @@
 package com.bk.mmovies.ui.screen.details.moviedetails
 
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.MovieDetailsModel
@@ -9,17 +8,14 @@ import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
 import com.bk.mmovies.domain.repository.AuthenticationRepository
 import com.bk.mmovies.domain.repository.MovieRepository
 import com.bk.mmovies.locale.LocaleMonitor
+import com.bk.mmovies.ui.screen.details.DetailsViewModel
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.drop
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -29,8 +25,7 @@ class MovieDetailsViewModel @Inject constructor(
         private val authenticationRepository: AuthenticationRepository,
         localeMonitor: LocaleMonitor,
         internetMonitor: InternetMonitor
-                                                ) :
-        ViewModel() {
+                                                ) : DetailsViewModel<Int>(localeMonitor, internetMonitor) {
 
     private val _movieDetailsScreenState = MutableStateFlow<MovieDetailsScreenState>(
             MovieDetailsScreenState.Loading
@@ -54,53 +49,24 @@ class MovieDetailsViewModel @Inject constructor(
         get() = authenticationRepository.getSharedPrefLoginSessionId() != null &&
                 authenticationRepository.getSharedPrefAccountId() != null
 
-    private var movieId: Int? = null
-    private var loadMovieDetailsJob: Job? = null
+    fun loadMovieDetails(movieId: Int) = load(movieId)
 
-    init {
-        // Reload the currently displayed movie in the new language whenever
-        // the device/app language changes, including while the app is backgrounded.
-        // A locale change often lands right as the OS is mid-reconnect (seen as
-        // an immediate UnknownHostException), so wait for connectivity before firing.
-        viewModelScope.launch {
-            localeMonitor.currentLanguage
-                    .drop(1)
-                    .collectLatest {
-                        val currentMovieId = movieId ?: return@collectLatest
-                        internetMonitor.isInternetAvailable.first { it }
-                        _movieDetailsScreenState.value = MovieDetailsScreenState.Loading
-                        fetchMovieDetails(currentMovieId)
-                    }
-        }
-    }
-
-    fun loadMovieDetails(movieId: Int) {
-        if (this.movieId == movieId) return
-        this.movieId = movieId
-        fetchMovieDetails(movieId)
-    }
-
-    fun retry() {
-        val movieId = movieId ?: return
+    override fun onReload() {
         _movieDetailsScreenState.value = MovieDetailsScreenState.Loading
-        fetchMovieDetails(movieId)
     }
 
-    private fun fetchMovieDetails(movieId: Int) {
+    override suspend fun fetchDetails(id: Int) {
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
-        loadMovieDetailsJob?.cancel()
-        loadMovieDetailsJob = viewModelScope.launch {
-            when (val result = movieRepository.getMovieDetails(movieId, sessionId)) {
-                is MovieDetailsResult.Success -> {
-                    _movieDetailsScreenState.value = MovieDetailsScreenState.Content(
-                            result.movieDetails
-                                                                                     )
-                }
-                is MovieDetailsResult.Failure -> {
-                    _movieDetailsScreenState.value = MovieDetailsScreenState.Error(
-                            result.errorMessage
-                                                                                  )
-                }
+        when (val result = movieRepository.getMovieDetails(id, sessionId)) {
+            is MovieDetailsResult.Success -> {
+                _movieDetailsScreenState.value = MovieDetailsScreenState.Content(
+                        result.movieDetails
+                                                                                 )
+            }
+            is MovieDetailsResult.Failure -> {
+                _movieDetailsScreenState.value = MovieDetailsScreenState.Error(
+                        result.errorMessage
+                                                                              )
             }
         }
     }
@@ -124,20 +90,18 @@ class MovieDetailsViewModel @Inject constructor(
                     movieDetails.id,
                     newIsFavorite
                                                          )
-            if (result is ToggleFavoriteResult.Failure) {
-                // Re-read rather than writing back the snapshot captured above:
-                // a locale-change reload or retry() can land while the toggle
-                // is in flight, and restoring the old model would throw that
-                // fresher content away.
-                val latestState = _movieDetailsScreenState.value
-                if (latestState is MovieDetailsScreenState.Content &&
-                    latestState.movieDetails.id == movieDetails.id) {
-                    _movieDetailsScreenState.value = MovieDetailsScreenState.Content(
-                            latestState.movieDetails.copy(isFavorite = movieDetails.isFavorite)
-                                                                                     )
-                }
-                _messageEvent.tryEmit(result.errorMessage)
-            }
+            revertFavoriteOnFailure(
+                    content = movieDetails,
+                    previousIsFavorite = movieDetails.isFavorite,
+                    contentId = { it.id },
+                    withFavorite = { details, isFavorite -> details.copy(isFavorite = isFavorite) },
+                    currentContent = {
+                        (_movieDetailsScreenState.value as? MovieDetailsScreenState.Content)?.movieDetails
+                    },
+                    applyContent = { _movieDetailsScreenState.value = MovieDetailsScreenState.Content(it) },
+                    onFailureMessage = { _messageEvent.tryEmit(it) },
+                    result = result
+                                    )
         }
     }
 }
