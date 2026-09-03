@@ -1,5 +1,7 @@
 package com.bk.mmovies.data.mapper
 
+import android.content.Context
+import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
@@ -10,9 +12,7 @@ import com.bk.mmovies.data.source.remote.dto.VideoDto
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.MovieDetailsModel
 import com.bk.mmovies.locale.LocaleMonitor
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 private const val CAST_LIST_LIMIT = 20
@@ -24,7 +24,8 @@ private const val YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
 
 class MovieDetailsMapper @Inject constructor(
         private val localeMonitor: LocaleMonitor,
-        private val runtimeLabelFormatter: RuntimeLabelFormatter
+        private val runtimeLabelFormatter: RuntimeLabelFormatter,
+        @ApplicationContext private val context: Context
                                              ) {
 
     fun toModel(dto: MovieDetailsDto): MovieDetailsModel = MovieDetailsModel(
@@ -38,8 +39,16 @@ class MovieDetailsMapper @Inject constructor(
             genres = dto.genres?.mapNotNull { it.name } ?: emptyList(),
             overview = dto.overview ?: "",
             cast = dto.credits?.cast.toCastModels(),
-            director = dto.credits?.crew.toCrewModels(DIRECTOR_JOB).firstOrNull(),
-            writers = dto.credits?.crew.toCrewModels(WRITER_JOBS),
+            director = dto.credits?.crew.toCrewModels(
+                    DIRECTOR_JOB,
+                    R.string.details_director_role,
+                    R.string.details_director_role_female
+                                                       ).firstOrNull(),
+            writers = dto.credits?.crew.toCrewModels(
+                    WRITER_JOBS,
+                    R.string.details_writer_role,
+                    R.string.details_writer_role_female
+                                                     ),
             isFavorite = dto.accountStates?.favorite ?: false,
             trailerUrl = dto.videos?.results.toTrailerUrl()
                                                                           )
@@ -69,11 +78,22 @@ class MovieDetailsMapper @Inject constructor(
             } ?: emptyList()
 
     // Crew credits list every job (editor, composer, etc.); only the
-    // director/writer names are shown, keyed by TMDB's job labels.
-    private fun List<CrewMemberDto>?.toCrewModels(job: String): List<CastMemberModel> =
-            toCrewModels(setOf(job))
+    // director/writer names are shown, keyed by TMDB's job labels. TMDB never
+    // localizes job text itself, so the displayed role comes from our own
+    // string resources instead of the raw job field — picking the female
+    // form per-person since a mixed crew can have both.
+    private fun List<CrewMemberDto>?.toCrewModels(
+            job: String,
+            roleRes: Int,
+            femaleRoleRes: Int
+                                                  ): List<CastMemberModel> =
+            toCrewModels(setOf(job), roleRes, femaleRoleRes)
 
-    private fun List<CrewMemberDto>?.toCrewModels(jobs: Set<String>): List<CastMemberModel> = this
+    private fun List<CrewMemberDto>?.toCrewModels(
+            jobs: Set<String>,
+            roleRes: Int,
+            femaleRoleRes: Int
+                                                  ): List<CastMemberModel> = this
             ?.filter { it.job in jobs }
             ?.distinctBy { it.id }
             ?.mapNotNull { crewMemberDto ->
@@ -82,20 +102,16 @@ class MovieDetailsMapper @Inject constructor(
                 CastMemberModel(
                         id = id,
                         name = name,
-                        character = crewMemberDto.job ?: "",
+                        character = context.getString(
+                                if (crewMemberDto.gender == TMDB_GENDER_FEMALE) femaleRoleRes else roleRes
+                                                      ),
                         profileUrl = crewMemberDto.profilePath
                                 ?.let { getFullImageUrl(CAST_PROFILE_PATH_SIZE_SEGMENT, it) } ?: ""
                                 )
             } ?: emptyList()
 
-    private fun getFormattedDate(releaseDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)
-        date?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: releaseDate
-    } catch (e: ParseException) {
-        releaseDate
-    }
+    private fun getFormattedDate(releaseDate: String): String =
+            formatTmdbDate(releaseDate, localeMonitor.currentLanguage.value.locale) ?: releaseDate
 
     // TMDB lists every clip/teaser/featurette alongside the actual trailer;
     // prefer an official YouTube trailer, then fall back progressively so a

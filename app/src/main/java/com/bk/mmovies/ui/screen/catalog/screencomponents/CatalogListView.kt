@@ -36,7 +36,6 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +48,6 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -61,8 +59,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
@@ -96,7 +92,7 @@ private val badgeSpacerPadding = 8.dp
 private val textPadding = 4.dp
 private val posterWidth = 92.dp
 private val posterHeight = 130.dp
-private val posterCornerShape = 8.dp
+val posterCornerShape = 8.dp
 private val ratingBadgeSize = 28.dp
 private val favoriteStarPadding = 0.dp
 
@@ -177,19 +173,6 @@ fun CatalogListView(
                     .fillMaxHeight()
                     .fillMaxWidth(),
               )
-
-    DisposableEffect(Unit) {
-        logDebug(
-                TAG,
-                "LAUNCHED"
-                )
-        onDispose {
-            logDebug(
-                    TAG,
-                    "DISPOSED"
-                    )
-        }
-    }
 }
 
 @Composable
@@ -208,19 +191,6 @@ fun MovieRowLoadingPlaceholderList() {
                     .fillMaxHeight()
                     .fillMaxWidth(),
               )
-
-    DisposableEffect(Unit) {
-        logDebug(
-                "MoviesLoadingList",
-                "LAUNCHED"
-                )
-        onDispose {
-            logDebug(
-                    "MoviesLoadingList",
-                    "DISPOSED"
-                    )
-        }
-    }
 }
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -288,10 +258,7 @@ fun CatalogItemRow(
                                             )
                ) {
                 AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                                .data(catalogItem.imageUrl)
-                                .crossfade(true)
-                                .build(),
+                        model = catalogItem.imageUrl,
                         placeholder = painterResource(R.drawable.placeholder),
                         error = painterResource(R.drawable.placeholder),
                         // The title is already announced by the Text beside it, so
@@ -312,7 +279,9 @@ fun CatalogItemRow(
                                                                          ),
                                         onClick = { onCatalogItemClicked(catalogItem.id) },
                                         onLongClick = { isPosterZoomed = true }
-                                                  ),
+                                                  ), onLoading = {
+                    logDebug("Network","loading_image_url: ${catalogItem.imageUrl}")
+                },
                         onError = { state ->
                             logError(
                                     TAG,
@@ -425,15 +394,10 @@ fun CatalogItemRow(
                     contentAlignment = Alignment.Center
                ) {
                 AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                                .data(
-                                        catalogItem.imageUrl.replace(
-                                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
-                                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
-                                                                    )
-                                     )
-                                .crossfade(true)
-                                .build(),
+                        model = catalogItem.imageUrl.replace(
+                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
+                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
+                                                             ),
                         placeholder = painterResource(R.drawable.placeholder),
                         error = painterResource(R.drawable.placeholder),
                         contentDescription = catalogItem.title,

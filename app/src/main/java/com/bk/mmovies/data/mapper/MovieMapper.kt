@@ -4,9 +4,6 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.dto.MovieDto
 import com.bk.mmovies.domain.model.MovieModel
 import com.bk.mmovies.locale.LocaleMonitor
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 class MovieMapper @Inject constructor(
@@ -26,15 +23,10 @@ class MovieMapper @Inject constructor(
                 desc = dto.desc ?: "",
                 imageUrl = dto.imageUrl?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
                 releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
+                releaseDateIso = dto.releaseDate ?: "",
                 rating = dto.rating.toRatingPercent())
     }
 
-    private fun getFormattedDate(releaseDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(releaseDate)
-        date?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: releaseDate
-    } catch (e: ParseException) {
-        releaseDate
-    }
+    private fun getFormattedDate(releaseDate: String): String =
+            formatTmdbDate(releaseDate, localeMonitor.currentLanguage.value.locale) ?: releaseDate
 }

@@ -2,7 +2,6 @@ package com.bk.mmovies.ui.screen.splash
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.result.ApiKeyValidationResult
 import com.bk.mmovies.domain.repository.AuthenticationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.milliseconds
@@ -24,8 +22,7 @@ private val SPLASH_MINIMUM_VISIBLE_DURATION = 1000.milliseconds
 
 @HiltViewModel
 class SplashViewModel @Inject constructor(
-        private val authenticationRepository: AuthenticationRepository,
-        internetMonitor: InternetMonitor
+        private val authenticationRepository: AuthenticationRepository
                                          ) : ViewModel() {
 
     private val _screenState =
@@ -65,15 +62,7 @@ class SplashViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            internetMonitor.isInternetAvailable
-                    .collectLatest { isInternetAvailable ->
-                        if (!isInternetAvailable) {
-                            _screenState.value =
-                                    SplashScreenState.Offline
-                        } else {
-                            loadSplashData()
-                        }
-                    }
+            loadSplashData()
         }
     }
 
@@ -101,9 +90,10 @@ class SplashViewModel @Inject constructor(
             _screenState.value = SplashScreenState.MissingApiKey
             return
         }
-        // Connectivity flapping re-runs this collector, so without a latch a
-        // reconnect after the first pass would fire a second navigate() and
-        // push a duplicate destination onto the back stack.
+        // saveApiKey() can call this a second time after init's call already
+        // navigated away (e.g. a slow validation response landing late) -
+        // without a latch that would fire a second navigate() and push a
+        // duplicate destination onto the back stack.
         if (hasNavigatedAway) return
         hasNavigatedAway = true
         if (authenticationRepository.getSharedPrefLoginSessionId() != null) {
@@ -117,5 +107,4 @@ class SplashViewModel @Inject constructor(
 sealed interface SplashScreenState {
     data object Loading : SplashScreenState
     data object MissingApiKey : SplashScreenState
-    data object Offline : SplashScreenState
 }

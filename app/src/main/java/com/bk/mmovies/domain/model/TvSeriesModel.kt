@@ -6,6 +6,7 @@ data class TvSeriesModel(
         val desc: String,
         val imageUrl: String,
         val firstAirDate: String,
+        val firstAirDateIso: String = "",
         val rating: Int = 0,
         val isFavorite: Boolean = false
                         )

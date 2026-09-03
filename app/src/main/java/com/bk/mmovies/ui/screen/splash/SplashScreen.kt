@@ -14,13 +14,11 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
-import com.bk.mmovies.connectivity.openDeviceInternetSettings
 import com.bk.mmovies.connectivity.openWebPage
 import com.bk.mmovies.data.source.remote.TMDB_WEBPAGE_API_GETTING_STARTED_URL
 import com.bk.mmovies.data.source.remote.TMDB_WEBPAGE_API_SETTINGS_URL
 import com.bk.mmovies.ui.component.InvalidApiKeyView
 import com.bk.mmovies.ui.component.LoaderView
-import com.bk.mmovies.ui.component.NoInternetView
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.util.logDebug
 
@@ -43,12 +41,6 @@ fun SplashScreen(
         when (screenState) {
             SplashScreenState.Loading                                           -> {
                 LoaderView()
-            }
-
-            SplashScreenState.Offline                                           -> {
-                NoInternetView {
-                    openDeviceInternetSettings(context)
-                }
             }
 
             SplashScreenState.MissingApiKey -> {

@@ -15,6 +15,7 @@ class CatalogItemMapper @Inject constructor() {
             title = movie.title,
             imageUrl = movie.imageUrl,
             releaseDate = movie.releaseDate,
+            releaseDateIso = movie.releaseDateIso,
             mediaType = CatalogMediaType.MOVIE,
             rating = movie.rating,
             isFavorite = movie.isFavorite)
@@ -26,6 +27,7 @@ class CatalogItemMapper @Inject constructor() {
             title = tvSeries.title,
             imageUrl = tvSeries.imageUrl,
             releaseDate = tvSeries.firstAirDate,
+            releaseDateIso = tvSeries.firstAirDateIso,
             mediaType = CatalogMediaType.TV_SERIES,
             rating = tvSeries.rating,
             isFavorite = tvSeries.isFavorite)

@@ -14,9 +14,6 @@ import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.domain.model.SeasonModel
 import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 private const val DIRECTOR_JOB = "Director"
@@ -37,7 +34,7 @@ class SeasonMapper @Inject constructor(
             seasonNumber = dto.seasonNumber ?: 0,
             rating = dto.voteAverage.toRatingPercent(),
             episodeCountLabel = dto.episodes.orEmpty().size.toEpisodeCountLabel(),
-            episodes = dto.episodes.orEmpty().map { toModel(it) })
+            episodes = dto.episodes.orEmpty().mapNotNull { toModel(it) })
 
     // A null id can't back a stable LazyColumn key, so a season TMDB somehow
     // sends without one is dropped rather than collapsed onto id 0 and
@@ -55,8 +52,13 @@ class SeasonMapper @Inject constructor(
                 episodeCountLabel = (dto.episodeCount ?: 0).toEpisodeCountLabel())
     }
 
-    fun toModel(dto: EpisodeDto): EpisodeModel = EpisodeModel(
-            id = dto.id ?: 0,
+    // A null id can't back a stable LazyColumn key, so an episode TMDB
+    // somehow sends without one is dropped rather than collapsed onto id 0
+    // and risking a key collision with a real episode.
+    fun toModel(dto: EpisodeDto): EpisodeModel? {
+        val id = dto.id ?: return null
+        return EpisodeModel(
+            id = id,
             name = dto.name ?: "",
             overview = dto.overview ?: "",
             airDate = dto.airDate?.let { getFormattedDate(it) } ?: "",
@@ -65,12 +67,28 @@ class SeasonMapper @Inject constructor(
             stillUrl = dto.stillPath?.let { getFullImageUrl(STILL_PATH_SIZE_SEGMENT, it) } ?: "",
             rating = dto.voteAverage.toRatingPercent(),
             runtime = runtimeLabelFormatter.format(dto.runtime),
-            director = dto.crew.toCrewModels(setOf(DIRECTOR_JOB)).firstOrNull(),
-            writers = dto.crew.toCrewModels(WRITER_JOBS))
+            director = dto.crew.toCrewModels(
+                    setOf(DIRECTOR_JOB),
+                    R.string.details_director_role,
+                    R.string.details_director_role_female
+                                             ).firstOrNull(),
+            writers = dto.crew.toCrewModels(
+                    WRITER_JOBS,
+                    R.string.details_writer_role,
+                    R.string.details_writer_role_female
+                                            ))
+    }
 
     // Crew credits list every job (editor, composer, etc.); only the
-    // director/writer names are shown, keyed by TMDB's job labels.
-    private fun List<CrewMemberDto>?.toCrewModels(jobs: Set<String>): List<CastMemberModel> = this
+    // director/writer names are shown, keyed by TMDB's job labels. TMDB never
+    // localizes job text itself, so the displayed role comes from our own
+    // string resources instead of the raw job field — picking the female
+    // form per-person since a mixed crew can have both.
+    private fun List<CrewMemberDto>?.toCrewModels(
+            jobs: Set<String>,
+            roleRes: Int,
+            femaleRoleRes: Int
+                                                  ): List<CastMemberModel> = this
             ?.filter { it.job in jobs }
             ?.distinctBy { it.id }
             ?.mapNotNull { crewMemberDto ->
@@ -79,7 +97,9 @@ class SeasonMapper @Inject constructor(
                 CastMemberModel(
                         id = id,
                         name = name,
-                        character = crewMemberDto.job ?: "",
+                        character = context.getString(
+                                if (crewMemberDto.gender == TMDB_GENDER_FEMALE) femaleRoleRes else roleRes
+                                                      ),
                         profileUrl = crewMemberDto.profilePath
                                 ?.let { getFullImageUrl(CAST_PROFILE_PATH_SIZE_SEGMENT, it) } ?: ""
                                 )
@@ -90,12 +110,6 @@ class SeasonMapper @Inject constructor(
         return context.resources.getQuantityString(R.plurals.episode_count, this, this)
     }
 
-    private fun getFormattedDate(airDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(airDate)
-        date?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: airDate
-    } catch (e: ParseException) {
-        airDate
-    }
+    private fun getFormattedDate(airDate: String): String =
+            formatTmdbDate(airDate, localeMonitor.currentLanguage.value.locale) ?: airDate
 }

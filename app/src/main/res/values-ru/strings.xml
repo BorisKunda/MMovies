@@ -108,7 +108,6 @@
     <string name="action_close">Закрыть</string>
     <string name="details_biography_label">БИОГРАФИЯ</string>
     <string name="details_biography_unavailable">Биография недоступна</string>
-    <string name="details_born_on">Дата рождения: %1$s</string>
     <string name="details_date_tba">Дата: будет объявлена</string>
     <string name="details_runtime_tba">Длительность: будет объявлена</string>
     <string name="details_overview_tba">Будет объявлено</string>
@@ -120,15 +119,18 @@
     <string name="details_crew_label">РЕЖИССЁР И СЦЕНАРИСТ</string>
     <string name="details_tv_crew_label">СОЗДАТЕЛИ</string>
     <string name="details_director_role">Режиссёр</string>
+    <string name="details_director_role_female">Режиссёр</string>
     <string name="details_writer_role">Сценарист</string>
+    <string name="details_writer_role_female">Сценарист</string>
     <string name="details_writers_label">Сценаристы:</string>
     <string name="details_creator_role">Создатель</string>
+    <string name="details_creator_role_female">Создатель</string>
     <string name="details_creators_label">Создатели:</string>
     <string name="details_watch_trailer_action">Смотреть трейлер</string>
 
     <!--SERIES AIR DATE-->
     <string name="series_premiere_label">Премьера сериала</string>
-    <string name="series_ongoing_label">Идёт показ</string>
+    <string name="series_ongoing_label">Настоящее время</string>
     <string name="series_tba_label">Дата уточняется</string>
 
     <!--RUNTIME-->

@@ -124,6 +124,30 @@ class CatalogViewModel @Inject constructor(
                         startLoad(_selectedCategory.value)
                     }
         }
+
+        // The Offline state is reached only via a real failed request (see
+        // applyLoadFailure), so retrying here on the system's own capability
+        // flag - rather than waiting for it to also validate - is safe: worst
+        // case the retry fails again and re-shows Offline.
+        viewModelScope.launch {
+            internetMonitor.isInternetAvailable.collectLatest { isAvailable ->
+                if (!isAvailable) return@collectLatest
+                if (_catalogScreenState.value is CatalogScreenState.Offline) {
+                    retry()
+                }
+                // loadUserProfile() only ever runs once, from init. If that
+                // first attempt landed while offline it fails into
+                // isGuest = false with a blank name/avatar (a logged-in user
+                // account, not a guest) and nothing was left to retry it -
+                // unlike the catalog list above, which does. That's the
+                // "avatar stuck as '?' after reconnecting" bug: this repeats
+                // the load once connectivity is confirmed back, same
+                // worst-case-it-fails-again safety as the retry() above.
+                if (!_userProfileState.value.isGuest && _userProfileState.value.name.isBlank()) {
+                    loadUserProfile()
+                }
+            }
+        }
     }
 
     private fun loadUserProfile() {
@@ -223,6 +247,20 @@ class CatalogViewModel @Inject constructor(
         startLoad(_selectedCategory.value)
     }
 
+    /**
+     * Called on the screen resuming (e.g. returning from background). The
+     * connectivity-triggered auto-retry in init only fires on a new
+     * transition to available, which never happens if the failed request
+     * that put this on Offline wasn't actually caused by the network going
+     * down (a stale connection right after backgrounding, for instance) -
+     * resuming is the other natural point to just try again.
+     */
+    fun retryIfOffline() {
+        if (_catalogScreenState.value is CatalogScreenState.Offline) {
+            retry()
+        }
+    }
+
     private fun startLoad(category: Category) {
         _catalogScreenState.value = CatalogScreenState.Loading
         loadNextPageJob?.cancel()
@@ -285,7 +323,7 @@ class CatalogViewModel @Inject constructor(
         when (result) {
             is MoviesResult.Success -> applyCatalogItems(
                     catalogItemMapper.fromMovies(result.movies), result.page, result.totalPages)
-            is MoviesResult.Failure -> applyLoadFailure(requestedPage, result.errorMessage)
+            is MoviesResult.Failure -> applyLoadFailure(requestedPage, result.errorMessage, result.isConnectivityFailure)
         }
     }
 
@@ -313,7 +351,7 @@ class CatalogViewModel @Inject constructor(
         when (result) {
             is TvSeriesResult.Success -> applyCatalogItems(
                     catalogItemMapper.fromTvSeries(result.tvSeries), result.page, result.totalPages)
-            is TvSeriesResult.Failure -> applyLoadFailure(requestedPage, result.errorMessage)
+            is TvSeriesResult.Failure -> applyLoadFailure(requestedPage, result.errorMessage, result.isConnectivityFailure)
         }
     }
 
@@ -323,14 +361,23 @@ class CatalogViewModel @Inject constructor(
     private fun applyCatalogItems(items: List<CatalogItem>, page: Int, totalPages: Int) {
         val currentState = _catalogScreenState.value
         val existingItems = (currentState as? CatalogScreenState.Content)?.catalogItems.orEmpty()
-        val mergedItems = mergePagedItems(existingItems, items, page) { it.id }
         // Each page arrives pre-sorted by release date on its own (see
         // MovieRepositoryImpl/TvSeriesRepositoryImpl), which only orders
-        // within that page — re-sort the merged list so date order holds
-        // across page boundaries too.
+        // within that page — the merged list needs date order to hold across
+        // page boundaries too.
         val isUpcoming = _selectedCategory.value == MovieCategory.UpcomingMovieCategory ||
                 _selectedCategory.value == TvSeriesCategory.UpcomingTvSeriesCategory
-        val orderedItems = if (isUpcoming) mergedItems.sortedBy { it.releaseDate } else mergedItems
+        val orderedItems = if (isUpcoming && page > 1) {
+            // existingItems is already sorted ascending (it's this same
+            // ordering from the previous page append) and items is sorted
+            // ascending on its own — merge the two sorted runs in O(n)
+            // instead of re-sorting the whole, ever-growing list from
+            // scratch on every page append.
+            mergeSortedByReleaseDate(existingItems, items)
+        } else {
+            val mergedItems = mergePagedItems(existingItems, items, page) { it.id }
+            if (isUpcoming) mergedItems.sortedBy { it.releaseDateIso } else mergedItems
+        }
         _catalogScreenState.value = if (orderedItems.isEmpty()) {
             CatalogScreenState.Empty
         } else {
@@ -343,11 +390,18 @@ class CatalogViewModel @Inject constructor(
         }
     }
 
-    // A failed first page is a real error screen; a failed next page just
-    // stops the footer spinner so scrolling back near the end retries it.
-    private fun applyLoadFailure(requestedPage: Int, errorMessage: String) {
+    // A failed first page is a real error screen - Offline specifically when
+    // the request failed for connectivity reasons, so the user gets the
+    // auto-retrying no-internet screen instead of a dead-end "Try again".
+    // A failed next page just stops the footer spinner so scrolling back
+    // near the end retries it.
+    private fun applyLoadFailure(requestedPage: Int, errorMessage: String, isConnectivityFailure: Boolean = false) {
         if (requestedPage <= 1) {
-            _catalogScreenState.value = CatalogScreenState.Error(errorMessage)
+            _catalogScreenState.value = if (isConnectivityFailure) {
+                CatalogScreenState.Offline
+            } else {
+                CatalogScreenState.Error(errorMessage)
+            }
             return
         }
         val currentState = _catalogScreenState.value
@@ -433,6 +487,30 @@ class CatalogViewModel @Inject constructor(
         }
     }
 
+    // Same de-dup rule as mergePagedItems (existingItems wins on a repeated
+    // id) but merges two already-sorted runs in O(n) instead of
+    // concatenating then re-sorting the whole list.
+    private fun mergeSortedByReleaseDate(
+            existingItems: List<CatalogItem>,
+            newItems: List<CatalogItem>
+                                        ): List<CatalogItem> {
+        val existingIds = existingItems.mapTo(HashSet(existingItems.size)) { it.id }
+        val incoming = newItems.filterNot { it.id in existingIds }
+        val merged = ArrayList<CatalogItem>(existingItems.size + incoming.size)
+        var i = 0
+        var j = 0
+        while (i < existingItems.size && j < incoming.size) {
+            if (existingItems[i].releaseDateIso <= incoming[j].releaseDateIso) {
+                merged.add(existingItems[i++])
+            } else {
+                merged.add(incoming[j++])
+            }
+        }
+        while (i < existingItems.size) merged.add(existingItems[i++])
+        while (j < incoming.size) merged.add(incoming[j++])
+        return merged
+    }
+
     private fun updateCatalogItemFavoriteState(itemId: Int, isFavorite: Boolean) {
         val currentState = _catalogScreenState.value
         if (currentState is CatalogScreenState.Content) {
@@ -452,6 +530,7 @@ sealed interface CatalogScreenState {
     object Loading : CatalogScreenState
     object Empty : CatalogScreenState
     object FavoritesLoginRequired : CatalogScreenState
+    object Offline : CatalogScreenState
     data class Content(
             val catalogItems: List<CatalogItem>,
             val currentPage: Int = 1,

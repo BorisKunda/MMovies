@@ -37,7 +37,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -47,8 +46,6 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
@@ -140,10 +137,7 @@ fun MovieDetailsScreenContent(
                                                 )
                    ) {
                     AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                    .data(movieDetails.posterUrl)
-                                    .crossfade(true)
-                                    .build(),
+                            model = movieDetails.posterUrl,
                             placeholder = painterResource(R.drawable.placeholder),
                             error = painterResource(R.drawable.placeholder),
                             contentDescription = movieDetails.title,
@@ -288,15 +282,10 @@ fun MovieDetailsScreenContent(
                     contentAlignment = Alignment.Center
                ) {
                 AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                                .data(
-                                        movieDetails.posterUrl.replace(
-                                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
-                                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
-                                                                      )
-                                     )
-                                .crossfade(true)
-                                .build(),
+                        model = movieDetails.posterUrl.replace(
+                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM,
+                                POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
+                                                               ),
                         placeholder = painterResource(R.drawable.placeholder),
                         error = painterResource(R.drawable.placeholder),
                         contentDescription = movieDetails.title,

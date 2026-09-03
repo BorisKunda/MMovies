@@ -13,6 +13,7 @@ import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
+import com.bk.mmovies.ui.component.NoInternetView
 import com.bk.mmovies.ui.screen.catalog.CatalogScreenState
 
 @Composable
@@ -22,6 +23,7 @@ fun CatalogScreenContent(
         isGuest: Boolean,
         onCatalogItemClicked: (id: Int) -> Unit,
         onRetry: () -> Unit,
+        onOpenNetworkSettings: () -> Unit = {},
         onFavoriteClicked: (catalogItem: CatalogItem) -> Unit = {},
         onLoadNextPage: () -> Unit = {},
         getTvSeriesAirDateLabel: suspend (seriesId: Int) -> SeriesAirDateLabel = { SeriesAirDateLabel.Upcoming("", "") }
@@ -82,6 +84,13 @@ fun CatalogScreenContent(
                         state.errorMessage,
                         onTryAgainClicked = onRetry
                                   )
+            }
+
+            is CatalogScreenState.Offline -> {
+                NoInternetView(
+                        onTryAgainClicked = onRetry,
+                        onSettingsButtonClicked = onOpenNetworkSettings
+                              )
             }
         }
     }

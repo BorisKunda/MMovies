@@ -57,8 +57,6 @@ import androidx.core.view.WindowCompat
 import androidx.core.view.WindowInsetsCompat
 import androidx.core.view.WindowInsetsControllerCompat
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.ui.theme.MMoviesTheme
 import com.pierfrancescosoffritti.androidyoutubeplayer.core.player.PlayerConstants
@@ -176,10 +174,7 @@ private fun ThumbnailPlayButton(videoId: String, onClick: () -> Unit, modifier: 
             contentAlignment = Alignment.Center
        ) {
         AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                        .data(youtubeThumbnailUrl(videoId))
-                        .crossfade(true)
-                        .build(),
+                model = youtubeThumbnailUrl(videoId),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -263,6 +258,16 @@ private fun EmbeddedYoutubePlayer(
                             playerOptions
                               )
                 }
+            },
+            // Without this the view stayed registered on lifecycleOwner
+            // forever: AndroidView only calls factory/update, never anything
+            // on disposal by default. FullscreenYoutubePlayer discards and
+            // recreates this view on every resize (see key(boxSize) below),
+            // so without releasing here each resize left behind another
+            // leaked WebView still listening for lifecycle callbacks.
+            onRelease = { view ->
+                lifecycleOwner.lifecycle.removeObserver(view)
+                view.release()
             }
                )
 }

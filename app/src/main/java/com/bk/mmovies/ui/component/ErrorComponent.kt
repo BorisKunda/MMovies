@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +45,7 @@ private val errorViewVerticalSpacing = 48.dp
 private val errorImageHeight = 88.dp
 private val errorTitlePaddingTop = 14.dp
 private val errorMessagePaddingTop: Dp = 20.dp
+private val noInternetTryAgainSpacing = 12.dp
 
 @Composable fun ErrorView(
         modifier: Modifier,
@@ -111,6 +113,10 @@ private val errorMessagePaddingTop: Dp = 20.dp
 
 @Composable
 fun NoInternetView(
+        // Placed before onSettingsButtonClicked (and defaulted) so every
+        // existing trailing-lambda call site - which binds to the *last*
+        // parameter - keeps targeting the settings action unchanged.
+        onTryAgainClicked: (() -> Unit)? = null,
         onSettingsButtonClicked: () -> Unit
                   ) {
     ErrorView(
@@ -133,6 +139,21 @@ fun NoInternetView(
                         },
                         true
                              )
+                // Automatic retry depends on the OS reporting a fresh
+                // connectivity transition (see InternetMonitor/retryIfOffline),
+                // which never fires if the request failed while the network
+                // never actually went down (e.g. a stale connection right
+                // after coming back from the background). This manual escape
+                // hatch covers that gap.
+                if (onTryAgainClicked != null) {
+                    Spacer(modifier = Modifier.height(noInternetTryAgainSpacing))
+                    PrimaryButton(
+                            imageResId = null,
+                            label = stringResource(R.string.try_again),
+                            onTryAgainClicked,
+                            true
+                                 )
+                }
             },
             useSpaceBetween = true,
             tag = "NoInternetView"

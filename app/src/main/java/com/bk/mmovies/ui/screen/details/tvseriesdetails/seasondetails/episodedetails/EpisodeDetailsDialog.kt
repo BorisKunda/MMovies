@@ -3,12 +3,12 @@ package com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.episodede
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -41,8 +41,11 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import coil3.request.crossfade
+import coil3.request.allowHardware
+import coil3.size.Size as CoilSize
 import com.bk.mmovies.R
+import com.bk.mmovies.data.source.remote.STILL_PATH_SIZE_SEGMENT
+import com.bk.mmovies.data.source.remote.STILL_PATH_SIZE_SEGMENT_ZOOM
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.ui.component.ActorDetailsDialog
@@ -74,24 +77,52 @@ fun EpisodeDetailsDialog(
             onDismissRequest = onDismiss,
             properties = DialogProperties(usePlatformDefaultWidth = false)
           ) {
-        Surface(
-                modifier = Modifier
-                        .fillMaxWidth(dialogWidthFraction)
-                        .fillMaxHeight(dialogHeightFraction),
-                shape = RoundedCornerShape(dialogCornerShape),
-                color = MaterialTheme.colorScheme.surface
-               ) {
+        BoxWithConstraints {
+            Surface(
+                    modifier = Modifier
+                            .fillMaxWidth(dialogWidthFraction)
+                            // A max, not a fixed fraction: a short episode
+                            // overview no longer stretches the dialog down to
+                            // dialogHeightFraction and leaves dead space below
+                            // the content — the dialog now only grows that
+                            // tall when the (scrollable) content actually
+                            // needs it.
+                            .heightIn(max = maxHeight * dialogHeightFraction),
+                    shape = RoundedCornerShape(dialogCornerShape),
+                    color = MaterialTheme.colorScheme.surface
+                   ) {
             Column(
                     modifier = Modifier
-                            .fillMaxSize()
+                            .fillMaxWidth()
                             .verticalScroll(rememberScrollState())
                   ) {
                 Box(modifier = Modifier.fillMaxWidth()) {
+                    // TMDB's still images are progressive JPEGs; asking
+                    // BitmapFactory to subsample/rescale one to a specific
+                    // target size decodes corrupted (into only a small region
+                    // of the frame) on some devices, so this decodes at
+                    // Size.ORIGINAL and leaves the scale-to-fit to this
+                    // Modifier.size() + ContentScale.Crop instead — see
+                    // EpisodeRow's still image for the full writeup. Unlike
+                    // that 128dp list thumbnail, this header renders much
+                    // larger, so it fetches TMDB's full "original" still
+                    // instead of "w300": that source is otherwise the same
+                    // width across the whole dialog, upscaled far enough to
+                    // read as visibly blurry.
+                    // Size.ORIGINAL avoids the BitmapFactory subsampling
+                    // corruption (see EpisodeRow's still image), but a
+                    // separate hardware-decode corruption can still show up
+                    // on a genuine first load - allowHardware(false) forces
+                    // a software decode to avoid that path too.
+                    val context = LocalContext.current
                     AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                    .data(episode.stillUrl)
-                                    .crossfade(true)
-                                    .build(),
+                            model = remember(episode.stillUrl) {
+                                ImageRequest.Builder(context)
+                                        .data(episode.stillUrl.replace(STILL_PATH_SIZE_SEGMENT, STILL_PATH_SIZE_SEGMENT_ZOOM))
+                                        .size(CoilSize.ORIGINAL)
+                                        .allowHardware(false)
+                                        .build()
+                            },
                             placeholder = painterResource(R.drawable.placeholder),
                             error = painterResource(R.drawable.placeholder),
                             contentDescription = null,
@@ -175,6 +206,7 @@ fun EpisodeDetailsDialog(
                         CrewSection(director = episode.director, writers = episode.writers)
                     }
                 }
+            }
             }
         }
     }

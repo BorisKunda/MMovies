@@ -32,11 +32,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
 import coil3.request.ImageRequest
-import coil3.request.crossfade
+import coil3.request.allowHardware
+import coil3.size.Size as CoilSize
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.domain.model.SeasonModel
 import com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.episodedetails.EpisodeDetailsDialog
+import com.bk.mmovies.util.logDebug
 
 private val screenPadding = 16.dp
 private val spacingUnit = 12.dp
@@ -135,10 +137,7 @@ private fun SeasonHeader(season: SeasonModel) {
                                             )
                ) {
                 AsyncImage(
-                        model = ImageRequest.Builder(LocalContext.current)
-                                .data(season.posterUrl)
-                                .crossfade(true)
-                                .build(),
+                        model = season.posterUrl,
                         placeholder = painterResource(R.drawable.placeholder),
                         error = painterResource(R.drawable.placeholder),
                         contentDescription = season.name,
@@ -228,13 +227,39 @@ private fun EpisodeRow(
             // top with a gap opening up below it.
             verticalAlignment = Alignment.CenterVertically
        ) {
+        // TMDB's still images are progressive JPEGs, and BitmapFactory
+        // subsampling/rescaling a progressive JPEG to a specific target size
+        // is corrupted on some devices - it decodes into only a small region
+        // of the frame instead of the full image, which reads as "zoomed in".
+        // A second decode of the same file (e.g. on reload) isn't guaranteed
+        // to hit the same corruption, which is why this looked like a
+        // load-order/caching issue rather than a decode bug. Requesting
+        // Size.ORIGINAL decodes at the image's native resolution (cheap here
+        // since stillUrl is already TMDB's small "w300") with no
+        // BitmapFactory-side scaling at all, leaving the crop to Coil's
+        // still-image-side Modifier.size() + ContentScale.Crop instead.
+        // Size.ORIGINAL alone wasn't enough, though - the corruption still
+        // showed up on a genuine first (uncached) load, only disappearing
+        // once the bitmap was re-decoded from the memory/disk cache. That
+        // points at the hardware (GPU-side) bitmap decode path rather than
+        // BitmapFactory subsampling - it has its own, separate history of
+        // mis-decoding certain JPEGs on some Samsung/Adreno devices, and
+        // unlike the sampling bug isn't affected by requesting Size.ORIGINAL.
+        // Forcing a software decode avoids that path entirely.
+        val context = LocalContext.current
         AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                        .data(episode.stillUrl)
-                        .crossfade(true)
-                        .build(),
-                placeholder = painterResource(R.drawable.placeholder),
-                error = painterResource(R.drawable.placeholder),
+                model = remember(episode.stillUrl) {
+                    ImageRequest.Builder(context)
+                            .data(episode.stillUrl)
+                            .size(CoilSize.ORIGINAL)
+                            .allowHardware(false)
+                            .build()
+                },
+                onLoading = {
+                    logDebug("Network","loading_image_url: ${episode.stillUrl}")
+                },
+                placeholder = painterResource(R.drawable.placeholder_wide),
+                error = painterResource(R.drawable.placeholder_wide),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

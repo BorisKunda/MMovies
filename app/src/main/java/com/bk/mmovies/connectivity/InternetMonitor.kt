@@ -25,7 +25,10 @@ class InternetMonitor @Inject constructor(
             context.applicationContext.getSystemService(ConnectivityManager::class.java)
 
     private val _isInternetAvailable =
-            MutableStateFlow(checkInternetAvailability())
+            MutableStateFlow(
+                    activeNetworkCapabilitiesSnapshot()
+                            ?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
+                            )
 
     val isInternetAvailable: StateFlow<Boolean> =
             _isInternetAvailable.asStateFlow()
@@ -36,27 +39,35 @@ class InternetMonitor @Inject constructor(
             object : ConnectivityManager.NetworkCallback() {
 
                 override fun onAvailable(network: Network) {
-                    updateInternetAvailability(
-                            message = "onAvailable",
-                            isLost = false
-                                              )
+                    // getNetworkCapabilities(network) here still asks for a
+                    // specific, already-tracked Network - unlike activeNetwork
+                    // below, this isn't the per-app "what would my traffic use
+                    // right now" query, so it isn't subject to that same
+                    // background-app answer.
+                    setAvailability(
+                            "onAvailable",
+                            connectivityManager.getNetworkCapabilities(network)
+                                    )
                 }
 
                 override fun onCapabilitiesChanged(
                         network: Network,
                         networkCapabilities: NetworkCapabilities
                                                   ) {
-                    updateInternetAvailability(
+                    // Use what the callback already handed us instead of
+                    // re-querying via activeNetwork - see
+                    // activeNetworkCapabilitiesSnapshot's comment for why.
+                    setAvailability(
                             "onCapabilitiesChanged",
-                            false
-                                              )
+                            networkCapabilities
+                                    )
                 }
 
                 override fun onLost(network: Network) {
-                    updateInternetAvailability(
+                    setAvailability(
                             "onLost",
-                            true
-                                              )
+                            capabilities = null
+                                    )
                 }
             }
 
@@ -84,17 +95,31 @@ class InternetMonitor @Inject constructor(
         }
 
         isStarted = true
-        updateInternetAvailability(
+        // No live Network reference exists until the callback above fires
+        // (which happens immediately for the current network, asynchronously)
+        // so this cold-start snapshot is the one legitimate use of the
+        // per-app activeNetwork query - same as the property initializer
+        // below.
+        setAvailability(
                 "onMonitorStart",
-                false
-                                  )
+                activeNetworkCapabilitiesSnapshot()
+                        )
     }
 
-    private fun updateInternetAvailability(
+    // Deliberately not also requiring NET_CAPABILITY_VALIDATED: that flag
+    // reflects the OS's own background probe to a Google captive-portal-check
+    // URL succeeding, which is a false negative on VPNs, local DNS/firewall
+    // apps, and some restrictive networks that block just that probe while
+    // real internet access works fine - it can stay false forever on those
+    // setups. This is used only as a signal to retry, so callers decide
+    // "actually offline" from real request failures instead (see
+    // NetworkError.isConnectivityFailure).
+    private fun setAvailability(
             message: String,
-            isLost: Boolean
-                                          ) {
-        val isAvailable = if (isLost) false else checkInternetAvailability()
+            capabilities: NetworkCapabilities?
+                                ) {
+        val isAvailable =
+                capabilities?.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET) == true
         _isInternetAvailable.value = isAvailable
         logDebug(
                 TAG,
@@ -102,25 +127,17 @@ class InternetMonitor @Inject constructor(
                 )
     }
 
-    private fun checkInternetAvailability(): Boolean {
-        val activeNetwork =
-                connectivityManager.activeNetwork
-                ?: return false
-
-        val capabilities =
-                connectivityManager.getNetworkCapabilities(activeNetwork)
-                ?: return false
-
-        val hasInternetCapability =
-                capabilities.hasCapability(
-                        NetworkCapabilities.NET_CAPABILITY_INTERNET
-                                          )
-
-        val hasValidatedInternet =
-                capabilities.hasCapability(
-                        NetworkCapabilities.NET_CAPABILITY_VALIDATED
-                                          )
-
-        return hasInternetCapability && hasValidatedInternet
+    // connectivityManager.activeNetwork answers "what network would *this
+    // app's* traffic use right now" - a live per-app query Android can answer
+    // more conservatively for a backgrounded process with no foreground
+    // service, independent of the network's real state. That's fine for this
+    // one-time cold-start snapshot (self-corrects the moment the callback
+    // above fires for the current network), but must never be used for the
+    // ongoing checks - onAvailable/onCapabilitiesChanged already carry the
+    // real capabilities for a specific, already-tracked Network and don't
+    // have this problem.
+    private fun activeNetworkCapabilitiesSnapshot(): NetworkCapabilities? {
+        val activeNetwork = connectivityManager.activeNetwork ?: return null
+        return connectivityManager.getNetworkCapabilities(activeNetwork)
     }
 }

@@ -4,9 +4,6 @@ import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.dto.TvSeriesDto
 import com.bk.mmovies.domain.model.TvSeriesModel
 import com.bk.mmovies.locale.LocaleMonitor
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 class TvSeriesMapper @Inject constructor(
@@ -26,15 +23,10 @@ class TvSeriesMapper @Inject constructor(
                 desc = dto.desc ?: "",
                 imageUrl = dto.imageUrl?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
                 firstAirDate = dto.firstAirDate?.let { getFormattedDate(it) } ?: "",
+                firstAirDateIso = dto.firstAirDate ?: "",
                 rating = dto.rating.toRatingPercent())
     }
 
-    private fun getFormattedDate(firstAirDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(firstAirDate)
-        date?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: firstAirDate
-    } catch (e: ParseException) {
-        firstAirDate
-    }
+    private fun getFormattedDate(firstAirDate: String): String =
+            formatTmdbDate(firstAirDate, localeMonitor.currentLanguage.value.locale) ?: firstAirDate
 }
