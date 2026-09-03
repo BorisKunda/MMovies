@@ -21,6 +21,7 @@ import com.bk.mmovies.data.source.remote.dto.TvSeriesAirDateInfoDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesDetailsDto
 import com.bk.mmovies.data.source.remote.dto.TvSeriesListDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
+import com.bk.mmovies.data.source.remote.result.isConnectivityFailure
 import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.domain.model.isLastPage
@@ -63,6 +64,16 @@ class TvSeriesRepositoryImpl @Inject constructor(
         get() = context.getString(R.string.error_tv_series_details_load_failed)
     private val favoriteToggleFailureMessage: String
         get() = context.getString(R.string.error_favorite_toggle_failed)
+
+    // getTvSeriesByCategory cross-references this on every single page load
+    // (see below) to mark stars; without an in-memory copy that's a Room
+    // query per page fetch even though syncFavoriteIds/toggleFavorite are the
+    // only things that ever actually change it. Null means "not loaded yet",
+    // not "no favorites" — the next read repopulates it from Room.
+    private var favoriteIdsCache: Set<Int>? = null
+
+    private suspend fun favoriteIds(): Set<Int> =
+            favoriteIdsCache ?: tvFavoriteDao.getAllFavoriteIds().toSet().also { favoriteIdsCache = it }
 
     override suspend fun getTvSeriesByCategory(category: TvSeriesCategory, page: Int): TvSeriesResult {
         val apiCallResult: ApiCallResult<TvSeriesListDto> = when (category) {
@@ -118,14 +129,14 @@ class TvSeriesRepositoryImpl @Inject constructor(
                 // The category endpoints don't return per-item favorite status,
                 // so cross-reference against the ids synced into the local
                 // cache (see syncFavoriteIds) to mark stars correctly.
-                val favoriteIds = tvFavoriteDao.getAllFavoriteIds().toSet()
+                val favoriteIds = favoriteIds()
                 val models = tvSeriesMapper.toModels(sortedTvSeriesDtos).map {
                     it.copy(isFavorite = favoriteIds.contains(it.id))
                 }
                 TvSeriesResult.Success(models, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure                  -> {
-                TvSeriesResult.Failure(failureMessage)
+                TvSeriesResult.Failure(failureMessage, apiCallResult.error.isConnectivityFailure)
             }
         }
     }
@@ -193,7 +204,7 @@ class TvSeriesRepositoryImpl @Inject constructor(
                 TvSeriesResult.Success(tvSeries, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure                  -> {
-                TvSeriesResult.Failure(failureMessage)
+                TvSeriesResult.Failure(failureMessage, apiCallResult.error.isConnectivityFailure)
             }
         }
     }
@@ -217,11 +228,10 @@ class TvSeriesRepositoryImpl @Inject constructor(
             page++
         }
         tvFavoriteDao.replaceAll(ids.map { TvFavoriteEntity(it) })
+        favoriteIdsCache = ids.toSet()
     }
 
-    override suspend fun getCachedFavoriteIds(): Set<Int> {
-        return tvFavoriteDao.getAllFavoriteIds().toSet()
-    }
+    override suspend fun getCachedFavoriteIds(): Set<Int> = favoriteIds()
 
     override suspend fun toggleFavorite(
             accountId: Int,
@@ -244,8 +254,10 @@ class TvSeriesRepositoryImpl @Inject constructor(
             is ApiCallResult.Success<ToggleFavoriteResponseDto> -> {
                 if (isFavorite) {
                     tvFavoriteDao.insert(TvFavoriteEntity(tvSeriesId))
+                    favoriteIdsCache = favoriteIdsCache?.plus(tvSeriesId)
                 } else {
                     tvFavoriteDao.deleteById(tvSeriesId)
+                    favoriteIdsCache = favoriteIdsCache?.minus(tvSeriesId)
                 }
                 ToggleFavoriteResult.Success
             }
@@ -281,7 +293,11 @@ class TvSeriesRepositoryImpl @Inject constructor(
 
         return when (apiCallResult) {
             is ApiCallResult.Success<EpisodeDto> -> {
-                EpisodeDetailsResult.Success(seasonMapper.toModel(apiCallResult.data))
+                // A missing id can't back a valid EpisodeModel, so treat it the
+                // same as a failed call rather than surfacing a broken episode.
+                seasonMapper.toModel(apiCallResult.data)
+                        ?.let { EpisodeDetailsResult.Success(it) }
+                        ?: EpisodeDetailsResult.Failure(episodeFailureMessage)
             }
             is ApiCallResult.Failure             -> {
                 EpisodeDetailsResult.Failure(episodeFailureMessage)

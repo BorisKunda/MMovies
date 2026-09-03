@@ -35,6 +35,7 @@ data class TvSeriesDetailsDto(
 data class CreatedByDto(
         val id: Int?,
         val name: String?,
+        val gender: Int?,
         @SerializedName("profile_path")
         val profilePath: String?
                         )

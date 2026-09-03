@@ -16,6 +16,7 @@ import com.bk.mmovies.data.source.remote.dto.MovieListDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteRequestDto
 import com.bk.mmovies.data.source.remote.dto.ToggleFavoriteResponseDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
+import com.bk.mmovies.data.source.remote.result.isConnectivityFailure
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.isLastPage
 import com.bk.mmovies.domain.model.result.MovieDetailsResult
@@ -42,6 +43,16 @@ class MovieRepositoryImpl @Inject constructor(
         get() = context.getString(R.string.error_movie_details_load_failed)
     private val favoriteToggleFailureMessage: String
         get() = context.getString(R.string.error_favorite_toggle_failed)
+
+    // getMoviesByCategory cross-references this on every single page load
+    // (see below) to mark stars; without an in-memory copy that's a Room
+    // query per page fetch even though syncFavoriteIds/toggleFavorite are the
+    // only things that ever actually change it. Null means "not loaded yet",
+    // not "no favorites" — the next read repopulates it from Room.
+    private var favoriteIdsCache: Set<Int>? = null
+
+    private suspend fun favoriteIds(): Set<Int> =
+            favoriteIdsCache ?: favoriteDao.getAllFavoriteIds().toSet().also { favoriteIdsCache = it }
 
     override suspend fun getMoviesByCategory(category: MovieCategory, page: Int): MoviesResult {
         var apiCallResult: ApiCallResult<MovieListDto>? = null
@@ -91,14 +102,14 @@ class MovieRepositoryImpl @Inject constructor(
                 // The category endpoints don't return per-item favorite status,
                 // so cross-reference against the ids synced into the local
                 // cache (see syncFavoriteIds) to mark stars correctly.
-                val favoriteIds = favoriteDao.getAllFavoriteIds().toSet()
+                val favoriteIds = favoriteIds()
                 val models = movieMapper.toModels(sortedMovies).map {
                     it.copy(isFavorite = favoriteIds.contains(it.id))
                 }
                 MoviesResult.Success(models, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure               -> {
-                MoviesResult.Failure(failureMessage)
+                MoviesResult.Failure(failureMessage, apiCallResult.error.isConnectivityFailure)
             }
        }
     }
@@ -140,7 +151,7 @@ class MovieRepositoryImpl @Inject constructor(
                 MoviesResult.Success(movies, page, apiCallResult.data.totalPages ?: page)
             }
             is ApiCallResult.Failure               -> {
-                MoviesResult.Failure(failureMessage)
+                MoviesResult.Failure(failureMessage, apiCallResult.error.isConnectivityFailure)
             }
         }
     }
@@ -164,11 +175,10 @@ class MovieRepositoryImpl @Inject constructor(
             page++
         }
         favoriteDao.replaceAll(ids.map { FavoriteEntity(it) })
+        favoriteIdsCache = ids.toSet()
     }
 
-    override suspend fun getCachedFavoriteIds(): Set<Int> {
-        return favoriteDao.getAllFavoriteIds().toSet()
-    }
+    override suspend fun getCachedFavoriteIds(): Set<Int> = favoriteIds()
 
     override suspend fun toggleFavorite(
             accountId: Int,
@@ -191,8 +201,10 @@ class MovieRepositoryImpl @Inject constructor(
             is ApiCallResult.Success<ToggleFavoriteResponseDto> -> {
                 if (isFavorite) {
                     favoriteDao.insert(FavoriteEntity(movieId))
+                    favoriteIdsCache = favoriteIdsCache?.plus(movieId)
                 } else {
                     favoriteDao.deleteById(movieId)
+                    favoriteIdsCache = favoriteIdsCache?.minus(movieId)
                 }
                 ToggleFavoriteResult.Success
             }

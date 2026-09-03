@@ -55,12 +55,23 @@ const val POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM = "w780"
 const val AVATAR_PATH_SIZE_SEGMENT = "w185"
 const val CAST_PROFILE_PATH_SIZE_SEGMENT = "w185"
 const val CAST_PROFILE_PATH_SIZE_SEGMENT_ZOOM = "h632"
-// "w300" is TMDB's largest fixed still size, but that's narrower than this
-// 128dp list thumbnail renders at on most phone screens (~380-400px at
-// typical density) — Coil then has to upscale it, which reads as both blurry
-// and, since the blur eats the frame edges, misleadingly "more zoomed in".
-// "original" avoids the upscale; Coil downsamples it cheaply for the thumbnail.
-const val STILL_PATH_SIZE_SEGMENT = "original"
+// "original" was tried here to avoid upscaling this 128dp thumbnail past
+// "w300" (TMDB's largest fixed still size), but "original" stills can be huge
+// (up to ~4K) and some are progressive JPEGs — downsampling one of those that
+// far triggers a real BitmapFactory decode bug on some devices, where the
+// image comes back decoded into only a small region of the frame (looks
+// "zoomed in") on the first decode. That corruption is worse than the mild
+// upscale softness "w300" costs here, so this stays capped at "w300".
+const val STILL_PATH_SIZE_SEGMENT = "w300"
+// For a still shown much larger than the 128dp list thumbnail above — the
+// episode details dialog's header image — "w300" upscaled that far reads as
+// visibly blurry. Safe to go to "original" there specifically because that
+// call site already decodes with Coil's Size.ORIGINAL (see
+// EpisodeDetailsDialog), the same native-resolution-then-Compose-scales-it
+// path the w300 thumbnail uses; the corrupted-decode bug described above only
+// ever happened when Coil was asked to decode down to a *specific* target
+// size (forcing BitmapFactory subsampling), which neither call site does.
+const val STILL_PATH_SIZE_SEGMENT_ZOOM = "original"
 
 const val TMDB_ERROR_CODE_INVALID_API_KEY = 7
 const val TMDB_ERROR_CODE_SUSPENDED_API_KEY = 10

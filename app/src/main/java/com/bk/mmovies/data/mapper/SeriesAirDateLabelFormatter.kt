@@ -1,13 +1,11 @@
 package com.bk.mmovies.data.mapper
 
 import android.content.Context
+import androidx.core.text.BidiFormatter
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.SeriesAirDateLabel
 import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.qualifiers.ApplicationContext
-import java.text.ParseException
-import java.text.SimpleDateFormat
-import java.util.Locale
 import javax.inject.Inject
 
 private val ENDED_STATUSES = setOf("Ended", "Canceled")
@@ -30,9 +28,15 @@ class SeriesAirDateLabelFormatter @Inject constructor(
         val startYear = firstAirDate.toYear()
         return when {
             status in ENDED_STATUSES -> SeriesAirDateLabel.Ended(
-                    yearRange = listOf(startYear, lastAirDate.toYear())
-                            .filter { it.isNotBlank() }
-                            .joinToString(" - ")
+                    // Unicode-isolated: "2008 - 2015" is an LTR unit even
+                    // inside an RTL (Hebrew) paragraph. Without this, the
+                    // bidi algorithm visually reorders the two years around
+                    // the "-" to "2015 - 2008" in RTL locales.
+                    yearRange = BidiFormatter.getInstance().unicodeWrap(
+                            listOf(startYear, lastAirDate.toYear())
+                                    .filter { it.isNotBlank() }
+                                    .joinToString(" - ")
+                                                                       )
                                                                  )
             status == ONGOING_STATUS -> SeriesAirDateLabel.Ongoing(
                     text = if (startYear.isBlank()) "" else "$startYear - ${ongoingLabel()}"
@@ -54,12 +58,6 @@ class SeriesAirDateLabelFormatter @Inject constructor(
 
     private fun tbaLabel(): String = context.getString(R.string.series_tba_label)
 
-    private fun getFormattedDate(date: String): String = try {
-        val parsed = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(date)
-        parsed?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: date
-    } catch (e: ParseException) {
-        date
-    }
+    private fun getFormattedDate(date: String): String =
+            formatTmdbDate(date, localeMonitor.currentLanguage.value.locale) ?: date
 }

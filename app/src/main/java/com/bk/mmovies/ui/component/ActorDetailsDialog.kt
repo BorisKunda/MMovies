@@ -26,7 +26,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,8 +36,6 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT_ZOOM
@@ -94,10 +91,7 @@ fun ActorDetailsDialog(
                             CAST_PROFILE_PATH_SIZE_SEGMENT_ZOOM
                                                                        )
                     AsyncImage(
-                            model = ImageRequest.Builder(LocalContext.current)
-                                    .data(largeProfileUrl)
-                                    .crossfade(true)
-                                    .build(),
+                            model = largeProfileUrl,
                             placeholder = painterResource(R.drawable.placeholder),
                             error = painterResource(R.drawable.placeholder),
                             contentDescription = null,
@@ -148,11 +142,7 @@ fun ActorDetailsDialog(
                         }
 
                         is PersonDetailsUiState.Content -> {
-                            PersonDetailsBody(
-                                    birthday = currentState.personDetails.birthday,
-                                    placeOfBirth = currentState.personDetails.placeOfBirth,
-                                    biography = currentState.personDetails.biography
-                                              )
+                            PersonDetailsBody(biography = currentState.personDetails.biography)
                         }
 
                         is PersonDetailsUiState.Error -> {
@@ -192,24 +182,12 @@ private fun LoadingIndicatorRow() {
     }
 }
 
+// place_of_birth isn't part of TMDB's translations (only biography is
+// localized per the language param), so it always comes back in whatever
+// script it was originally entered in regardless of app language — showing
+// it read as a translation bug, so only the biography is shown here.
 @Composable
-private fun PersonDetailsBody(
-        birthday: String,
-        placeOfBirth: String,
-        biography: String
-                              ) {
-    val bornText = listOfNotNull(
-            birthday.takeIf { it.isNotBlank() }?.let { stringResource(R.string.details_born_on, it) },
-            placeOfBirth.takeIf { it.isNotBlank() }
-                                ).joinToString(" • ")
-    if (bornText.isNotBlank()) {
-        Text(
-                text = bornText,
-                color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),
-                style = MaterialTheme.typography.bodyMedium,
-                modifier = Modifier.padding(top = characterToBodySpacing)
-            )
-    }
+private fun PersonDetailsBody(biography: String) {
     Text(
             text = stringResource(R.string.details_biography_label),
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = SECONDARY_TEXT_ALPHA),

@@ -1,11 +1,9 @@
 package com.bk.mmovies.ui.screen.catalog.screencomponents
 
-import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -24,7 +22,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -36,8 +33,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.bk.mmovies.R
 
 private val profileAvatarSize = 20.dp
@@ -72,7 +67,6 @@ private val logoutMenuItemHorizontalPadding = 16.dp
 private val logoutMenuHorizontalOffset = (-100).dp
 private val logoutMenuVerticalOffset = -userAvatarButtonSize
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun UserAvatarButton(
         name: String,
@@ -83,22 +77,22 @@ fun UserAvatarButton(
                      ) {
     val displayName = if (isGuest) stringResource(R.string.guest_label) else name
     val actionLabel = stringResource(if (isGuest) R.string.log_in_action else R.string.log_out)
-    // A plain tap on just the avatar (no name/label next to it to signal
-    // "this is a menu") reads as an accidental-logout trap rather than an
-    // intentional action, so the action lives behind a long-press menu
-    // instead — same discoverability pattern as Android's own three-dot menu.
+    // Logging out still requires picking "Log out" from the menu below (not
+    // an instant action), so a plain tap opening it isn't an accidental-logout
+    // trap — and a tap is what users actually try on a profile avatar. A
+    // long-press-only trigger tested as effectively unresponsive: nothing on
+    // screen hints that a normal tap won't do anything.
     var isMenuExpanded by remember { mutableStateOf(false) }
 
     Box(
             modifier = modifier
                     .minimumInteractiveComponentSize()
                     .clip(CircleShape)
-                    .combinedClickable(
+                    .clickable(
                             role = Role.Button,
                             onClickLabel = actionLabel,
-                            onClick = {},
-                            onLongClick = { isMenuExpanded = true }
-                                      )
+                            onClick = { isMenuExpanded = true }
+                              )
                     .semantics(mergeDescendants = true) {
                         contentDescription = "$displayName. $actionLabel"
                     }
@@ -145,10 +139,7 @@ private fun UserAvatar(name: String, imageUrl: String, isGuest: Boolean, size: D
         InitialsAvatar(name = name, size = size)
     } else {
         SubcomposeAsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                        .data(imageUrl)
-                        .crossfade(true)
-                        .build(),
+                model = imageUrl,
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

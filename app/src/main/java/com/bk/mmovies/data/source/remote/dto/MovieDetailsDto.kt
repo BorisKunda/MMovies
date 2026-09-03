@@ -50,6 +50,7 @@ data class CrewMemberDto(
         val id: Int?,
         val name: String?,
         val job: String?,
+        val gender: Int?,
         @SerializedName("profile_path")
         val profilePath: String?
                          )

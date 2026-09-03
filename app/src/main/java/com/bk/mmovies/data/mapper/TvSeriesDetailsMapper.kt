@@ -1,5 +1,7 @@
 package com.bk.mmovies.data.mapper
 
+import android.content.Context
+import com.bk.mmovies.R
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
@@ -11,10 +13,10 @@ import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.TvSeriesDetailsModel
 import com.bk.mmovies.locale.AppLanguage
 import com.bk.mmovies.locale.LocaleMonitor
+import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 
 private const val CAST_LIST_LIMIT = 20
-private const val CREATOR_ROLE = "Creator"
 private const val VIDEO_SITE_YOUTUBE = "YouTube"
 private const val VIDEO_TYPE_TRAILER = "Trailer"
 private const val YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
@@ -22,7 +24,8 @@ private const val YOUTUBE_WATCH_URL = "https://www.youtube.com/watch?v="
 class TvSeriesDetailsMapper @Inject constructor(
         private val localeMonitor: LocaleMonitor,
         private val seasonMapper: SeasonMapper,
-        private val seriesAirDateLabelFormatter: SeriesAirDateLabelFormatter
+        private val seriesAirDateLabelFormatter: SeriesAirDateLabelFormatter,
+        @ApplicationContext private val context: Context
                                                 ) {
 
     fun toModel(dto: TvSeriesDetailsDto): TvSeriesDetailsModel = TvSeriesDetailsModel(
@@ -82,7 +85,13 @@ class TvSeriesDetailsMapper @Inject constructor(
                 CastMemberModel(
                         id = id,
                         name = name,
-                        character = CREATOR_ROLE,
+                        character = context.getString(
+                                if (createdByDto.gender == TMDB_GENDER_FEMALE) {
+                                    R.string.details_creator_role_female
+                                } else {
+                                    R.string.details_creator_role
+                                }
+                                                      ),
                         profileUrl = createdByDto.profilePath
                                 ?.let { getFullImageUrl(CAST_PROFILE_PATH_SIZE_SEGMENT, it) } ?: ""
                                 )

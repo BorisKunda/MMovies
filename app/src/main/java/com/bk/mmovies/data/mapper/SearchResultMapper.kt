@@ -6,11 +6,8 @@ import com.bk.mmovies.data.source.remote.dto.MultiSearchResultDto
 import com.bk.mmovies.domain.model.SearchResultMediaType
 import com.bk.mmovies.domain.model.SearchResultModel
 import com.bk.mmovies.locale.LocaleMonitor
-import java.text.ParseException
-import java.text.SimpleDateFormat
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
-import java.util.Locale
 import javax.inject.Inject
 
 private const val MEDIA_TYPE_MOVIE = "movie"
@@ -58,14 +55,8 @@ class SearchResultMapper @Inject constructor(
         }
     }
 
-    private fun getFormattedDate(rawDate: String): String = try {
-        val date = SimpleDateFormat("yyyy-MM-dd", Locale.ENGLISH).parse(rawDate)
-        date?.let {
-            SimpleDateFormat("MMMM d, yyyy", localeMonitor.currentLanguage.value.locale).format(it)
-        } ?: rawDate
-    } catch (e: ParseException) {
-        rawDate
-    }
+    private fun getFormattedDate(rawDate: String): String =
+            formatTmdbDate(rawDate, localeMonitor.currentLanguage.value.locale) ?: rawDate
 
     // No release date at all is treated as not-yet-released, same as a
     // release date that's clearly in the future.

@@ -5,17 +5,21 @@ import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.domain.model.PersonDetailsModel
 import com.bk.mmovies.domain.model.result.PersonDetailsResult
 import com.bk.mmovies.domain.repository.PersonRepository
+import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
 class ActorDetailsViewModel @Inject constructor(
-        private val personRepository: PersonRepository
+        private val personRepository: PersonRepository,
+        localeMonitor: LocaleMonitor
                                                 ) : ViewModel() {
 
     private val _personDetailsState = MutableStateFlow<PersonDetailsUiState>(
@@ -25,6 +29,22 @@ class ActorDetailsViewModel @Inject constructor(
 
     private var personId: Int? = null
     private var loadPersonDetailsJob: Job? = null
+
+    init {
+        // This ViewModel is scoped to the screen's NavBackStackEntry, so it
+        // outlives a language switch — without this, reopening the same
+        // actor after changing language just replays the previous-language
+        // result instead of refetching it (e.g. place_of_birth from TMDB
+        // is locale-dependent, so a stale fetch shows the wrong language).
+        viewModelScope.launch {
+            localeMonitor.currentLanguage
+                    .drop(1)
+                    .collectLatest {
+                        val id = personId ?: return@collectLatest
+                        fetchPersonDetails(id)
+                    }
+        }
+    }
 
     fun loadPersonDetails(personId: Int) {
         // This ViewModel is scoped to the NavBackStackEntry, so it outlives the

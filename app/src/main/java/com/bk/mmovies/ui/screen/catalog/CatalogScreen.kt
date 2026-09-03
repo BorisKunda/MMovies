@@ -32,6 +32,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.bk.mmovies.connectivity.openDeviceInternetSettings
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTab
@@ -42,7 +43,6 @@ import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryListPopupView
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategorySelector
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryType
 import com.bk.mmovies.ui.screen.catalog.screencomponents.UserProfileBar
-import com.bk.mmovies.util.logDebug
 import kotlinx.coroutines.launch
 
 // Zero: CategorySelector already carries its own 12dp bottom margin
@@ -55,7 +55,6 @@ private val tabContentTopSpacing = 0.dp
 // margin is fixed inside PoweredByTmdbFooter.
 private val tmdbFooterTopPadding = 8.dp
 
-private const val TAG = "CatalogScreen"
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -139,6 +138,7 @@ fun CatalogScreen(
                             isGuest = userProfileState.isGuest,
                             onCatalogItemClicked = { id -> catalogViewModel.handleCatalogItemClicked(id) },
                             onRetry = { catalogViewModel.retry() },
+                            onOpenNetworkSettings = { openDeviceInternetSettings(context) },
                             onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) },
                             onLoadNextPage = { catalogViewModel.loadNextPage() },
                             getTvSeriesAirDateLabel = { seriesId ->
@@ -184,27 +184,13 @@ fun CatalogScreen(
         }
     }
     DisposableEffect(lifecycleOwner) {
-        // Composed/Disposed rather than a log on every recomposition, which is
-        // what a bare logDebug in the composable body produced.
-        logDebug(
-                TAG,
-                "Composed"
-                )
-        onDispose {
-            logDebug(
-                    TAG,
-                    "Disposed"
-                    )
-        }
-    }
-
-    DisposableEffect(lifecycleOwner) {
         // Toggling favorite from the Details screen doesn't update this
         // screen's in-memory list, so re-sync stars against the local cache
         // whenever we're navigated back to (e.g. from Details).
         val observer = LifecycleEventObserver { _, event ->
             if (event == Lifecycle.Event.ON_RESUME) {
                 catalogViewModel.refreshFavoriteMarkers()
+                catalogViewModel.retryIfOffline()
             }
         }
         lifecycleOwner.lifecycle.addObserver(observer)

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
@@ -139,6 +140,12 @@ fun SearchScreen(
                 modifier = Modifier
                         .fillMaxSize()
                         .padding(innerPadding)
+                        // The empty/idle states center their message in this
+                        // Box's full height; without this the keyboard (drawn
+                        // as a system overlay, not accounted for by the
+                        // Scaffold's own insets here) covers the centered
+                        // text instead of the layout shrinking above it.
+                        .imePadding()
            ) {
             if (query.isBlank()) {
                 SearchIdleContent(

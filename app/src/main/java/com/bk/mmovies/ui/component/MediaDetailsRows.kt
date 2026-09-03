@@ -27,7 +27,6 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -36,8 +35,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import coil3.request.ImageRequest
-import coil3.request.crossfade
 import com.bk.mmovies.R
 import com.bk.mmovies.domain.model.CastMemberModel
 
@@ -152,10 +149,7 @@ fun OverviewSection(
                     .clip(RoundedCornerShape(backdropCornerShape))
        ) {
         AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                        .data(backdropUrl)
-                        .crossfade(true)
-                        .build(),
+                model = backdropUrl,
                 placeholder = painterResource(R.drawable.placeholder),
                 error = painterResource(R.drawable.placeholder),
                 // Decorative: it sits behind the overview text and carries no
@@ -209,10 +203,7 @@ fun CastMemberItem(castMember: CastMemberModel, onClick: () -> Unit) {
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
         AsyncImage(
-                model = ImageRequest.Builder(LocalContext.current)
-                        .data(castMember.profileUrl)
-                        .crossfade(true)
-                        .build(),
+                model = castMember.profileUrl,
                 placeholder = painterResource(R.drawable.placeholder),
                 error = painterResource(R.drawable.placeholder),
                 contentDescription = castMember.name,
