@@ -40,6 +40,7 @@
     <string name="error_favorite_login_required">Войдите, чтобы сохранять избранное.</string>
     <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
     <string name="error_no_network_generic">Нет подключения. Пожалуйста, проверьте подключение к сети.</string>
+    <string name="error_news_load_failed">Не удалось загрузить новости. Пожалуйста, попробуйте позже.</string>
 
     <string name="generic_error_title">Ошибка</string>
     <string name="generic_error_message">Что-то пошло не так</string>
@@ -48,6 +49,7 @@
     <!--BOTTOM NAVIGATION-->
     <string name="tab_movies">Фильмы</string>
     <string name="tab_tv_series">Сериалы</string>
+    <string name="tab_news">Новости</string>
     <string name="tv_series_coming_soon">Скоро</string>
 
     <!--CATEGORIES-->
@@ -77,6 +79,8 @@
     <string name="empty_favorites_guest_message">Войдите, чтобы сохранять и просматривать избранные фильмы.</string>
     <string name="empty_tv_series_title">Нечего показать</string>
     <string name="empty_tv_series_message">Сейчас нет доступных сериалов.</string>
+    <string name="empty_news_title">Пока нет новостей</string>
+    <string name="empty_news_message">Сейчас нет новостей для показа.</string>
 
     <!--MOVIE LIST-->
     <!--SEARCH-->
@@ -210,4 +214,16 @@
     <string name="privacy_policy_children_body">Это приложение не предназначено для детей и сознательно не собирает данные о детях.</string>
     <string name="privacy_policy_changes_heading">Изменения политики</string>
     <string name="privacy_policy_changes_body">Эта политика может время от времени обновляться. Продолжение использования приложения после внесения изменений означает согласие с обновлённой политикой.</string>
+
+    <!--NEWS-->
+    <string name="news_screen_title">Новости</string>
+    <string name="news_read_full_article">Читать полную статью</string>
+    <string name="news_share_action">Поделиться</string>
+    <string name="news_share_chooser_title">Поделиться статьей</string>
+    <string name="news_source_unknown">Неизвестный источник</string>
+    <string name="news_untitled_article">Статья без названия</string>
+    <string name="news_webview_title">Статья</string>
+    <string name="news_webview_close_action">Закрыть</string>
+    <string name="news_webview_error_message">Не удалось загрузить страницу. Проверьте подключение и попробуйте снова.</string>
+    <string name="news_webview_invalid_url_message">У этой статьи нет действительной ссылки для открытия.</string>
 </resources>

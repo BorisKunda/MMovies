@@ -211,9 +211,12 @@ class CatalogViewModel @Inject constructor(
         if (tab == _selectedTab.value) return
         _selectedTab.value = tab
         savedStateHandle[KEY_SELECTED_TAB] = tab.name
+        // News owns its own screen/ViewModel and doesn't drive the catalog
+        // list at all - nothing to reload here.
         val category: Category = when (tab) {
             CatalogBottomTab.Movies   -> lastMovieCategory
             CatalogBottomTab.TvSeries -> lastTvCategory
+            CatalogBottomTab.News     -> return
         }
         setSelectedCategory(category)
         startLoad(category)

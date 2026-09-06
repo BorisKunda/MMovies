@@ -40,6 +40,7 @@
     <string name="error_favorite_login_required">התחבר כדי לשמור מועדפים.</string>
     <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
     <string name="error_no_network_generic">אין חיבור. אנא בדוק את החיבור לרשת.</string>
+    <string name="error_news_load_failed">לא ניתן היה לטעון חדשות כרגע. אנא נסה שוב מאוחר יותר.</string>
 
     <string name="generic_error_title">שגיאה</string>
     <string name="generic_error_message">משהו השתבש</string>
@@ -48,6 +49,7 @@
     <!--BOTTOM NAVIGATION-->
     <string name="tab_movies">סרטים</string>
     <string name="tab_tv_series">סדרות טלוויזיה</string>
+    <string name="tab_news">חדשות</string>
     <string name="tv_series_coming_soon">בקרוב</string>
 
     <!--CATEGORIES-->
@@ -77,6 +79,8 @@
     <string name="empty_favorites_guest_message">התחבר/י כדי לשמור ולצפות בסרטים המועדפים עליך.</string>
     <string name="empty_tv_series_title">אין מה להציג</string>
     <string name="empty_tv_series_message">אין כרגע סדרות טלוויזיה להצגה.</string>
+    <string name="empty_news_title">אין חדשות כרגע</string>
+    <string name="empty_news_message">אין כרגע כתבות חדשות להצגה.</string>
 
     <!--MOVIE LIST-->
     <!--SEARCH-->
@@ -207,4 +211,16 @@
     <string name="privacy_policy_children_body">אפליקציה זו אינה מיועדת לילדים ואינה אוספת ביודעין מידע מילדים.</string>
     <string name="privacy_policy_changes_heading">שינויים במדיניות זו</string>
     <string name="privacy_policy_changes_body">מדיניות זו עשויה להתעדכן מעת לעת. המשך השימוש באפליקציה לאחר ביצוע שינויים מהווה הסכמה למדיניות המעודכנת.</string>
+
+    <!--NEWS-->
+    <string name="news_screen_title">חדשות</string>
+    <string name="news_read_full_article">קרא כתבה מלאה</string>
+    <string name="news_share_action">שתף</string>
+    <string name="news_share_chooser_title">שתף כתבה</string>
+    <string name="news_source_unknown">מקור לא ידוע</string>
+    <string name="news_untitled_article">כתבה ללא כותרת</string>
+    <string name="news_webview_title">כתבה</string>
+    <string name="news_webview_close_action">סגור</string>
+    <string name="news_webview_error_message">טעינת הדף נכשלה. בדוק את החיבור ונסה שוב.</string>
+    <string name="news_webview_invalid_url_message">לכתבה זו אין קישור תקין לפתיחה.</string>
 </resources>

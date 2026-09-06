@@ -14,6 +14,40 @@ const val MOCK_GET_IS_TOKEN_VALID_FALSE_RESPONSE = """
             }
             """
 
+const val MOCK_NEWS_TOP_HEADLINES_SUCCESS_RESPONSE = """
+    {
+      "status": "ok",
+      "totalResults": 1,
+      "articles": [
+        {
+          "source": { "id": "the-verge", "name": "The Verge" },
+          "author": "Jane Doe",
+          "title": "Movie News Title",
+          "description": "A short description of the movie news article.",
+          "url": "https://www.theverge.com/movie-news-title",
+          "urlToImage": "https://www.theverge.com/movie-news-title.jpg",
+          "publishedAt": "2024-01-15T13:45:00Z",
+          "content": "Truncated article content... [+1234 chars]"
+        }
+      ]
+    }
+    """
+
+const val MOCK_NEWS_ERROR_RESPONSE = """
+    {
+      "status": "error",
+      "code": "apiKeyInvalid",
+      "message": "Your API key is invalid or incorrect."
+    }
+    """
+
+const val MOCK_NEWS_MALFORMED_RESPONSE = """
+    {
+      "status": "ok",
+      "totalResults": 0
+    }
+    """
+
 const val MOCK_GET_POPULAR_MOVIES_RESPONSE = """
     {
   "page": 1,
