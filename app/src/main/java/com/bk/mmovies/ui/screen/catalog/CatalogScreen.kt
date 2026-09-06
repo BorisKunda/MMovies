@@ -22,6 +22,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.SaveableStateHolder
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
@@ -43,6 +44,8 @@ import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryListPopupView
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategorySelector
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryType
 import com.bk.mmovies.ui.screen.catalog.screencomponents.UserProfileBar
+import com.bk.mmovies.ui.screen.news.ArticleWebViewScreen
+import com.bk.mmovies.ui.screen.news.NewsScreen
 import kotlinx.coroutines.launch
 
 // Zero: CategorySelector already carries its own 12dp bottom margin
@@ -76,9 +79,18 @@ fun CatalogScreen(
     // torn down and recreated on every switch.
     val tabStateHolder: SaveableStateHolder = rememberSaveableStateHolder()
 
-    var isCategoryPopupVisible by remember { mutableStateOf(false) }
+    // rememberSaveable (not remember): a plain remember drops this on
+    // rotation, since that recreates the activity - which silently closed the
+    // popup/article overlay out from under the user on a config change.
+    var isCategoryPopupVisible by rememberSaveable { mutableStateOf(false) }
     val categorySheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
+
+    // Hoisted here (rather than left inside NewsScreen) so the article reader
+    // can be rendered as a full-screen overlay below, outside this
+    // composable's own Scaffold - otherwise its bottom tab bar/TMDB footer
+    // would still show through underneath the WebView.
+    var openArticleUrl by rememberSaveable { mutableStateOf<String?>(null) }
 
     Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
@@ -95,7 +107,14 @@ fun CatalogScreen(
                 Column {
                     CatalogBottomTabBar(
                             selectedTab = selectedTab,
-                            onTabSelected = { catalogViewModel.onTabSelected(it) }
+                            onTabSelected = { tab ->
+                                // Otherwise the movie/TV category picker
+                                // (which has no meaning for News) could stay
+                                // open floating over the News tab if it was
+                                // still visible at the moment of switching.
+                                isCategoryPopupVisible = false
+                                catalogViewModel.onTabSelected(tab)
+                            }
                                        )
                     PoweredByTmdbFooter(
                             modifier = Modifier.padding(top = tmdbFooterTopPadding),
@@ -109,21 +128,25 @@ fun CatalogScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
               ) {
-            // The user profile chip sits at the very top-right of the screen,
-            // above the search bar.
-            UserProfileBar(
-                    userProfileState = userProfileState,
-                    onLogout = { catalogViewModel.onLogoutClicked() }
-                          )
+            // News owns its own top bar/category tabs and isn't a catalog
+            // list, so none of this movie/TV chrome applies to it.
+            if (selectedTab != CatalogBottomTab.News) {
+                // The user profile chip sits at the very top-right of the
+                // screen, above the search bar.
+                UserProfileBar(
+                        userProfileState = userProfileState,
+                        onLogout = { catalogViewModel.onLogoutClicked() }
+                              )
 
-            CatalogSearchBar(onClick = onNavigateToSearch)
+                CatalogSearchBar(onClick = onNavigateToSearch)
 
-            // Fixed above the tab content so switching tabs never resets the
-            // selected category.
-            CategorySelector(
-                    selectedCategory = selectedCategory,
-                    onClick = { isCategoryPopupVisible = true }
-                             )
+                // Fixed above the tab content so switching tabs never resets
+                // the selected category.
+                CategorySelector(
+                        selectedCategory = selectedCategory,
+                        onClick = { isCategoryPopupVisible = true }
+                                 )
+            }
 
             Box(
                     modifier = Modifier
@@ -132,19 +155,23 @@ fun CatalogScreen(
                             .padding(top = tabContentTopSpacing)
                ) {
                 tabStateHolder.SaveableStateProvider(selectedTab) {
-                    CatalogScreenContent(
-                            state = state,
-                            selectedCategory = selectedCategory,
-                            isGuest = userProfileState.isGuest,
-                            onCatalogItemClicked = { id -> catalogViewModel.handleCatalogItemClicked(id) },
-                            onRetry = { catalogViewModel.retry() },
-                            onOpenNetworkSettings = { openDeviceInternetSettings(context) },
-                            onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) },
-                            onLoadNextPage = { catalogViewModel.loadNextPage() },
-                            getTvSeriesAirDateLabel = { seriesId ->
-                                catalogViewModel.getTvSeriesAirDateLabel(seriesId)
-                            }
-                                         )
+                    if (selectedTab == CatalogBottomTab.News) {
+                        NewsScreen(onOpenArticle = { openArticleUrl = it })
+                    } else {
+                        CatalogScreenContent(
+                                state = state,
+                                selectedCategory = selectedCategory,
+                                isGuest = userProfileState.isGuest,
+                                onCatalogItemClicked = { id -> catalogViewModel.handleCatalogItemClicked(id) },
+                                onRetry = { catalogViewModel.retry() },
+                                onOpenNetworkSettings = { openDeviceInternetSettings(context) },
+                                onFavoriteClicked = { item -> catalogViewModel.onFavoriteClicked(item) },
+                                onLoadNextPage = { catalogViewModel.loadNextPage() },
+                                getTvSeriesAirDateLabel = { seriesId ->
+                                    catalogViewModel.getTvSeriesAirDateLabel(seriesId)
+                                }
+                                             )
+                    }
                 }
             }
         }
@@ -166,6 +193,11 @@ fun CatalogScreen(
                 onDismiss = { isCategoryPopupVisible = false },
                 state = categorySheetState
                              )
+    }
+
+    val articleUrl = openArticleUrl
+    if (articleUrl != null) {
+        ArticleWebViewScreen(articleUrl = articleUrl, onClose = { openArticleUrl = null })
     }
 
     LaunchedEffect(Unit) {

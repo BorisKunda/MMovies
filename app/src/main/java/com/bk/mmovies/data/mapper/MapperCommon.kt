@@ -1,7 +1,9 @@
 package com.bk.mmovies.data.mapper
 
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
+import java.time.Instant
 import java.time.LocalDate
+import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
 import java.util.Locale
@@ -38,6 +40,21 @@ internal fun formatTmdbDate(rawDate: String, locale: Locale): String? = try {
     val date = LocalDate.parse(rawDate, TMDB_DATE_FORMATTER)
     val formatter = displayDateFormatters.getOrPut(locale) { DateTimeFormatter.ofPattern("MMMM d, yyyy", locale) }
     date.format(formatter)
+} catch (e: DateTimeParseException) {
+    null
+}
+
+// NewsAPI sends publishedAt as a full ISO-8601 UTC instant
+// ("2024-01-15T13:45:00Z"), not a bare date like TMDB - a separate parser
+// from formatTmdbDate is needed rather than reusing it.
+private val newsDisplayDateFormatters = ConcurrentHashMap<Locale, DateTimeFormatter>()
+
+internal fun formatNewsApiDate(rawDate: String, locale: Locale): String? = try {
+    val instant = Instant.parse(rawDate)
+    val formatter = newsDisplayDateFormatters.getOrPut(locale) {
+        DateTimeFormatter.ofPattern("MMMM d, yyyy", locale).withZone(ZoneId.systemDefault())
+    }
+    formatter.format(instant)
 } catch (e: DateTimeParseException) {
     null
 }

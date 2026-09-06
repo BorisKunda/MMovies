@@ -40,6 +40,7 @@
     <string name="error_favorite_login_required">Log in to save favorites.</string>
     <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
     <string name="error_no_network_generic">No connection. Please check your network.</string>
+    <string name="error_news_load_failed">Couldn\'t load news right now. Please try again later.</string>
 
     <string name="generic_error_title">Error</string>
     <string name="generic_error_message">Something went wrong</string>
@@ -48,6 +49,7 @@
     <!--BOTTOM NAVIGATION-->
     <string name="tab_movies">Movies</string>
     <string name="tab_tv_series">TV Series</string>
+    <string name="tab_news">News</string>
     <string name="tv_series_coming_soon">Coming soon</string>
 
     <!--CATEGORIES-->
@@ -77,6 +79,8 @@
     <string name="empty_favorites_guest_message">Log in to save and view your favorite movies.</string>
     <string name="empty_tv_series_title">Nothing to show</string>
     <string name="empty_tv_series_message">There are no TV series to show right now.</string>
+    <string name="empty_news_title">No news right now</string>
+    <string name="empty_news_message">There are no news articles to show right now.</string>
 
     <!--SEARCH-->
     <string name="search_action">Search</string>
@@ -204,6 +208,18 @@
     <string name="privacy_policy_children_body">This app is not directed at children and does not knowingly collect information from children.</string>
     <string name="privacy_policy_changes_heading">Changes to This Policy</string>
     <string name="privacy_policy_changes_body">This policy may be updated from time to time. Continued use of the app after changes are made constitutes acceptance of the updated policy.</string>
+
+    <!--NEWS-->
+    <string name="news_screen_title">News</string>
+    <string name="news_read_full_article">Read full article</string>
+    <string name="news_share_action">Share</string>
+    <string name="news_share_chooser_title">Share article</string>
+    <string name="news_source_unknown">Unknown source</string>
+    <string name="news_untitled_article">Untitled article</string>
+    <string name="news_webview_title">Article</string>
+    <string name="news_webview_close_action">Close</string>
+    <string name="news_webview_error_message">The page failed to load. Check your connection and try again.</string>
+    <string name="news_webview_invalid_url_message">This article doesn\'t have a valid link to open.</string>
 
     <string name="lorem_ipsum_short" translatable="false">Lorem ipsum..</string>
     <string name="lorem_ipsum_medium" translatable="false">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</string>
