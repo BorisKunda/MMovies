@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -6,6 +8,19 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
+}
+
+// NewsAPI key: kept out of source in a gitignored properties file (see
+// newsapi.properties, parallel to local.properties) rather than committed as
+// a literal - falls back to an empty string so a fresh clone without that
+// file still compiles, just without a working News feature until one is added.
+val newsApiKey: String = run {
+    val properties = Properties()
+    val propertiesFile = rootProject.file("newsapi.properties")
+    if (propertiesFile.exists()) {
+        propertiesFile.inputStream().use { properties.load(it) }
+    }
+    properties.getProperty("NEWS_API_KEY", "")
 }
 
 android {
@@ -22,6 +37,7 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "com.bk.mmovies.di.HiltTestRunner"
+        buildConfigField("String", "NEWS_API_KEY", "\"$newsApiKey\"")
     }
 
     buildTypes {

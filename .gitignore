@@ -13,6 +13,7 @@
 .externalNativeBuild
 .cxx
 local.properties
+newsapi.properties
 google-services.json
 .claude/settings.local.json
 .claude/settings.json

@@ -55,6 +55,14 @@ A native Android client for [The Movie Database (TMDB)](https://www.themoviedb.o
 - Local Room cache of favourite IDs
 - Account-specific local data cleared on logout
 
+### News
+
+- Entertainment news feed powered by [NewsAPI](https://newsapi.org/), accessible from its own bottom-bar tab
+- Infinite-scroll pagination
+- Keyword-filtered feed (titles unrelated to film/TV production are excluded)
+- In-app article reader with a full-screen WebView overlay
+- Share articles to any installed app (WhatsApp, Messages, Gmail, etc.)
+
 ### Platform
 
 - English, Russian and Hebrew
@@ -138,6 +146,18 @@ Movies and TV series each have their own category selector.
   <img src="docs/screenshots/11-movie-categories.png" width="45%" alt="Movie category selector" />
   <img src="docs/screenshots/12-tv-series-categories.png" width="45%" alt="TV series category selector" />
 </p>
+
+---
+
+## News
+
+<p align="center">
+  <img src="docs/screenshots/18-news.png" width="35%" alt="News feed with article cards, read-full-article and share actions" />
+</p>
+
+An entertainment news feed sits alongside Movies and TV Series as its own bottom-bar tab, powered by [NewsAPI](https://newsapi.org/). Each card shows the source, publish date and excerpt, with actions to read the full article in-app or share it to any installed app.
+
+Building from source requires your own free [NewsAPI key](https://newsapi.org/register), placed in a `newsapi.properties` file at the project root (`NEWS_API_KEY=your-key-here`). This file is gitignored and not included in the repository.
 
 ---
 
@@ -311,6 +331,7 @@ This prevents data belonging to one account from appearing after another account
 - JDK 17
 - Android API 23+
 - Free TMDB API key
+- Free [NewsAPI](https://newsapi.org/register) key (only needed for the News tab — see [News](#news))
 
 ### Clone
 
@@ -430,6 +451,4 @@ Third-party libraries remain subject to their respective licenses.
 
 ## Roadmap
 
-- [ ] News section
-- [ ] Improve landscape presentation
-- [ ] Consolidate feature-specific result types
+- [ ] AI Search

@@ -1,11 +1,12 @@
 package com.bk.mmovies.data.source.remote
 
+import com.bk.mmovies.BuildConfig
+
 const val NEWS_API_BASE_URL = "https://newsapi.org/v2/"
 
-// NewsAPI free-plan key hard-coded for now per task scope; must move to a
-// safer configuration (local.properties/BuildConfig/remote config) before
-// this app is published or distributed.
-const val NEWS_API_KEY = "a0c10d7285bb4e968a686dff05e778fb"
+// Supplied at build time from the gitignored newsapi.properties (see
+// app/build.gradle.kts) rather than committed as a literal.
+val NEWS_API_KEY: String = BuildConfig.NEWS_API_KEY
 
 const val NEWS_TOP_HEADLINES_ENDPOINT = "top-headlines"
 
