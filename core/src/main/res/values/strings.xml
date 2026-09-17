@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_movies_load_failed">Couldn\'t load movies right now. Please try again later.</string>
+    <string name="error_tv_series_load_failed">Couldn\'t load TV series right now. Please try again later.</string>
+    <string name="error_movie_details_load_failed">Couldn\'t load movie details right now. Please try again later.</string>
+    <string name="error_tv_series_details_load_failed">Couldn\'t load TV series details right now. Please try again later.</string>
+    <string name="error_person_details_load_failed">Couldn\'t load cast details right now. Please try again later.</string>
+    <string name="error_favorite_toggle_failed">Couldn\'t update favorites right now. Please try again later.</string>
+    <string name="error_season_load_failed">Couldn\'t load season details right now. Please try again later.</string>
+    <string name="error_episode_load_failed">Couldn\'t load episode details right now. Please try again later.</string>
+    <string name="error_search_failed">Couldn\'t search right now. Please try again later.</string>
+    <string name="error_api_key_verify_failed">Couldn\'t verify your API key. Please try again later.</string>
+    <string name="error_api_key_verify_no_network">Couldn\'t verify your API key. Please check your network.</string>
+    <string name="error_api_key_invalid">Invalid API key.</string>
+    <string name="error_login_start_failed">Couldn\'t start login. Please try again later.</string>
+    <string name="error_login_invalid_credentials">Invalid username or password.</string>
+    <string name="error_login_failed">Couldn\'t log in. Please try again later.</string>
+    <string name="error_guest_session_failed">Couldn\'t continue as guest. Please try again later.</string>
+    <string name="error_account_details_failed">Couldn\'t load account details. Please try again later.</string>
+    <string name="error_logout_failed">Couldn\'t log out. Please try again later.</string>
+    <string name="error_no_network_generic">No connection. Please check your network.</string>
+    <string name="error_news_load_failed">Couldn\'t load news right now. Please try again later.</string>
+    <string name="error_ai_recommendations_failed">Couldn\'t load recommendations right now. Please try again later.</string>
+    <string name="category_popular_movies">Popular Movies</string>
+    <string name="category_popular_tv">Popular TV Series</string>
+    <string name="category_upcoming_movies">Upcoming Movies</string>
+    <string name="category_upcoming_tv">Upcoming TV Series</string>
+    <string name="category_now_playing">Now Playing</string>
+    <string name="category_top_rated_movies">Top Rated Movies</string>
+    <string name="category_top_rated_tv">Top Rated TV Series</string>
+    <string name="category_favorites_movies">Favorite Movies</string>
+    <string name="category_favorites_tv">Favorite TV Series</string>
+    <string name="category_airing_today">Airing Today</string>
+    <string name="category_on_tv">On TV</string>
+    <string name="category_unknown">Unknown Category</string>
+    <string name="search_result_type_movie">Movie</string>
+    <string name="search_result_type_tv_series">TV Series</string>
+    <string name="search_result_type_person">Person</string>
+    <string name="details_director_role">Director</string>
+    <string name="details_director_role_female">Director</string>
+    <string name="details_writer_role">Writer</string>
+    <string name="details_writer_role_female">Writer</string>
+    <string name="details_creator_role">Creator</string>
+    <string name="details_creator_role_female">Creator</string>
+    <string name="series_premiere_label">Series Premiere</string>
+    <string name="series_ongoing_label">Present</string>
+    <string name="series_tba_label">TBA</string>
+    <string name="powered_by_tmdb">Powered by</string>
+
+    <string name="error_missing_api_key_title">Missing API key</string>
+    <string name="error_missing_api_key_message">The user has not entered a key yet.</string>
+    <string name="error_invalid_api_key_title">Invalid API key</string>
+    <string name="error_invalid_api_key_message">Your API key is invalid or has expired. Get a new key to continue.</string>
+    <string name="toast_invalid_api_key">Invalid API key. Please try again.</string>
+    <string name="get_your_api_key">Get your API key</string>
+    <string name="open_tmdb_api_settings">Open TMDB API settings</string>
+    <string name="open_google_ai_studio_api_keys">Open Google AI Studio API Keys</string>
+    <string name="open_newsapi_account">Open NewsAPI account</string>
+    <string name="how_to_get_api_key">How do I get an API key?</string>
+    <string name="enter_your_api_key">Enter your API key</string>
+    <string name="api_key">API key</string>
+    <string name="paste_your_api_key">Paste your API key</string>
+    <string name="save_and_continue">Save and continue</string>
+
+    <string name="auth_title">Welcome!</string>
+    <string name="auth_subtitle">Log in to sync your favorites, or create a free TMDB account.</string>
+    <string name="username_label">Username</string>
+    <string name="password_label">Password</string>
+    <string name="show_password">Show password</string>
+    <string name="hide_password">Hide password</string>
+    <string name="log_in">Log in to TMDB</string>
+    <string name="auth_divider_or">or</string>
+    <string name="no_tmdb_account_message">Don\'t have an account? Register &amp; verify your email, then try logging in.</string>
+    <string name="register_on_tmdb">Register on TMDB</string>
+    <string name="continue_as_guest">Continue as guest</string>
+    <plurals name="runtime_hours">
+        <item quantity="one">%dh</item>
+        <item quantity="other">%dh</item>
+    </plurals>
+    <plurals name="runtime_minutes">
+        <item quantity="one">%dm</item>
+        <item quantity="other">%dm</item>
+    </plurals>
+    <plurals name="episode_count">
+        <item quantity="one">%d Episode</item>
+        <item quantity="other">%d Episodes</item>
+    </plurals>
+</resources>

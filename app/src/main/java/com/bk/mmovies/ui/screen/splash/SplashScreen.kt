@@ -13,7 +13,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.bk.mmovies.R
+import com.bk.mmovies.core.R
 import com.bk.mmovies.connectivity.openWebPage
 import com.bk.mmovies.data.source.remote.TMDB_WEBPAGE_API_GETTING_STARTED_URL
 import com.bk.mmovies.data.source.remote.TMDB_WEBPAGE_API_SETTINGS_URL

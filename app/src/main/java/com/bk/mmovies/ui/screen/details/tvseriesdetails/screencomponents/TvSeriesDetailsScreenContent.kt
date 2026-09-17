@@ -228,9 +228,10 @@ fun TvSeriesDetailsScreenContent(
         // Only series TMDB actually has a YouTube trailer for get the
         // player — a freshly-announced or sparse catalog entry often has no
         // video yet.
-        if (tvSeriesDetails.trailerUrl != null) {
+        val trailerUrl = tvSeriesDetails.trailerUrl
+        if (trailerUrl != null) {
             TrailerSection(
-                    trailerUrl = tvSeriesDetails.trailerUrl,
+                    trailerUrl = trailerUrl,
                     pause = isCrewDialogOpen || isCastDialogOpen,
                     modifier = Modifier.padding(
                             start = screenPadding,

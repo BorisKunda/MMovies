@@ -1,5 +1,3 @@
-import java.util.Properties
-
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -8,19 +6,6 @@ plugins {
     alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
-}
-
-// NewsAPI key: kept out of source in a gitignored properties file (see
-// newsapi.properties, parallel to local.properties) rather than committed as
-// a literal - falls back to an empty string so a fresh clone without that
-// file still compiles, just without a working News feature until one is added.
-val newsApiKey: String = run {
-    val properties = Properties()
-    val propertiesFile = rootProject.file("newsapi.properties")
-    if (propertiesFile.exists()) {
-        propertiesFile.inputStream().use { properties.load(it) }
-    }
-    properties.getProperty("NEWS_API_KEY", "")
 }
 
 android {
@@ -37,7 +22,6 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "com.bk.mmovies.di.HiltTestRunner"
-        buildConfigField("String", "NEWS_API_KEY", "\"$newsApiKey\"")
     }
 
     buildTypes {
@@ -62,6 +46,8 @@ android {
 }
 
 dependencies {
+    implementation(project(":core"))
+
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.kotlinx.serialization.json)
@@ -71,9 +57,6 @@ dependencies {
     compose()
     firebase()
     hilt()
-    room()
-    retrofit()
-    okHttp()
     lottie()
     coil()
     youtubePlayer()
@@ -84,6 +67,9 @@ dependencies {
     androidTestImplementation(libs.androidx.espresso.core)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.leakcanary.android.instrumentation)
+    androidTestImplementation(libs.okhttp.mockwebserver)
+    androidTestImplementation(libs.okhttp.tls)
+    androidTestImplementation(libs.okhttp.logging)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.leakcanary.android)
@@ -119,27 +105,6 @@ fun DependencyHandler.hilt() {
 
     androidTestImplementation(libs.hilt.test)
     kspAndroidTest(libs.hilt.compiler)
-}
-
-fun DependencyHandler.room() {
-    implementation(libs.androidx.room.runtime)
-    implementation(libs.androidx.room.ktx)
-    ksp(libs.androidx.room.compiler)
-
-    testImplementation(libs.androidx.room.testing)
-}
-
-fun DependencyHandler.retrofit() {
-    implementation(libs.retrofit.core)
-    implementation(libs.retrofit.gson)
-}
-
-fun DependencyHandler.okHttp() {
-    implementation(libs.okhttp)
-    implementation(libs.okhttp.logging)
-
-    androidTestImplementation(libs.okhttp.mockwebserver)
-    androidTestImplementation(libs.okhttp.tls)
 }
 
 fun DependencyHandler.lottie() {

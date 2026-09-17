@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Same background color + glyph as the adaptive launcher icon (see
+     mipmap-anydpi-v26/ic_launcher.xml) - centered on the 320x180 banner
+     canvas Android TV requires. Uses the real @mipmap/ic_launcher_foreground
+     raster asset directly rather than a hand-traced vector copy, which is
+     what the icon/banner mismatch this replaced turned out to be caused
+     by: a vector "recreation" of the glyph that didn't actually match it. -->
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:drawable="@color/ic_launcher_background" />
+    <item
+        android:width="150dp"
+        android:height="150dp"
+        android:gravity="center"
+        android:drawable="@mipmap/ic_launcher_foreground" />
+</layer-list>

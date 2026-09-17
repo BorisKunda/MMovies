@@ -35,6 +35,7 @@ import coil3.request.ImageRequest
 import coil3.request.allowHardware
 import coil3.size.Size as CoilSize
 import com.bk.mmovies.R
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.domain.model.SeasonModel
 import com.bk.mmovies.ui.screen.details.tvseriesdetails.seasondetails.episodedetails.EpisodeDetailsDialog
@@ -258,8 +259,8 @@ private fun EpisodeRow(
                 onLoading = {
                     logDebug("Network","loading_image_url: ${episode.stillUrl}")
                 },
-                placeholder = painterResource(R.drawable.placeholder_wide),
-                error = painterResource(R.drawable.placeholder_wide),
+                placeholder = painterResource(CoreR.drawable.placeholder_wide),
+                error = painterResource(CoreR.drawable.placeholder_wide),
                 contentDescription = null,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier

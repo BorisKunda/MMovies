@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name" translatable="false">MMovies</string>
+    <string name="tmdb_api_key_setup_instructions">On your phone or computer, visit themoviedb.org, sign in or create a free account, then copy your API key from Settings &gt; API - then enter it below.</string>
+
+    <string name="nav_movies">Movies</string>
+    <string name="nav_tv_series">TV Series</string>
+    <string name="nav_news">News</string>
+    <string name="nav_favorites">Favorites</string>
+    <string name="nav_search">Search</string>
+    <string name="nav_recommendations">Recommendations</string>
+    <string name="nav_about">About</string>
+
+    <string name="featured_movie_label">FEATURED MOVIE</string>
+    <string name="view_details_button">View details</string>
+    <string name="favorite_button">Favorite</string>
+    <string name="remove_favorite_button">Remove Favorite</string>
+
+    <string name="row_title_popular_movies">Popular Movies</string>
+    <string name="row_title_upcoming">Upcoming</string>
+    <string name="row_title_top_rated">Top Rated</string>
+
+    <string name="favorites_login_required">Log in to see your favorites.</string>
+    <string name="search_placeholder">Search movies and TV series</string>
+    <string name="voice_search_action">Search by voice</string>
+    <string name="voice_search_prompt">Speak to search</string>
+    <string name="voice_search_unavailable">Voice search isn\'t available on this device.</string>
+    <string name="recent_searches_label">Recent Searches</string>
+    <string name="clear_recent_searches_action">Clear</string>
+
+    <string name="details_overview_label">OVERVIEW</string>
+    <string name="details_cast_label">CAST</string>
+    <string name="details_seasons_label">SEASONS</string>
+    <string name="details_episodes_label">EPISODES</string>
+    <string name="details_episode_number_title">%1$d. %2$s</string>
+    <string name="details_crew_label">DIRECTOR &amp; WRITER</string>
+    <string name="details_tv_crew_label">CREATED BY</string>
+    <string name="details_creators_label">Creators:</string>
+    <string name="details_watch_trailer_action">Watch Trailer</string>
+    <string name="user_score_label">USER SCORE</string>
+
+    <string name="news_webview_error_message">The page failed to load. Check your connection and try again.</string>
+    <string name="news_webview_invalid_url_message">This article doesn\'t have a valid link to open.</string>
+    <string name="news_details_loading_full_article">Loading full article…</string>
+    <string name="news_details_full_article_unavailable">Couldn\'t load the full article - showing summary only.</string>
+
+    <string name="back_action">Back</string>
+    <string name="retry_action">Retry</string>
+    <string name="try_again">Try again</string>
+    <string name="action_close">Close</string>
+    <string name="details_biography_label">BIOGRAPHY</string>
+    <string name="details_biography_unavailable">Biography unavailable</string>
+    <string name="details_writers_label">Writers:</string>
+    <string name="details_director_role">Director</string>
+    <string name="details_writer_role">Writer</string>
+
+    <string name="guest_label">Guest</string>
+    <string name="profile_dialog_guest_message">Log in to sync your favorites and get personalized recommendations.</string>
+    <string name="profile_dialog_logout_message">Log out of your TMDB account?</string>
+    <string name="login_action">Log in</string>
+    <string name="logout_action">Log out</string>
+    <string name="cancel_action">Cancel</string>
+    <string name="powered_by_guardian">Powered by The Guardian</string>
+    <string name="powered_by_gemini">Powered by Gemini</string>
+    <string name="ai_recommendations_title">Recommendations</string>
+    <string name="ai_recommendations_empty_message">Recommendations aren\'t set up yet. On your phone or computer, visit aistudio.google.com, sign in with your Google account, then create and copy an API key from the API keys page - then enter it below.</string>
+    <string name="ai_recommendations_login_required">Log in to get personalized recommendations.</string>
+    <string name="gemini_api_key_saved">Gemini API key saved.</string>
+    <string name="ai_recommendations_no_signal_message">Favorite a few titles or search for something first, then check back here for personalized picks.</string>
+    <string name="news_api_key_setup_message">News headlines aren\'t set up yet. On your phone or computer, visit open-platform.theguardian.com, register for a developer key, then copy your API key from the confirmation email - then enter it below.</string>
+    <string name="news_api_key_saved">Guardian API key saved.</string>
+
+    <string name="terms_title">Terms and Conditions</string>
+    <string name="terms_intro">MMovies is a free, non-commercial app built as a personal project. By using it, you agree to the following terms.</string>
+    <string name="terms_tmdb_attribution_heading">TMDB Attribution</string>
+    <string name="terms_tmdb_attribution_body">This product uses the TMDB API but is not endorsed or certified by TMDB.</string>
+    <string name="terms_content_ownership_heading">Content Ownership</string>
+    <string name="terms_content_ownership_body">All movie and TV show data, images, and related content displayed in this app are sourced from The Movie Database (TMDB) and belong to TMDB and its content providers. MMovies does not own, and makes no claim to, this content.</string>
+    <string name="terms_guardian_attribution_heading">Guardian Attribution</string>
+    <string name="terms_guardian_attribution_body">The News section uses the Guardian Open Platform API to display movie and TV headlines. This content belongs to Guardian News &amp; Media Limited and is not owned by MMovies.</string>
+    <string name="terms_gemini_attribution_heading">Gemini Attribution</string>
+    <string name="terms_gemini_attribution_body">AI-powered Recommendations, when enabled with a user-supplied Gemini API key, are generated using Google\'s Gemini API. This feature is not active until a valid API key is provided.</string>
+    <string name="terms_data_accuracy_heading">Data Accuracy</string>
+    <string name="terms_data_accuracy_body">Content is provided by TMDB \"as is.\" Neither TMDB nor the developer of this app guarantees that the information shown is accurate, complete, or up to date. Details may be missing, outdated, or incorrect.</string>
+    <string name="terms_no_warranty_heading">No Warranty</string>
+    <string name="terms_no_warranty_body">MMovies is provided as-is and as-available, without warranty of any kind, express or implied. Use of this app is at your own risk. The developer is not liable for any damages or losses arising from your use of the app.</string>
+    <string name="terms_commercial_use_heading">Non-Commercial Use</string>
+    <string name="terms_commercial_use_body">This app is not monetized and generates no revenue. It is a personal, non-commercial project and does not sell, sublicense, or redistribute TMDB, Guardian, or Gemini content or data.</string>
+    <string name="terms_changes_heading">Changes to These Terms</string>
+    <string name="terms_changes_body">These terms may be updated from time to time. Continued use of the app after changes are made constitutes acceptance of the updated terms.</string>
+    <string name="terms_privacy_policy_link">Privacy Policy</string>
+
+    <string name="privacy_policy_title">Privacy Policy</string>
+    <string name="privacy_policy_intro">MMovies is a free, non-commercial personal project. This policy explains what information the app handles and how.</string>
+    <string name="privacy_policy_account_heading">Account Credentials</string>
+    <string name="privacy_policy_account_body">When you log in, your TMDB username and password are sent directly to TMDB\'s servers to create a session and are never stored or seen by anyone other than TMDB. You can also use the app as a guest without providing any credentials.</string>
+    <string name="privacy_policy_local_storage_heading">Locally Stored Data</string>
+    <string name="privacy_policy_local_storage_body">The app stores your TMDB session identifier and account ID on your device to keep you signed in. This data stays on your device and is removed when you log out or clear the app\'s storage.</string>
+    <string name="privacy_policy_third_party_heading">Third-Party Services</string>
+    <string name="privacy_policy_third_party_body">Movie and TV data, images, and account authentication are provided by The Movie Database (TMDB). News headlines are provided by the Guardian Open Platform. AI-powered recommendations, when enabled, are provided by Google\'s Gemini API using a key you supply. Use of these services is subject to each provider\'s own privacy policy.</string>
+    <string name="privacy_policy_no_collection_heading">No Analytics or Tracking</string>
+    <string name="privacy_policy_no_collection_body">MMovies does not collect analytics, does not use advertising, and does not share any data with third parties beyond the requests needed for the app to function.</string>
+    <string name="privacy_policy_children_heading">Children\'s Privacy</string>
+    <string name="privacy_policy_children_body">This app is not directed at children and does not knowingly collect information from children.</string>
+    <string name="privacy_policy_changes_heading">Changes to This Policy</string>
+    <string name="privacy_policy_changes_body">This policy may be updated from time to time. Continued use of the app after changes are made constitutes acceptance of the updated policy.</string>
+</resources>

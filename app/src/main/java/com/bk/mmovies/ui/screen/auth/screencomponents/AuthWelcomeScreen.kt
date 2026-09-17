@@ -50,6 +50,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bk.mmovies.R
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.theme.primaryButtonCornerSize
 import com.bk.mmovies.ui.theme.primaryButtonHeight
@@ -111,7 +112,7 @@ fun AuthWelcomeScreen(
             horizontalAlignment = Alignment.CenterHorizontally
           ) {
         Text(
-                text = stringResource(R.string.auth_title),
+                text = stringResource(CoreR.string.auth_title),
                 modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = authTitlePaddingBottom),
@@ -121,7 +122,7 @@ fun AuthWelcomeScreen(
             )
 
         Text(
-                text = stringResource(R.string.auth_subtitle),
+                text = stringResource(CoreR.string.auth_subtitle),
                 modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = authSubtitlePaddingBottom),
@@ -135,7 +136,7 @@ fun AuthWelcomeScreen(
                 modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = authFieldSpacing),
-                label = { Text(text = stringResource(R.string.username_label)) },
+                label = { Text(text = stringResource(CoreR.string.username_label)) },
                 placeholder = { Text(text = stringResource(R.string.username_placeholder)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = authTextFieldFontSize),
                 singleLine = true,
@@ -153,7 +154,7 @@ fun AuthWelcomeScreen(
                 modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = authFieldSpacing),
-                label = { Text(text = stringResource(R.string.password_label)) },
+                label = { Text(text = stringResource(CoreR.string.password_label)) },
                 placeholder = { Text(text = stringResource(R.string.password_placeholder)) },
                 textStyle = MaterialTheme.typography.bodyLarge.copy(fontSize = authTextFieldFontSize),
                 singleLine = true,
@@ -179,9 +180,9 @@ fun AuthWelcomeScreen(
                                 },
                                 contentDescription = stringResource(
                                         if (isPasswordVisible) {
-                                            R.string.hide_password
+                                            CoreR.string.hide_password
                                         } else {
-                                            R.string.show_password
+                                            CoreR.string.show_password
                                         }
                                                                     )
                             )
@@ -207,7 +208,7 @@ fun AuthWelcomeScreen(
                                                             )
                       ) {
             Text(
-                    text = stringResource(R.string.log_in),
+                    text = stringResource(CoreR.string.log_in),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -218,7 +219,7 @@ fun AuthWelcomeScreen(
         AuthDivider()
 
         Text(
-                text = stringResource(R.string.no_tmdb_account_message),
+                text = stringResource(CoreR.string.no_tmdb_account_message),
                 modifier = Modifier
                         .fillMaxWidth()
                         .padding(bottom = authFieldSpacing),
@@ -249,7 +250,7 @@ fun AuthWelcomeScreen(
                  )
 
             Text(
-                    text = stringResource(R.string.register_on_tmdb),
+                    text = stringResource(CoreR.string.register_on_tmdb),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.Bold,
                     maxLines = 1,
@@ -268,7 +269,7 @@ fun AuthWelcomeScreen(
                                 )
                   ) {
             Text(
-                    text = stringResource(R.string.continue_as_guest),
+                    text = stringResource(CoreR.string.continue_as_guest),
                     color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.titleMedium,
                     fontWeight = FontWeight.SemiBold
@@ -296,7 +297,7 @@ private fun AuthDivider() {
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.2f)
                          )
         Text(
-                text = stringResource(R.string.auth_divider_or),
+                text = stringResource(CoreR.string.auth_divider_or),
                 modifier = Modifier.padding(horizontal = authDividerLabelPadding),
                 color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
                 style = MaterialTheme.typography.bodyLarge

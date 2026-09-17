@@ -239,9 +239,10 @@ fun MovieDetailsScreenContent(
         // Only movies TMDB actually has a YouTube trailer for get the
         // player — an upcoming release or a sparse catalog entry often has
         // no video yet.
-        if (movieDetails.trailerUrl != null) {
+        val trailerUrl = movieDetails.trailerUrl
+        if (trailerUrl != null) {
             TrailerSection(
-                    trailerUrl = movieDetails.trailerUrl,
+                    trailerUrl = trailerUrl,
                     pause = isCrewDialogOpen || isCastDialogOpen,
                     modifier = Modifier.padding(
                             start = screenPadding,

@@ -7,6 +7,9 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/.idea/appInsightsSettings.xml
+/.idea/deviceManager.xml
+/.idea/inspectionProfiles/
 .DS_Store
 /build
 /captures
@@ -14,8 +17,12 @@
 .cxx
 local.properties
 newsapi.properties
+tmdb.properties
+gemini.properties
+guardian.properties
 google-services.json
 .claude/settings.local.json
 .claude/settings.json
 TODOS.md
 /app/src/main/java/com/bk/mmovies/ui/screen/mock/
+/nul
