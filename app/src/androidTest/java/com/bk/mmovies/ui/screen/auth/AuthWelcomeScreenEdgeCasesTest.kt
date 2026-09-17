@@ -9,7 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import androidx.test.platform.app.InstrumentationRegistry
-import com.bk.mmovies.R
+import com.bk.mmovies.core.R
 import com.bk.mmovies.ui.screen.auth.screencomponents.AuthWelcomeScreen
 import com.bk.mmovies.ui.theme.MMoviesTheme
 import org.junit.Assert.assertEquals

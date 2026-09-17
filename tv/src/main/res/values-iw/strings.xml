@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="tmdb_api_key_setup_instructions">בטלפון או במחשב, גשו לאתר themoviedb.org, התחברו או צרו חשבון חינמי, ואז העתיקו את מפתח ה-API מתוך Settings &gt; API - והזינו אותו למטה.</string>
+    <string name="nav_movies">סרטים</string>
+    <string name="nav_tv_series">סדרות טלוויזיה</string>
+    <string name="nav_news">חדשות</string>
+    <string name="nav_favorites">מועדפים</string>
+    <string name="nav_search">חיפוש</string>
+    <string name="nav_recommendations">המלצות</string>
+    <string name="nav_about">אודות</string>
+
+    <string name="featured_movie_label">סרט מומלץ</string>
+    <string name="view_details_button">פרטים נוספים</string>
+    <string name="favorite_button">מועדף</string>
+    <string name="remove_favorite_button">הסר ממועדפים</string>
+
+    <string name="row_title_popular_movies">סרטים פופולריים</string>
+    <string name="row_title_upcoming">בקרוב</string>
+    <string name="row_title_top_rated">המדורגים ביותר</string>
+
+    <string name="favorites_login_required">התחבר/י כדי לראות את המועדפים שלך.</string>
+    <string name="search_placeholder">חיפוש סרטים וסדרות טלוויזיה</string>
+    <string name="voice_search_action">חיפוש קולי</string>
+    <string name="voice_search_prompt">דברו כדי לחפש</string>
+    <string name="voice_search_unavailable">חיפוש קולי אינו זמין במכשיר זה.</string>
+    <string name="recent_searches_label">חיפושים אחרונים</string>
+    <string name="clear_recent_searches_action">נקה</string>
+
+    <string name="details_overview_label">תקציר</string>
+    <string name="details_cast_label">שחקנים</string>
+    <string name="details_seasons_label">עונות</string>
+    <string name="details_episodes_label">פרקים</string>
+    <string name="details_episode_number_title">%1$d. %2$s</string>
+    <string name="details_crew_label">במאי ותסריטאי</string>
+    <string name="details_tv_crew_label">נוצר על ידי</string>
+    <string name="details_creators_label">יוצרים:</string>
+    <string name="details_watch_trailer_action">צפה בטריילר</string>
+    <string name="user_score_label">דירוג משתמשים</string>
+
+    <string name="news_webview_error_message">טעינת הדף נכשלה. בדוק את החיבור ונסה שוב.</string>
+    <string name="news_webview_invalid_url_message">לכתבה זו אין קישור תקין לפתיחה.</string>
+    <string name="news_details_loading_full_article">טוען את הכתבה המלאה…</string>
+    <string name="news_details_full_article_unavailable">לא ניתן היה לטעון את הכתבה המלאה - מוצג רק תקציר.</string>
+
+    <string name="back_action">חזור</string>
+    <string name="retry_action">נסה שוב</string>
+    <string name="try_again">נסה שוב</string>
+    <string name="action_close">סגור</string>
+    <string name="details_biography_label">ביוגרפיה</string>
+    <string name="details_biography_unavailable">ביוגרפיה אינה זמינה</string>
+    <string name="details_writers_label">תסריטאים:</string>
+    <string name="details_director_role">במאי</string>
+    <string name="details_writer_role">תסריטאי</string>
+
+    <string name="guest_label">אורח/ת</string>
+    <string name="profile_dialog_guest_message">התחברו כדי לסנכרן מועדפים ולקבל המלצות מותאמות אישית.</string>
+    <string name="profile_dialog_logout_message">להתנתק מחשבון ה-TMDB?</string>
+    <string name="login_action">התחברות</string>
+    <string name="logout_action">התנתקות</string>
+    <string name="cancel_action">ביטול</string>
+    <string name="powered_by_guardian">מופעל על ידי The Guardian</string>
+    <string name="powered_by_gemini">מופעל על ידי Gemini</string>
+    <string name="ai_recommendations_title">המלצות</string>
+    <string name="ai_recommendations_empty_message">ההמלצות עדיין לא הוגדרו. בטלפון או במחשב, גשו לאתר aistudio.google.com, התחברו עם חשבון Google שלכם, ואז צרו והעתיקו מפתח API מדף API keys - והזינו אותו למטה.</string>
+    <string name="ai_recommendations_login_required">יש להתחבר כדי לקבל המלצות מותאמות אישית.</string>
+    <string name="gemini_api_key_saved">מפתח ה-API של Gemini נשמר.</string>
+    <string name="ai_recommendations_no_signal_message">יש להוסיף כמה כותרים למועדפים או לחפש משהו, ואז לחזור לכאן להמלצות מותאמות אישית.</string>
+    <string name="news_api_key_setup_message">החדשות עדיין לא הוגדרו. בטלפון או במחשב, גשו לאתר open-platform.theguardian.com, הירשמו לקבלת מפתח מפתחים, ואז העתיקו את מפתח ה-API מהודעת האימות שנשלחה במייל - והזינו אותו למטה.</string>
+    <string name="news_api_key_saved">מפתח ה-API של Guardian נשמר.</string>
+
+    <string name="terms_title">תנאי שימוש</string>
+    <string name="terms_intro">MMovies הינה אפליקציה חינמית ולא מסחרית, שנבנתה כפרויקט אישי. שימוש באפליקציה מהווה הסכמה לתנאים הבאים.</string>
+    <string name="terms_tmdb_attribution_heading">קרדיט ל-TMDB</string>
+    <string name="terms_tmdb_attribution_body">מוצר זה משתמש ב-API של TMDB אך אינו מאושר או מוסמך על ידי TMDB.</string>
+    <string name="terms_content_ownership_heading">בעלות על התוכן</string>
+    <string name="terms_content_ownership_body">כל הנתונים על סרטים וסדרות, התמונות והתוכן הקשור המוצגים באפליקציה זו מקורם ב-The Movie Database ‏(TMDB) ושייכים ל-TMDB ולספקי התוכן שלה. ל-MMovies אין בעלות על תוכן זה והיא אינה טוענת לזכויות עליו.</string>
+    <string name="terms_guardian_attribution_heading">קרדיט ל-Guardian</string>
+    <string name="terms_guardian_attribution_body">מסך החדשות משתמש ב-Guardian Open Platform API להצגת כותרות בנושאי סרטים וסדרות. תוכן זה שייך ל-Guardian News &amp; Media Limited ואינו בבעלות MMovies.</string>
+    <string name="terms_gemini_attribution_heading">קרדיט ל-Gemini</string>
+    <string name="terms_gemini_attribution_body">המלצות מבוססות בינה מלאכותית, כאשר מופעלות באמצעות מפתח API של Gemini שסופק על ידי המשתמש, נוצרות באמצעות ה-API של Gemini מבית Google. תכונה זו אינה פעילה עד לאספקת מפתח API תקין.</string>
+    <string name="terms_data_accuracy_heading">דיוק הנתונים</string>
+    <string name="terms_data_accuracy_body">התוכן מסופק על ידי TMDB \"כפי שהוא\". לא TMDB ולא מפתח האפליקציה מבטיחים שהמידע המוצג מדויק, שלם או מעודכן. פרטים מסוימים עשויים להיות חסרים, מיושנים או שגויים.</string>
+    <string name="terms_no_warranty_heading">ללא אחריות</string>
+    <string name="terms_no_warranty_body">MMovies מסופקת כפי שהיא וכפי שזמינה, ללא כל אחריות, מפורשת או משתמעת. השימוש באפליקציה הוא באחריותך הבלעדית. המפתח אינו נושא באחריות לכל נזק או הפסד הנובע משימוש באפליקציה.</string>
+    <string name="terms_commercial_use_heading">שימוש לא מסחרי</string>
+    <string name="terms_commercial_use_body">אפליקציה זו אינה ממומנת ואינה מייצרת הכנסה. מדובר בפרויקט אישי ולא מסחרי, שאינו מוכר, מעניק רישיון משנה או מפיץ מחדש תוכן או נתונים של TMDB, Guardian או Gemini.</string>
+    <string name="terms_changes_heading">שינויים בתנאים</string>
+    <string name="terms_changes_body">תנאים אלה עשויים להתעדכן מעת לעת. המשך השימוש באפליקציה לאחר ביצוע שינויים מהווה הסכמה לתנאים המעודכנים.</string>
+    <string name="terms_privacy_policy_link">מדיניות פרטיות</string>
+
+    <string name="privacy_policy_title">מדיניות פרטיות</string>
+    <string name="privacy_policy_intro">MMovies היא אפליקציה חינמית ולא מסחרית, פרויקט אישי. מדיניות זו מסבירה אילו נתונים האפליקציה מטפלת בהם וכיצד.</string>
+    <string name="privacy_policy_account_heading">פרטי חשבון</string>
+    <string name="privacy_policy_account_body">בעת ההתחברות, שם המשתמש והסיסמה שלך ב-TMDB נשלחים ישירות לשרתי TMDB ליצירת הפעלה ואינם נשמרים או נראים לאף גורם מלבד TMDB. ניתן גם להשתמש באפליקציה כאורח ללא מסירת פרטי חשבון.</string>
+    <string name="privacy_policy_local_storage_heading">נתונים המאוחסנים במכשיר</string>
+    <string name="privacy_policy_local_storage_body">האפליקציה שומרת את מזהה ה-session ואת מזהה החשבון שלך ב-TMDB במכשיר שלך כדי לשמור אותך מחובר. נתונים אלה נשארים במכשיר שלך ונמחקים בעת התנתקות או ניקוי אחסון האפליקציה.</string>
+    <string name="privacy_policy_third_party_heading">שירותי צד שלישי</string>
+    <string name="privacy_policy_third_party_body">נתונים על סרטים וסדרות, תמונות ואימות חשבון מסופקים על ידי The Movie Database ‏(TMDB). כותרות חדשות מסופקות על ידי Guardian Open Platform. המלצות מבוססות בינה מלאכותית, כאשר מופעלות, מסופקות על ידי ה-API של Gemini מבית Google באמצעות מפתח שאתה מספק. השימוש בשירותים אלה כפוף למדיניות הפרטיות של כל ספק בנפרד.</string>
+    <string name="privacy_policy_no_collection_heading">ללא אנליטיקס או מעקב</string>
+    <string name="privacy_policy_no_collection_body">MMovies אינה אוספת נתוני אנליטיקס, אינה משתמשת בפרסום ואינה משתפת נתונים עם צדדים שלישיים מעבר לבקשות הנחוצות לפעולת האפליקציה.</string>
+    <string name="privacy_policy_children_heading">פרטיות ילדים</string>
+    <string name="privacy_policy_children_body">אפליקציה זו אינה מיועדת לילדים ואינה אוספת ביודעין מידע מילדים.</string>
+    <string name="privacy_policy_changes_heading">שינויים במדיניות זו</string>
+    <string name="privacy_policy_changes_body">מדיניות זו עשויה להתעדכן מעת לעת. המשך השימוש באפליקציה לאחר ביצוע שינויים מהווה הסכמה למדיניות המעודכנת.</string>
+</resources>

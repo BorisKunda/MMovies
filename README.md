@@ -1,6 +1,6 @@
 # MMovies
 
-A native Android client for [The Movie Database (TMDB)](https://www.themoviedb.org/) — browse movies, TV series, seasons, episodes and people, built with **Jetpack Compose**, **MVVM**, and **Clean Architecture**.
+Native apps for **Android phones and Android TV**, powered by [The Movie Database (TMDB)](https://www.themoviedb.org/) and built with **Jetpack Compose**, **MVVM**, and **Clean Architecture**. Browse movies, TV series, seasons, episodes and people, with remote-control navigation on TV.
 
 [![minSdk](https://img.shields.io/badge/minSdk-23-blue)](https://developer.android.com/tools/releases/platforms)
 [![targetSdk](https://img.shields.io/badge/targetSdk-37-blue)](https://developer.android.com/tools/releases/platforms)
@@ -55,7 +55,7 @@ A native Android client for [The Movie Database (TMDB)](https://www.themoviedb.o
 - Local Room cache of favourite IDs
 - Account-specific local data cleared on logout
 
-### News
+### News — Mobile
 
 - Entertainment news feed powered by [NewsAPI](https://newsapi.org/), accessible from its own bottom-bar tab
 - Infinite-scroll pagination
@@ -157,7 +157,36 @@ Movies and TV series each have their own category selector.
 
 An entertainment news feed sits alongside Movies and TV Series as its own bottom-bar tab, powered by [NewsAPI](https://newsapi.org/). Each card shows the source, publish date and excerpt, with actions to read the full article in-app or share it to any installed app.
 
-Building from source requires your own free [NewsAPI key](https://newsapi.org/register), placed in a `newsapi.properties` file at the project root (`NEWS_API_KEY=your-key-here`). This file is gitignored and not included in the repository.
+A [NewsAPI key](https://newsapi.org/register) is required to load mobile news. For source builds, configure it in a `newsapi.properties` file at the project root (`NEWS_API_KEY=your-key-here`). This file is gitignored and not included in the repository.
+
+> The Android TV app's News tab is powered by [The Guardian's Content API](https://open-platform.theguardian.com/) instead — see [Android TV](#android-tv) below. Its key follows the same pattern, in a gitignored `guardian.properties` file (`GUARDIAN_API_KEY=your-key-here`).
+
+---
+
+## Android TV
+
+MMovies also ships as a separate, installable **Android TV** app (`:tv` module, leanback launcher), built for D-pad navigation on a 10-foot UI.
+
+<p align="center">
+  <img src="docs/screenshots/androidTv-catalog.png" width="100%" alt="Android TV Popular TV Series catalog with nav rail and highlighted selection" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/androidTv-search.png" width="45%" alt="Android TV search with on-screen keyboard" />
+</p>
+
+<p align="center">
+  <img src="docs/screenshots/androidTv-tv-series-details.png" width="45%" alt="Android TV episode details with artwork, runtime, air date, user score and overview" />
+  <img src="docs/screenshots/androidTv-news.png" width="45%" alt="Android TV News tab powered by The Guardian" />
+</p>
+
+- Nav-rail navigation for Movies, TV Series, Search, Favorites, News and Recommendations, plus About
+- Movie and TV-series details with inline seasons/episodes, cast and trailer — all reachable by D-pad scroll (TV series seasons/episodes are shown inline rather than mobile's tap-to-drill-down flow, since it reads better on a leanback layout)
+- On-screen keyboard search with debounced results
+- Server-side TMDB favourites, shared with the mobile app's account
+- **News tab backed by The Guardian's Content API** (`:tv`-only, separate from mobile's NewsAPI-backed feed)
+- **AI-powered Recommendations tab**, backed by Google's Gemini API — suggests titles using favourites and recent searches. A [Gemini API key](https://aistudio.google.com/app/apikey) is required to load recommendations; for source builds, configure it in a gitignored `gemini.properties` file (`GEMINI_API_KEY=your-key-here`)
+- Shares its data/domain layer with the mobile app via a common `:core` module — see [Project Structure](#project-structure)
 
 ---
 
@@ -250,9 +279,9 @@ Cross-cutting services include:
 
 ## TMDB API Key
 
-MMovies does **not** contain a bundled TMDB API key.
+The repository does **not** include a TMDB API key. Users or developers supply their own key.
 
-The user supplies their own free **TMDB API v3 key** when the app starts for the first time.
+On mobile, the user enters their own **TMDB API v3 key** when the app starts for the first time.
 
 ### Get a key
 
@@ -263,7 +292,7 @@ The user supplies their own free **TMDB API v3 key** when the app starts for the
 
 The app validates the key against TMDB before continuing.
 
-The key is entered at runtime — you do **not** need to modify:
+On mobile, the key is entered at runtime — you do **not** need to modify:
 
 - `local.properties`
 - `gradle.properties`
@@ -273,6 +302,8 @@ The key is entered at runtime — you do **not** need to modify:
 The stored credentials file is excluded from Android cloud backup and device-to-device transfer.
 
 > Never commit a real TMDB API key to the repository.
+
+For Android TV source builds, the documented developer configuration is a gitignored `tmdb.properties` file (`TMDB_API_KEY=your-key-here`). A build configured with this fallback may include the supplied key; the repository itself does not supply one.
 
 <p align="center">
   <img src="docs/screenshots/01-api-key-setup.png" width="35%" alt="TMDB API key setup" />
@@ -331,7 +362,9 @@ This prevents data belonging to one account from appearing after another account
 - JDK 17
 - Android API 23+
 - Free TMDB API key
-- Free [NewsAPI](https://newsapi.org/register) key (only needed for the News tab — see [News](#news))
+- Free [NewsAPI](https://newsapi.org/register) key (only needed for `:app`'s News tab — see [News](#news))
+- Free [Guardian Content API](https://open-platform.theguardian.com/access/) key (only needed for `:tv`'s News tab — see [Android TV](#android-tv))
+- Free [Google AI Studio (Gemini)](https://aistudio.google.com/app/apikey) key (only needed for `:tv`'s Recommendations tab — see [Android TV](#android-tv))
 
 ### Clone
 
@@ -344,7 +377,7 @@ Open the project in Android Studio and let Gradle sync.
 
 No API key is required to compile the project.
 
-On first launch:
+On first mobile launch:
 
 1. Enter your TMDB API key.
 2. The app validates it.
@@ -353,16 +386,22 @@ On first launch:
 ### Command Line
 
 ```bash
-./gradlew assembleDebug
-./gradlew installDebug
-./gradlew testDebugUnitTest
-./gradlew connectedDebugAndroidTest
+# Mobile
+./gradlew :app:assembleDebug
+./gradlew :app:installDebug
+./gradlew :app:testDebugUnitTest
+./gradlew :app:connectedDebugAndroidTest
+
+# Android TV
+./gradlew :tv:assembleDebug
+./gradlew :tv:installDebug
 ```
 
 On Windows:
 
 ```bash
-gradlew.bat assembleDebug
+gradlew.bat :app:assembleDebug
+gradlew.bat :tv:assembleDebug
 ```
 
 ---
@@ -371,27 +410,41 @@ gradlew.bat assembleDebug
 
 ```text
 MMovies/
-├── app/
+├── app/                          # Mobile app (phone/tablet)
 │   └── src/
 │       ├── main/
 │       │   ├── java/com/bk/mmovies/
 │       │   │   ├── app/
 │       │   │   ├── connectivity/
-│       │   │   ├── locale/
 │       │   │   ├── di/
-│       │   │   ├── domain/
-│       │   │   ├── data/
 │       │   │   ├── ui/
 │       │   │   └── util/
 │       │   └── res/
 │       ├── test/
 │       └── androidTest/
+├── core/                         # Shared data/domain layer (library module)
+│   └── src/main/
+│       ├── java/com/bk/mmovies/
+│       │   ├── data/              # Repository impls, mappers, Room, Retrofit/OkHttp
+│       │   ├── domain/             # Models, repository interfaces, result types
+│       │   ├── di/                 # Hilt modules (DB, network, repositories)
+│       │   ├── locale/
+│       │   └── util/
+│       └── res/
+├── tv/                            # Android TV app (leanback launcher)
+│   └── src/main/
+│       ├── java/com/bk/mmovies/tv/
+│       │   ├── di/
+│       │   └── ui/                 # Navigation, catalog, details, auth, news, splash
+│       └── res/
 ├── docs/
 │   └── screenshots/
 ├── gradle/libs.versions.toml
 ├── build.gradle.kts
 └── settings.gradle.kts
 ```
+
+`:app` and `:tv` are separate installable apps that depend on `:core` for shared data and domain functionality. News uses a shared repository interface with separate providers: NewsAPI on mobile and The Guardian on Android TV. The Guardian networking implementation lives in `:tv`.
 
 Each feature keeps its UI, ViewModel, screen components and previews together while the domain and data layers remain independent of presentation code.
 
@@ -447,8 +500,5 @@ No license is granted to use, copy, modify or redistribute the application's sou
 
 Third-party libraries remain subject to their respective licenses.
 
----
 
-## Roadmap
 
-- [ ] AI Search

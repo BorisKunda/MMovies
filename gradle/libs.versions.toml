@@ -31,6 +31,7 @@ firebaseCrashlyticsVersion = "20.0.6"
 googleFirebaseCrashlyticsVersion = "3.0.7"
 firebaseBomVersion = "34.15.0"
 desugarJdkLibsVersion = "2.1.5"
+webkitVersion = "1.16.0"
 
 #testing
 junit_version = "4.13.2"
@@ -83,6 +84,7 @@ coil-network-okhttp = { group = "io.coil-kt.coil3", name = "coil-network-okhttp"
 firebase-bom = { group = "com.google.firebase", name = "firebase-bom", version.ref = "firebaseBomVersion" }
 firebase-crashlytics = { group = "com.google.firebase", name = "firebase-crashlytics", version.ref = "firebaseCrashlyticsVersion" }
 desugar-jdk-libs = { group = "com.android.tools", name = "desugar_jdk_libs", version.ref = "desugarJdkLibsVersion" }
+androidx-webkit = { group = "androidx.webkit", name = "webkit", version.ref = "webkitVersion" }
 
 #testing
 androidx-compose-ui-test-manifest = { group = "androidx.compose.ui", name = "ui-test-manifest" }
@@ -93,6 +95,7 @@ androidx-espresso-core = { group = "androidx.test.espresso", name = "espresso-co
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp_version" }
+android-library = { id = "com.android.library", version.ref = "agp_version" }
 kotlin-android = { id = "org.jetbrains.kotlin.android", version.ref = "kotlin_version" }
 kotlin-compose = { id = "org.jetbrains.kotlin.plugin.compose", version.ref = "kotlin_version" }
 kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", version.ref = "kotlin_version" }

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_movies_load_failed">לא ניתן היה לטעון סרטים כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_tv_series_load_failed">לא ניתן היה לטעון סדרות טלוויזיה כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_movie_details_load_failed">לא ניתן היה לטעון את פרטי הסרט כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_tv_series_details_load_failed">לא ניתן היה לטעון את פרטי הסדרה כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_person_details_load_failed">לא ניתן היה לטעון את פרטי השחקן כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_favorite_toggle_failed">לא ניתן היה לעדכן את המועדפים כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_season_load_failed">לא ניתן היה לטעון את פרטי העונה כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_episode_load_failed">לא ניתן היה לטעון את פרטי הפרק כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_search_failed">לא ניתן היה לבצע חיפוש כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_api_key_verify_failed">לא ניתן היה לאמת את מפתח ה-API שלך. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_api_key_verify_no_network">לא ניתן היה לאמת את מפתח ה-API שלך. אנא בדוק את החיבור לרשת.</string>
+    <string name="error_api_key_invalid">מפתח API לא תקין.</string>
+    <string name="error_login_start_failed">לא ניתן היה להתחיל את ההתחברות. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_login_invalid_credentials">שם משתמש או סיסמה שגויים.</string>
+    <string name="error_login_failed">ההתחברות נכשלה. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_guest_session_failed">לא ניתן היה להמשיך כאורח. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_account_details_failed">לא ניתן היה לטעון את פרטי החשבון. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_logout_failed">ההתנתקות נכשלה. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_no_network_generic">אין חיבור. אנא בדוק את החיבור לרשת.</string>
+    <string name="error_news_load_failed">לא ניתן היה לטעון חדשות כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_ai_recommendations_failed">לא ניתן היה לטעון המלצות כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="category_popular_movies">סרטים פופולריים</string>
+    <string name="category_popular_tv">סדרות פופולריות</string>
+    <string name="category_upcoming_movies">סרטים שיצאו בקרוב</string>
+    <string name="category_upcoming_tv">סדרות שיצאו בקרוב</string>
+    <string name="category_now_playing">בקולנוע עכשיו</string>
+    <string name="category_top_rated_movies">הסרטים המדורגים ביותר</string>
+    <string name="category_top_rated_tv">הסדרות המדורגות ביותר</string>
+    <string name="category_favorites_movies">סרטים מועדפים</string>
+    <string name="category_favorites_tv">סדרות מועדפות</string>
+    <string name="category_airing_today">משודר היום</string>
+    <string name="category_on_tv">בטלוויזיה</string>
+    <string name="category_unknown">קטגוריה לא ידועה</string>
+    <string name="search_result_type_movie">סרט</string>
+    <string name="search_result_type_tv_series">סדרה</string>
+    <string name="search_result_type_person">איש/ה</string>
+    <string name="details_director_role">במאי</string>
+    <string name="details_director_role_female">במאית</string>
+    <string name="details_writer_role">תסריטאי</string>
+    <string name="details_writer_role_female">תסריטאית</string>
+    <string name="details_creator_role">יוצר</string>
+    <string name="details_creator_role_female">יוצרת</string>
+    <string name="series_premiere_label">בכורת הסדרה</string>
+    <string name="series_ongoing_label">בשידור</string>
+    <string name="series_tba_label">טרם נקבע</string>
+    <string name="powered_by_tmdb">מופעל על ידי</string>
+
+    <string name="error_missing_api_key_title">מפתח API חסר</string>
+    <string name="error_missing_api_key_message">המשתמש טרם הזין מפתח.</string>
+    <string name="error_invalid_api_key_title">מפתח API לא תקין</string>
+    <string name="error_invalid_api_key_message">מפתח ה-API שלך אינו תקין או שפג תוקפו. קבל מפתח חדש כדי להמשיך.</string>
+    <string name="toast_invalid_api_key">מפתח API לא תקין. נסה/י שוב.</string>
+    <string name="get_your_api_key">קבל את מפתח ה-API שלך</string>
+    <string name="open_tmdb_api_settings">פתח הגדרות API של TMDB</string>
+    <string name="open_google_ai_studio_api_keys">פתח את מפתחות ה-API של Google AI Studio</string>
+    <string name="open_newsapi_account">פתח חשבון NewsAPI</string>
+    <string name="how_to_get_api_key">כיצד אוכל לקבל מפתח API?</string>
+    <string name="enter_your_api_key">הזן את מפתח ה-API שלך</string>
+    <string name="api_key">מפתח API</string>
+    <string name="paste_your_api_key">הדבק את מפתח ה-API שלך</string>
+    <string name="save_and_continue">שמור והמשך</string>
+
+    <string name="auth_title">ברוך הבא</string>
+    <string name="auth_subtitle">התחבר/י כדי לסנכרן את המועדפים שלך, או צור/י חשבון TMDB חינמי.</string>
+    <string name="username_label">שם משתמש</string>
+    <string name="password_label">סיסמה</string>
+    <string name="show_password">הצג/י סיסמה</string>
+    <string name="hide_password">הסתר/י סיסמה</string>
+    <string name="log_in">התחברות ל-TMDB</string>
+    <string name="auth_divider_or">או</string>
+    <string name="no_tmdb_account_message">אין לך חשבון? הירשם ואמת את כתובת האימייל שלך, ואז נסה להתחבר.</string>
+    <string name="register_on_tmdb">הרשמה ל-TMDB</string>
+    <string name="continue_as_guest">המשך כאורח</string>
+    <plurals name="runtime_hours">
+        <item quantity="one">שעה</item>
+        <item quantity="two">שעתיים</item>
+        <item quantity="many">%d שעות</item>
+        <item quantity="other">%d שעות</item>
+    </plurals>
+    <plurals name="runtime_minutes">
+        <item quantity="one">דקה אחת</item>
+        <item quantity="two">שתי דקות</item>
+        <item quantity="many">%d דקות</item>
+        <item quantity="other">%d דקות</item>
+    </plurals>
+    <plurals name="episode_count">
+        <item quantity="one">פרק אחד</item>
+        <item quantity="two">שני פרקים</item>
+        <item quantity="many">%d פרקים</item>
+        <item quantity="other">%d פרקים</item>
+    </plurals>
+</resources>

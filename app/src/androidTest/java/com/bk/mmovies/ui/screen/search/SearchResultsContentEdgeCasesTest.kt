@@ -168,7 +168,7 @@ class SearchResultsContentEdgeCasesTest {
                                 )
 
         composeRule.onNodeWithText("Jason Statham").assertIsDisplayed()
-        composeRule.onNodeWithText(context.getString(R.string.search_result_type_person)).assertIsDisplayed()
+        composeRule.onNodeWithText(context.getString(com.bk.mmovies.core.R.string.search_result_type_person)).assertIsDisplayed()
     }
 
     @Test

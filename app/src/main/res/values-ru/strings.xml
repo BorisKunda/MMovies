@@ -6,41 +6,29 @@
     <string name="error_no_internet_connection_message">Проверьте Wi-Fi или мобильный интернет.\nМы продолжим автоматически, как только связь восстановится.</string>
     <string name="error_no_internet_action">Открыть настройки сети</string>
 
-    <string name="error_missing_api_key_title">Отсутствует ключ API</string>
-    <string name="error_missing_api_key_message">Пользователь ещё не ввёл ключ.</string>
-    <string name="error_invalid_api_key_title">Неверный ключ API</string>
-    <string name="error_invalid_api_key_message">Ваш ключ API недействителен или его срок действия истёк. Получите новый ключ, чтобы продолжить.</string>
-    <string name="toast_invalid_api_key">Неверный ключ API. Попробуйте ещё раз.</string>
-    <string name="get_your_api_key">Получить ключ API</string>
-    <string name="open_tmdb_api_settings">Открыть настройки API TMDB</string>
-    <string name="how_to_get_api_key">Как получить ключ API?</string>
-    <string name="enter_your_api_key">Введите ваш ключ API</string>
-    <string name="api_key">Ключ API</string>
-    <string name="paste_your_api_key">Вставьте ваш ключ API</string>
-    <string name="save_and_continue">Сохранить и продолжить</string>
 
-    <string name="error_movies_load_failed">Не удалось загрузить фильмы. Пожалуйста, попробуйте позже.</string>
-    <string name="error_tv_series_load_failed">Не удалось загрузить сериалы. Пожалуйста, попробуйте позже.</string>
-    <string name="error_movie_details_load_failed">Не удалось загрузить информацию о фильме. Пожалуйста, попробуйте позже.</string>
-    <string name="error_tv_series_details_load_failed">Не удалось загрузить информацию о сериале. Пожалуйста, попробуйте позже.</string>
-    <string name="error_person_details_load_failed">Не удалось загрузить информацию об актёре. Пожалуйста, попробуйте позже.</string>
-    <string name="error_favorite_toggle_failed">Не удалось обновить избранное. Пожалуйста, попробуйте позже.</string>
-    <string name="error_season_load_failed">Не удалось загрузить сезон. Пожалуйста, попробуйте позже.</string>
-    <string name="error_episode_load_failed">Не удалось загрузить эпизод. Пожалуйста, попробуйте позже.</string>
-    <string name="error_search_failed">Не удалось выполнить поиск. Пожалуйста, попробуйте позже.</string>
-    <string name="error_api_key_verify_failed">Не удалось проверить ваш API-ключ. Пожалуйста, попробуйте позже.</string>
-    <string name="error_api_key_verify_no_network">Не удалось проверить ваш API-ключ. Пожалуйста, проверьте подключение к сети.</string>
-    <string name="error_api_key_invalid">Неверный API-ключ.</string>
-    <string name="error_login_start_failed">Не удалось начать вход. Пожалуйста, попробуйте позже.</string>
-    <string name="error_login_invalid_credentials">Неверное имя пользователя или пароль.</string>
-    <string name="error_login_failed">Не удалось войти. Пожалуйста, попробуйте позже.</string>
-    <string name="error_guest_session_failed">Не удалось продолжить как гость. Пожалуйста, попробуйте позже.</string>
-    <string name="error_account_details_failed">Не удалось загрузить данные аккаунта. Пожалуйста, попробуйте позже.</string>
-    <string name="error_logout_failed">Не удалось выйти. Пожалуйста, попробуйте позже.</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <string name="error_favorite_login_required">Войдите, чтобы сохранять избранное.</string>
     <!-- Shown instead of the operation-specific message when the failure looks like connectivity. -->
-    <string name="error_no_network_generic">Нет подключения. Пожалуйста, проверьте подключение к сети.</string>
-    <string name="error_news_load_failed">Не удалось загрузить новости. Пожалуйста, попробуйте позже.</string>
+    
+    
 
     <string name="generic_error_title">Ошибка</string>
     <string name="generic_error_message">Что-то пошло не так</string>
@@ -51,21 +39,22 @@
     <string name="tab_tv_series">Сериалы</string>
     <string name="tab_news">Новости</string>
     <string name="tv_series_coming_soon">Скоро</string>
+    <string name="nav_about">О приложении</string>
 
     <!--CATEGORIES-->
     <string name="categories_title">Категории</string>
-    <string name="category_popular_movies">Популярные фильмы</string>
-    <string name="category_popular_tv">Популярные сериалы</string>
-    <string name="category_upcoming_movies">Скоро в кино</string>
-    <string name="category_upcoming_tv">Скоро на ТВ</string>
-    <string name="category_now_playing">Сейчас в кино</string>
-    <string name="category_top_rated_movies">Лучшие фильмы</string>
-    <string name="category_top_rated_tv">Лучшие сериалы</string>
-    <string name="category_favorites_movies">Избранные фильмы</string>
-    <string name="category_favorites_tv">Избранные сериалы</string>
-    <string name="category_airing_today">Сегодня в эфире</string>
-    <string name="category_on_tv">На ТВ</string>
-    <string name="category_unknown">Неизвестная категория</string>
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
+    
     <!--Spoken by TalkBack on the category chip: "Category: Popular".-->
     <string name="category_selector_description">Категория: %1$s</string>
     <string name="category_selector_action">Сменить категорию</string>
@@ -96,9 +85,9 @@
     <string name="search_empty_message">Попробуйте другой запрос.</string>
     <string name="search_idle_title">Поиск на TMDB</string>
     <string name="search_idle_message">Находите фильмы, сериалы и людей.</string>
-    <string name="search_result_type_movie">Фильм</string>
-    <string name="search_result_type_tv_series">Сериал</string>
-    <string name="search_result_type_person">Персона</string>
+    
+    
+    
 
     <string name="movie_poster_zoom_action">Увеличить постер</string>
     <string name="movie_open_details_action">Открыть подробности</string>
@@ -122,64 +111,37 @@
     <string name="details_cast_tba">Актёрский состав: будет объявлен</string>
     <string name="details_crew_label">РЕЖИССЁР И СЦЕНАРИСТ</string>
     <string name="details_tv_crew_label">СОЗДАТЕЛИ</string>
-    <string name="details_director_role">Режиссёр</string>
-    <string name="details_director_role_female">Режиссёр</string>
-    <string name="details_writer_role">Сценарист</string>
-    <string name="details_writer_role_female">Сценарист</string>
+    
+    
+    
+    
     <string name="details_writers_label">Сценаристы:</string>
-    <string name="details_creator_role">Создатель</string>
-    <string name="details_creator_role_female">Создатель</string>
+    
+    
     <string name="details_creators_label">Создатели:</string>
     <string name="details_watch_trailer_action">Смотреть трейлер</string>
 
     <!--SERIES AIR DATE-->
-    <string name="series_premiere_label">Премьера сериала</string>
-    <string name="series_ongoing_label">Настоящее время</string>
-    <string name="series_tba_label">Дата уточняется</string>
+    
+    
+    
 
     <!--RUNTIME-->
-    <plurals name="runtime_hours">
-        <item quantity="one">%dч</item>
-        <item quantity="few">%dч</item>
-        <item quantity="many">%dч</item>
-        <item quantity="other">%dч</item>
-    </plurals>
-    <plurals name="runtime_minutes">
-        <item quantity="one">%dмин</item>
-        <item quantity="few">%dмин</item>
-        <item quantity="many">%dмин</item>
-        <item quantity="other">%dмин</item>
-    </plurals>
+    
+    
 
     <!--EPISODE COUNT-->
-    <plurals name="episode_count">
-        <item quantity="one">%d эпизод</item>
-        <item quantity="few">%d эпизода</item>
-        <item quantity="many">%d эпизодов</item>
-        <item quantity="other">%d эпизодов</item>
-    </plurals>
+    
 
     <!--Shared by the movies list badge and the details header.-->
     <string name="user_score_label">ОЦЕНКА\nЗРИТЕЛЕЙ</string>
 
     <!--AUTH-->
-    <string name="auth_title">Добро пожаловать!</string>
-    <string name="auth_subtitle">Войдите, чтобы синхронизировать избранное, или создайте бесплатный аккаунт TMDB.</string>
-    <string name="username_label">Имя пользователя</string>
     <string name="username_placeholder">Введите имя пользователя</string>
-    <string name="password_label">Пароль</string>
     <string name="password_placeholder">Введите пароль</string>
-    <string name="show_password">Показать пароль</string>
-    <string name="hide_password">Скрыть пароль</string>
-    <string name="log_in">Войти в TMDB</string>
-    <string name="auth_divider_or">или</string>
-    <string name="no_tmdb_account_message">Нет аккаунта? Зарегистрируйтесь и подтвердите email, затем попробуйте войти.</string>
-    <string name="register_on_tmdb">Зарегистрироваться на TMDB</string>
-    <string name="continue_as_guest">Продолжить как гость</string>
     <string name="log_out">Выйти</string>
     <string name="log_in_action">Войти</string>
     <string name="guest_label">Гость</string>
-    <string name="powered_by_tmdb">При поддержке</string>
     <string name="tmdb_disclaimer">Это приложение использует TMDB и TMDB API, но не одобрено, не сертифицировано и не подтверждено TMDB.</string>
 
     <!--TERMS AND CONDITIONS-->
@@ -226,4 +188,7 @@
     <string name="news_webview_close_action">Закрыть</string>
     <string name="news_webview_error_message">Не удалось загрузить страницу. Проверьте подключение и попробуйте снова.</string>
     <string name="news_webview_invalid_url_message">У этой статьи нет действительной ссылки для открытия.</string>
+    <string name="details_director_role">Режиссёр</string>
+    <string name="details_writer_role">Сценарист</string>
+    <string name="details_creator_role">Создатель</string>
 </resources>

@@ -35,6 +35,7 @@ import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.ui.theme.primaryButtonCornerSize
 import com.bk.mmovies.ui.theme.primaryButtonHeight
 import com.bk.mmovies.ui.theme.primaryButtonIconPadding
@@ -65,21 +66,21 @@ fun InvalidApiKeyView(
             modifier = Modifier.fillMaxSize(),
             errorImageResId = R.drawable.ic_invalid_api_key,
             errorTitle = if (missingKey) stringResource(
-                    R.string.error_missing_api_key_title
+                    CoreR.string.error_missing_api_key_title
                                                        )
             else stringResource(
-                    R.string.error_invalid_api_key_title
+                    CoreR.string.error_invalid_api_key_title
                                ),
             errorMessage = if (missingKey) stringResource(
-                    R.string.error_missing_api_key_message
+                    CoreR.string.error_missing_api_key_message
                                                          ) else stringResource(
-                    R.string.error_invalid_api_key_message
+                    CoreR.string.error_invalid_api_key_message
                                                                               ),
             actions = {
                 ApiKeyStepHeader(
                         stepNumber = 1,
                         title = stringResource(
-                                R.string.get_your_api_key
+                                CoreR.string.get_your_api_key
                                               )
                                 )
 
@@ -110,7 +111,7 @@ fun InvalidApiKeyView(
 
                     Text(
                             text = stringResource(
-                                    R.string.open_tmdb_api_settings
+                                    CoreR.string.open_tmdb_api_settings
                                                  ),
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
@@ -129,7 +130,7 @@ fun InvalidApiKeyView(
                           ) {
                     Text(
                             text = stringResource(
-                                    R.string.how_to_get_api_key
+                                    CoreR.string.how_to_get_api_key
                                                  ),
                             color = MaterialTheme.colorScheme.primary,
                             style = MaterialTheme.typography.bodyLarge,
@@ -140,7 +141,7 @@ fun InvalidApiKeyView(
                 ApiKeyStepHeader(
                         stepNumber = 2,
                         title = stringResource(
-                                R.string.enter_your_api_key
+                                CoreR.string.enter_your_api_key
                                               )
                                 )
 
@@ -154,13 +155,13 @@ fun InvalidApiKeyView(
                                 .padding(bottom = outlinedTextFieldPaddingBottom),
                         label = {
                             Text(
-                                    text = stringResource(R.string.api_key)
+                                    text = stringResource(CoreR.string.api_key)
                                 )
                         },
                         placeholder = {
                             Text(
                                     text = stringResource(
-                                            R.string.paste_your_api_key
+                                            CoreR.string.paste_your_api_key
                                                          )
                                 )
                         },
@@ -194,7 +195,7 @@ fun InvalidApiKeyView(
                 PrimaryButton(
                         imageResId = null,
                         label = stringResource(
-                                R.string.save_and_continue
+                                CoreR.string.save_and_continue
                                               ),
                         onClick = { onSaveClicked(apiKey.trim()) },
                         isEnabled = apiKey.isNotBlank()
