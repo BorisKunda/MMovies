@@ -13,13 +13,17 @@ private const val CACHE_MAX_AGE_SECONDS = 60
 // GET response, letting identical requests made moments apart — quickly
 // re-opening a details screen, a locale-change reload of the current category
 // — be served from disk instead of hitting the network again. POST calls
-// (favorites, auth) are never HTTP-cacheable regardless, so this can't cause
-// a stale favorite/login state.
+// (favorites toggle, auth) are never HTTP-cacheable regardless. The favorites
+// *lists* are GETs though, and must always be fresh: cached for a minute they
+// hid a title favorited moments ago (e.g. from the preview popup) from the
+// Favorites tab, so they're left unstamped and therefore uncached.
 @Singleton
 class NetworkCacheInterceptor @Inject constructor() : Interceptor {
 
     override fun intercept(chain: Interceptor.Chain): Response {
-        val response = chain.proceed(chain.request())
+        val request = chain.request()
+        val response = chain.proceed(request)
+        if (request.url.encodedPath.contains("/favorite/")) return response
         return response.newBuilder()
                 .header("Cache-Control", "public, max-age=$CACHE_MAX_AGE_SECONDS")
                 .build()

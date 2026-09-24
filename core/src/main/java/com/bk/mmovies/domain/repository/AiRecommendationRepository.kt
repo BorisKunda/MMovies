@@ -12,8 +12,7 @@ import com.bk.mmovies.domain.model.result.RecommendationResult
 interface AiRecommendationRepository {
     suspend fun getRecommendations(
             favorites: List<CatalogItem>,
-            recentSearches: List<String>,
-            maxSuggestions: Int = 8
+            maxSuggestions: Int = 10
                                    ): RecommendationResult
 
     fun saveSharedPrefApiKey(apiKey: String)

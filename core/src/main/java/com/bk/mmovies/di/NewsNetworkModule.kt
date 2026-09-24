@@ -11,7 +11,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import com.bk.mmovies.data.source.remote.interceptor.ReadableLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
@@ -41,19 +41,14 @@ object NewsNetworkModule {
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(
-                                HttpLoggingInterceptor { message ->
-                                    logDebug(
-                                            "Network",
-                                            message
-                                            )
-                                }.apply {
-                                    level = HttpLoggingInterceptor.Level.BASIC
-                                    // The hard-coded NewsAPI key is not a
-                                    // per-user secret, but it's still kept
-                                    // out of logcat like every other API key
-                                    // in this app.
-                                    redactQueryParams(QUERY_PARAM_NEWS_API_KEY)
-                                }
+                                // The hard-coded NewsAPI key is not a
+                                // per-user secret, but it's still kept
+                                // out of logcat like every other API key
+                                // in this app.
+                                ReadableLoggingInterceptor(
+                                        log = { message -> logDebug("Network", message) },
+                                        redactedQueryParams = listOf(QUERY_PARAM_NEWS_API_KEY)
+                                                          )
                                           )
                     }
                 }

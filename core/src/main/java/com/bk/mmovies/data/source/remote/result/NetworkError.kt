@@ -7,7 +7,11 @@ sealed interface NetworkError {
     data class HttpError(
             val responseCode: Int,
             val responseMessage: String?,
-            val errorBody: ErrorDto?
+            val errorBody: ErrorDto?,
+            // The error response exactly as received. errorBody above only
+            // understands TMDB's error shape; other APIs (Gemini) put what a
+            // caller needs (e.g. which quota was hit) elsewhere in the JSON.
+            val rawErrorBody: String? = null
                         ) : NetworkError
 
     data object EmptyBody : NetworkError

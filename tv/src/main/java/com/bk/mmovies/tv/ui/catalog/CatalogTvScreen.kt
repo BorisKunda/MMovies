@@ -69,6 +69,7 @@ import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.foundation.focusable
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -96,6 +97,8 @@ import com.bk.mmovies.domain.model.NewsItem
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.tv.R
 import com.bk.mmovies.tv.ui.component.ApiKeySetupSteps
+import com.bk.mmovies.tv.ui.component.TvDetailsActionButton
+import com.bk.mmovies.tv.ui.component.TvOfflineView
 import com.bk.mmovies.tv.ui.component.TvProfileHeader
 import com.bk.mmovies.tv.ui.component.TvProviderFooter
 import com.bk.mmovies.tv.ui.component.TvRow
@@ -115,17 +118,23 @@ import kotlinx.coroutines.launch
 private val navRailExpandedWidth = 260.dp
 private val navRailCollapsedWidth = 96.dp
 private const val NAV_RAIL_WIDTH_ANIMATION_MS = 200
+
+// Temporarily hides the Search screen's recent-searches chips. Everything
+// behind them (storage, ViewModel loading, RecentSearchesSection, clear
+// action) is intact - flip to true to bring the section back.
+private const val SHOW_RECENT_SEARCHES = false
 private val navItemCornerShape = 12.dp
 private val navIconSize = 24.dp
 
 private val heroHeight = 380.dp
 private val heroCornerShape = 20.dp
 
-// About's content is plain, non-focusable text (see TvAboutContent) - unlike
-// every other destination's rows/items there's nothing for the D-pad's
-// normal focus-search-driven scrolling to land on, so DirectionDown/Up on
-// the About rail item scroll the content pane's LazyListState directly
-// instead, the same manual-scroll pattern the details screens use once
+// About's content is plain text (see TvAboutContent) - unlike every other
+// destination's rows/items there's nothing inside it for the D-pad's normal
+// focus-search-driven scrolling to land on, so the content pane's
+// LazyListState is scrolled directly by DirectionDown/Up from the focusable
+// region wrapped around the text (reached with DirectionRight from the About
+// rail item), the same manual-scroll pattern the details screens use once
 // their own focusable "stops" run out.
 private const val SCROLL_STEP_PX = 400f
 // D-pad overshoot-and-correct in the nav rail would otherwise fire a
@@ -166,7 +175,7 @@ fun CatalogTvScreen(
     // Reruns on every genuine return to this screen (see the focus
     // LaunchedEffect below) - catches a favorite toggled from a details
     // screen, which has no way to reach this ViewModel's cached rows itself.
-    LaunchedEffect(Unit) { viewModel.refreshFavoriteStates() }
+    LaunchedEffect(Unit) { viewModel.refreshFavoriteStates(reloadFavoritesTab = true) }
 
     // One stable FocusRequester per nav rail destination, reusing the
     // Activity-supplied instance for Movies specifically purely so it
@@ -236,16 +245,21 @@ fun CatalogTvScreen(
             onProfileClicked = { showProfileDialog = true },
             onItemFocused = viewModel::onItemFocused,
             onDialogDismissed = viewModel::onDialogDismissed,
+            onPopupClosedPrune = viewModel::onPopupClosedPrune,
             onSearchQueryChanged = viewModel::onSearchQueryChanged,
+            // Opens the preview popup like the Movies/TV Series rows; its
+            // "View details" button does the navigation.
             onSearchItemPressed = { item ->
                 viewModel.onSearchResultClicked(item)
-                onMovieClicked(item)
+                viewModel.onItemFocused(item)
             },
             onRecentSearchClicked = viewModel::onRecentSearchClicked,
             onClearRecentSearchesClicked = viewModel::onClearRecentSearchesClicked,
             onRowEndReached = viewModel::onRowEndReached,
             onFavoritesRowEndReached = viewModel::onFavoritesRowEndReached,
             onNewsRowEndReached = viewModel::onNewsRowEndReached,
+            onRecommendationsRetryClicked = viewModel::onRecommendationsRetryClicked,
+            onOfflineRetryClicked = viewModel::onOfflineRetryClicked,
             onGeminiApiKeySaved = viewModel::onGeminiApiKeySaved,
             onNewsApiKeySaved = viewModel::onNewsApiKeySaved,
             navItemFocusRequesters = navItemFocusRequesters
@@ -338,6 +352,7 @@ fun CatalogTvScreenContent(
         onProfileClicked: () -> Unit = {},
         onItemFocused: (item: CatalogItem, category: Category?) -> Unit = { _, _ -> },
         onDialogDismissed: () -> Unit = {},
+        onPopupClosedPrune: () -> Unit = {},
         onSearchQueryChanged: (String) -> Unit = {},
         onSearchItemPressed: (item: CatalogItem) -> Unit = {},
         onRecentSearchClicked: (query: String) -> Unit = {},
@@ -345,14 +360,19 @@ fun CatalogTvScreenContent(
         onRowEndReached: (category: Category) -> Unit = {},
         onFavoritesRowEndReached: (category: Category) -> Unit = {},
         onNewsRowEndReached: () -> Unit = {},
+        onRecommendationsRetryClicked: () -> Unit = {},
+        onOfflineRetryClicked: () -> Unit = {},
         onGeminiApiKeySaved: (apiKey: String) -> Unit = {},
         onNewsApiKeySaved: (apiKey: String) -> Unit = {},
         navItemFocusRequesters: Map<TvCatalogDestination, FocusRequester> = emptyMap()
                                    ) {
     val focusedItem = when (screenState) {
-        is TvCatalogScreenState.Movies   -> screenState.focusedItem
-        is TvCatalogScreenState.TvSeries -> screenState.focusedItem
-        else                             -> null
+        is TvCatalogScreenState.Movies          -> screenState.focusedItem
+        is TvCatalogScreenState.TvSeries        -> screenState.focusedItem
+        is TvCatalogScreenState.Favorites       -> screenState.focusedItem
+        is TvCatalogScreenState.Search          -> screenState.focusedItem
+        is TvCatalogScreenState.Recommendations -> screenState.focusedItem
+        else                                    -> null
     }
     val focusedCategory = when (screenState) {
         is TvCatalogScreenState.Movies   -> screenState.focusedCategory
@@ -370,8 +390,17 @@ fun CatalogTvScreenContent(
     // was pressed from). Redirecting explicitly, the same reasoning as the
     // details screens' own stops list, is what actually gets a D-pad here.
     val profileFocusRequester = remember { FocusRequester() }
+    // The profile header is reachable ONLY from the Movies rail item (D-pad Up
+    // there): it can take focus while that item, or the header itself, holds
+    // it. Everywhere else spatial focus search skips it, so Up from the first
+    // row or Right from a row's end can't land on it.
+    var moviesRailItemFocused by remember { mutableStateOf(false) }
+    var profileFocused by remember { mutableStateOf(false) }
     val contentListState = rememberLazyListState()
     val coroutineScope = rememberCoroutineScope()
+    // About's text is otherwise unfocusable - D-pad Right from the About rail
+    // item lands on this so the whole Terms & Privacy text can be scrolled.
+    val aboutContentFocusRequester = remember { FocusRequester() }
     // Deliberately NOT read with `by` here (which would make this function's
     // own composition scope subscribe to it) - kept as the raw State<Boolean>
     // object and handed to a leaf composable that reads .value itself below.
@@ -416,6 +445,14 @@ fun CatalogTvScreenContent(
                     isGuest = userProfileState.isGuest,
                     modifier = Modifier.padding(start = 40.dp, top = 24.dp, end = 40.dp),
                     focusRequester = profileFocusRequester,
+                    canBeFocused = moviesRailItemFocused || profileFocused,
+                    onFocusChanged = { profileFocused = it },
+                    // Back the way it came in: the profile is only reachable from
+                    // the Movies rail item, so Down/Left return there (expanding
+                    // the rail) rather than dropping into a nearby content card.
+                    onNavigateBack = {
+                        navItemFocusRequesters[TvCatalogDestination.Movies]?.let { runCatching { it.requestFocus() } }
+                    },
                     onClick = onProfileClicked
                             )
 
@@ -441,7 +478,8 @@ fun CatalogTvScreenContent(
                                     items = row.items,
                                     onItemPressed = {},
                                     onItemFocused = { item -> onItemFocused(item, row.category) },
-                                    onEndReached = { onRowEndReached(row.category) }
+                                    onEndReached = { onRowEndReached(row.category) },
+                                    navRailFocusRequester = navItemFocusRequesters[selectedDestination]
                                        )
                         }
                     }
@@ -454,7 +492,8 @@ fun CatalogTvScreenContent(
                                     items = row.items,
                                     onItemPressed = {},
                                     onItemFocused = { item -> onItemFocused(item, row.category) },
-                                    onEndReached = { onRowEndReached(row.category) }
+                                    onEndReached = { onRowEndReached(row.category) },
+                                    navRailFocusRequester = navItemFocusRequesters[selectedDestination]
                                        )
                         }
                     }
@@ -467,15 +506,23 @@ fun CatalogTvScreenContent(
                                     style = MaterialTheme.typography.bodyLarge
                                 )
                         }
+                    } else if (screenState.isLoading) {
+                        // One shimmer per favorites row (movies, then series).
+                        items(SHIMMER_ROW_PLACEHOLDER_COUNT) { TvRowShimmer() }
                     } else {
-                        // No preview dialog for favorites - a press navigates
-                        // straight to details, same as Search below.
+                        // A press opens the preview popup (same as Movies/TV
+                        // Series); its "View details" button navigates.
                         items(screenState.rows) { row ->
                             CategoryRow(
                                     category = row.category,
                                     items = row.items,
-                                    onItemPressed = onMovieClicked,
-                                    onEndReached = { onFavoritesRowEndReached(row.category) }
+                                    onItemPressed = { item -> onItemFocused(item, null) },
+                                    onEndReached = { onFavoritesRowEndReached(row.category) },
+                                    emptyMessage = stringResource(
+                                            if (row.category is TvSeriesCategory) R.string.favorites_empty_tv_series
+                                            else R.string.favorites_empty_movies
+                                                                 ),
+                                    navRailFocusRequester = navItemFocusRequesters[selectedDestination]
                                        )
                         }
                     }
@@ -497,12 +544,15 @@ fun CatalogTvScreenContent(
                                         onNewsApiKeySaved(apiKey)
                                     }
                                         )
+                        } else if (screenState.isLoading) {
+                            TvRowShimmer()
                         } else {
                             TvNewsRow(
                                     title = stringResource(TvCatalogDestination.News.labelResId),
                                     items = screenState.items,
                                     onNewsItemClicked = onNewsItemClicked,
-                                    onEndReached = onNewsRowEndReached
+                                    onEndReached = onNewsRowEndReached,
+                                    navRailFocusRequester = navItemFocusRequesters[TvCatalogDestination.News]
                                      )
                         }
                     }
@@ -515,24 +565,43 @@ fun CatalogTvScreenContent(
                                     style = MaterialTheme.typography.headlineSmall
                                 )
                             Spacer(modifier = Modifier.height(16.dp))
+                            val searchFieldFocusRequester = remember { FocusRequester() }
                             SearchField(
                                     query = screenState.query,
-                                    onQueryChanged = onSearchQueryChanged
+                                    onQueryChanged = onSearchQueryChanged,
+                                    focusRequester = searchFieldFocusRequester,
+                                    navRailFocusRequester = navItemFocusRequesters[selectedDestination]
                                        )
                             Spacer(modifier = Modifier.height(24.dp))
                             if (screenState.query.isBlank()) {
-                                if (screenState.recentSearches.isNotEmpty()) {
+                                if (SHOW_RECENT_SEARCHES && screenState.recentSearches.isNotEmpty()) {
                                     RecentSearchesSection(
                                             recentSearches = screenState.recentSearches,
-                                            onRecentSearchClicked = onRecentSearchClicked,
+                                            onRecentSearchClicked = { query ->
+                                                // Picking a chip fills the query, which swaps
+                                                // this whole section out for the results row -
+                                                // the focused chip's node disappears mid-click,
+                                                // and Compose's fallback then grabs the first
+                                                // focusable node (the Movies nav item, which
+                                                // auto-navigates on focus and hijacks the
+                                                // destination). Park focus on the search field
+                                                // first, same as the News/Recommendations
+                                                // key-save wrappers above.
+                                                runCatching { searchFieldFocusRequester.requestFocus() }
+                                                onRecentSearchClicked(query)
+                                            },
                                             onClearRecentSearchesClicked = onClearRecentSearchesClicked
                                                           )
                                 }
+                            } else if (screenState.isSearching) {
+                                TvRowShimmer()
                             } else {
                                 TvRow(
                                         rowId = "search",
                                         list = screenState.items,
-                                        onItemPressed = onSearchItemPressed
+                                        onItemPressed = onSearchItemPressed,
+                                        navRailFocusRequester = navItemFocusRequesters[selectedDestination],
+                                        focusFirstOnEntry = true
                                      )
                             }
                         }
@@ -546,10 +615,63 @@ fun CatalogTvScreenContent(
                                     navItemFocusRequesters[selectedDestination]?.let { runCatching { it.requestFocus() } }
                                     onGeminiApiKeySaved(apiKey)
                                 },
-                                onItemPressed = onMovieClicked
+                                onItemPressed = { item -> onItemFocused(item, null) },
+                                // Retry swaps this error state out for the loading
+                                // shimmer, disposing the button that holds focus -
+                                // steer focus back to the rail item first, same as
+                                // the key-save wrapper above.
+                                onRetryClicked = {
+                                    navItemFocusRequesters[selectedDestination]?.let { runCatching { it.requestFocus() } }
+                                    onRecommendationsRetryClicked()
+                                },
+                                navRailFocusRequester = navItemFocusRequesters[selectedDestination]
                                                )
                     }
-                    is TvCatalogScreenState.About -> item { TvAboutContent() }
+                    is TvCatalogScreenState.Offline -> item {
+                        TvOfflineView(
+                                // Retry swaps this view for the loading shimmer,
+                                // disposing the button that holds focus - steer
+                                // focus back to the rail item first (same reason
+                                // as the other retry/save wrappers here).
+                                onRetryClicked = {
+                                    navItemFocusRequesters[selectedDestination]?.let { runCatching { it.requestFocus() } }
+                                    onOfflineRetryClicked()
+                                },
+                                navRailFocusRequester = navItemFocusRequesters[selectedDestination]
+                                     )
+                    }
+                    is TvCatalogScreenState.About -> item {
+                        // A focusable region around the text: Down/Up scroll the
+                        // pane (nothing inside is focusable to scroll to), Left
+                        // hands focus back to the About rail item, which expands
+                        // the rail. Any other key (Up at the very top) falls
+                        // through to normal focus movement.
+                        Box(
+                                modifier = Modifier
+                                        .focusRequester(aboutContentFocusRequester)
+                                        .onPreviewKeyEvent { keyEvent ->
+                                            if (keyEvent.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                                            when {
+                                                keyEvent.key == Key.DirectionDown -> {
+                                                    coroutineScope.launch { contentListState.animateScrollBy(SCROLL_STEP_PX) }
+                                                    true
+                                                }
+                                                keyEvent.key == Key.DirectionUp && contentListState.canScrollBackward -> {
+                                                    coroutineScope.launch { contentListState.animateScrollBy(-SCROLL_STEP_PX) }
+                                                    true
+                                                }
+                                                keyEvent.key == Key.DirectionLeft -> {
+                                                    navItemFocusRequesters[TvCatalogDestination.About]?.let { runCatching { it.requestFocus() } }
+                                                    true
+                                                }
+                                                else                              -> false
+                                            }
+                                        }
+                                        .focusable()
+                           ) {
+                            TvAboutContent()
+                        }
+                    }
                 }
             }
 
@@ -583,8 +705,8 @@ fun CatalogTvScreenContent(
                 onDestinationSelected = onDestinationSelected,
                 navItemFocusRequesters = navItemFocusRequesters,
                 profileFocusRequester = profileFocusRequester,
-                aboutContentListState = contentListState,
-                coroutineScope = coroutineScope,
+                onMoviesItemFocusChanged = { moviesRailItemFocused = it },
+                aboutContentFocusRequester = aboutContentFocusRequester,
                 isFocusedState = isRailFocused,
                 onFocusChanged = { isRailFocused.value = it }
                       )
@@ -604,8 +726,29 @@ fun CatalogTvScreenContent(
                 withFrameNanos {}
             }
         }
+        // Closing the popup also drops cards whose favorite state it flipped
+        // (favorited on Recommendations, un-favorited on Favorites) - but only
+        // after focus has left the card (see TvCatalogViewModel.
+        // onPopupClosedPrune), so the removal can't trigger Compose's focus
+        // fallback onto the Movies rail item.
+        val closeDialog: () -> Unit = {
+            val prune = when (screenState) {
+                is TvCatalogScreenState.Recommendations -> screenState.items.any { it.isFavorite }
+                is TvCatalogScreenState.Favorites       -> screenState.rows.any { row -> row.items.any { !it.isFavorite } }
+                else                                    -> false
+            }
+            onDialogDismissed()
+            if (prune) {
+                coroutineScope.launch {
+                    withFrameNanos {}
+                    navItemFocusRequesters[selectedDestination]?.let { runCatching { it.requestFocus() } }
+                    withFrameNanos {}
+                    onPopupClosedPrune()
+                }
+            }
+        }
         Dialog(
-                onDismissRequest = onDialogDismissed,
+                onDismissRequest = closeDialog,
                 properties = DialogProperties(usePlatformDefaultWidth = false)
               ) {
             Box(
@@ -619,12 +762,15 @@ fun CatalogTvScreenContent(
                         // otherwise it stays composed underneath the details
                         // screen and reappears the moment the user comes back.
                         onViewDetailsClicked = {
-                            onDialogDismissed()
+                            closeDialog()
                             onViewDetailsClicked(focusedItem, focusedCategory)
                         },
                         onFavoriteClicked = onFeaturedFavoriteClicked,
                         showFavoriteButton = canToggleFavorite,
-                        showUserScore = !focusedCategoryIsUpcoming,
+                        // Items resolved through search (Search results, AI
+                        // recommendations) carry no rating - a "0%" badge would
+                        // be misleading, so only show it when there is one.
+                        showUserScore = !focusedCategoryIsUpcoming && focusedItem.rating > 0,
                         viewDetailsFocusRequester = viewDetailsFocusRequester
                                  )
             }
@@ -647,8 +793,8 @@ private fun CatalogNavRail(
         onDestinationSelected: (TvCatalogDestination) -> Unit,
         navItemFocusRequesters: Map<TvCatalogDestination, FocusRequester> = emptyMap(),
         profileFocusRequester: FocusRequester? = null,
-        aboutContentListState: LazyListState? = null,
-        coroutineScope: CoroutineScope? = null,
+        onMoviesItemFocusChanged: (isFocused: Boolean) -> Unit = {},
+        aboutContentFocusRequester: FocusRequester? = null,
         // Whether D-pad focus is currently anywhere inside this rail -
         // hoisted (not local state) so the content pane's reserved-space
         // Spacer in CatalogTvScreenContent can react to the same signal
@@ -703,6 +849,11 @@ private fun CatalogNavRail(
             // Only the topmost item needs this: it's the one a DirectionUp
             // from anywhere else in the rail lands on first (see
             // profileFocusRequester's doc above).
+            if (index == 0) {
+                // Tracks whether the Movies item itself is focused - the only
+                // state in which the profile header may take focus.
+                itemModifier = itemModifier.onFocusChanged { onMoviesItemFocusChanged(it.isFocused) }
+            }
             if (index == 0 && profileFocusRequester != null) {
                 itemModifier = itemModifier.onPreviewKeyEvent { keyEvent ->
                     if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionUp) {
@@ -713,28 +864,16 @@ private fun CatalogNavRail(
                     }
                 }
             }
-            // About's content has nothing focusable for D-pad scroll to land
-            // on (see SCROLL_STEP_PX's doc) - scroll its LazyListState
-            // directly from the rail item instead, keeping focus on the
-            // rail. Only intercepted while there's actually somewhere left
-            // to scroll in that direction, so DirectionUp still falls
-            // through to normal rail navigation (up to Recommendations)
-            // once content is back at the top - same as every other rail
-            // item's default Up/Down behavior.
-            if (destination == TvCatalogDestination.About && aboutContentListState != null && coroutineScope != null) {
+            // About's text is scrolled from inside its own focusable region
+            // (see the About branch in CatalogTvScreenContent), so this rail
+            // item only needs to hand focus over on DirectionRight - Up/Down
+            // are plain rail navigation like every other item (Up goes to
+            // Recommendations).
+            if (destination == TvCatalogDestination.About && aboutContentFocusRequester != null) {
                 itemModifier = itemModifier.onPreviewKeyEvent { keyEvent ->
-                    if (keyEvent.type == KeyEventType.KeyDown) {
-                        when {
-                            keyEvent.key == Key.DirectionDown && aboutContentListState.canScrollForward  -> {
-                                coroutineScope.launch { aboutContentListState.animateScrollBy(SCROLL_STEP_PX) }
-                                true
-                            }
-                            keyEvent.key == Key.DirectionUp && aboutContentListState.canScrollBackward   -> {
-                                coroutineScope.launch { aboutContentListState.animateScrollBy(-SCROLL_STEP_PX) }
-                                true
-                            }
-                            else                                                                          -> false
-                        }
+                    if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionRight) {
+                        runCatching { aboutContentFocusRequester.requestFocus() }
+                        true
                     } else {
                         false
                     }
@@ -848,7 +987,9 @@ private fun CatalogNavRailItem(
 @Composable
 private fun SearchField(
         query: String,
-        onQueryChanged: (String) -> Unit
+        onQueryChanged: (String) -> Unit,
+        focusRequester: FocusRequester = remember { FocusRequester() },
+        navRailFocusRequester: FocusRequester? = null
                         ) {
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
@@ -878,18 +1019,28 @@ private fun SearchField(
                 onValueChange = onQueryChanged,
                 modifier = Modifier
                         .weight(1f)
+                        .focusRequester(focusRequester)
                         // A single-line BasicTextField swallows DirectionDown as
                         // a cursor-movement key before it ever reaches Compose's
                         // 2D focus search - on a D-pad remote that makes the
                         // search results row permanently unreachable once the
                         // field has focus, so intercept it here and move focus
                         // down manually.
+                        // Likewise DirectionLeft is swallowed as a cursor move even
+                        // with nothing to move over, trapping focus in the field -
+                        // while it's empty, send it to the Search rail item.
                         .onPreviewKeyEvent { keyEvent ->
-                            if (keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionDown) {
-                                focusManager.moveFocus(FocusDirection.Down)
-                                true
-                            } else {
-                                false
+                            if (keyEvent.type != KeyEventType.KeyDown) return@onPreviewKeyEvent false
+                            when {
+                                keyEvent.key == Key.DirectionDown -> {
+                                    focusManager.moveFocus(FocusDirection.Down)
+                                    true
+                                }
+                                keyEvent.key == Key.DirectionLeft && query.isEmpty() && navRailFocusRequester != null -> {
+                                    runCatching { navRailFocusRequester.requestFocus() }
+                                    true
+                                }
+                                else                              -> false
                             }
                         },
                 placeholder = { Text(text = stringResource(R.string.search_placeholder)) },
@@ -995,7 +1146,8 @@ private fun SimpleCatalogRow(
         title: String,
         items: List<CatalogItem>,
         onItemPressed: (item: CatalogItem) -> Unit,
-        leadingIcon: (@Composable () -> Unit)? = null
+        leadingIcon: (@Composable () -> Unit)? = null,
+        navRailFocusRequester: FocusRequester? = null
                              ) {
     Column {
         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -1013,7 +1165,12 @@ private fun SimpleCatalogRow(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TvRow(rowId = rowId, list = items, onItemPressed = onItemPressed)
+        TvRow(
+                rowId = rowId,
+                list = items,
+                onItemPressed = onItemPressed,
+                navRailFocusRequester = navRailFocusRequester
+             )
     }
 }
 
@@ -1158,7 +1315,9 @@ private fun CatalogHeroBanner(
 private fun RecommendationsContent(
         screenState: TvCatalogScreenState.Recommendations,
         onApiKeySaved: (apiKey: String) -> Unit,
-        onItemPressed: (item: CatalogItem) -> Unit
+        onItemPressed: (item: CatalogItem) -> Unit,
+        onRetryClicked: () -> Unit,
+        navRailFocusRequester: FocusRequester?
                                    ) {
     when {
         screenState.loginRequired    -> RecommendationsMessage(stringResource(R.string.ai_recommendations_login_required))
@@ -1169,11 +1328,18 @@ private fun RecommendationsContent(
                 title = stringResource(R.string.ai_recommendations_title),
                 items = screenState.items,
                 onItemPressed = onItemPressed,
-                leadingIcon = { AiIcon() }
+                leadingIcon = { AiIcon() },
+                navRailFocusRequester = navRailFocusRequester
                                                            )
-        else                          -> RecommendationsMessage(
-                screenState.errorMessage ?: stringResource(R.string.ai_recommendations_no_signal_message)
-                                                                )
+        // Gemini's own failure (usage limit, overloaded, ...): say what
+        // happened and let the user retry. Nothing retries automatically;
+        // returning to the tab after visiting another also tries again.
+        screenState.errorMessage != null -> RecommendationsMessage(
+                message = screenState.errorMessage,
+                onRetryClicked = onRetryClicked,
+                navRailFocusRequester = navRailFocusRequester
+                                                                  )
+        else                          -> RecommendationsMessage(stringResource(R.string.ai_recommendations_no_signal_message))
     }
 }
 
@@ -1190,7 +1356,11 @@ private fun AiIcon() {
 }
 
 @Composable
-private fun RecommendationsMessage(message: String) {
+private fun RecommendationsMessage(
+        message: String,
+        onRetryClicked: (() -> Unit)? = null,
+        navRailFocusRequester: FocusRequester? = null
+                                  ) {
     Column(
             modifier = Modifier
                     .fillMaxWidth()
@@ -1214,6 +1384,27 @@ private fun RecommendationsMessage(message: String) {
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
                 style = MaterialTheme.typography.bodyLarge
             )
+        if (onRetryClicked != null) {
+            Spacer(modifier = Modifier.height(24.dp))
+            TvDetailsActionButton(
+                    text = stringResource(R.string.retry_action),
+                    onClick = onRetryClicked,
+                    // Left goes to this tab's rail item explicitly: spatial focus
+                    // search would pick whichever rail item is nearest in height
+                    // (News, from where this button sits).
+                    modifier = Modifier.onPreviewKeyEvent { keyEvent ->
+                        if (navRailFocusRequester != null &&
+                            keyEvent.type == KeyEventType.KeyDown &&
+                            keyEvent.key == Key.DirectionLeft
+                        ) {
+                            runCatching { navRailFocusRequester.requestFocus() }
+                            true
+                        } else {
+                            false
+                        }
+                    }
+                                 )
+        }
     }
 }
 

@@ -4,7 +4,7 @@ import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -42,7 +42,17 @@ fun TvRow(
         onItemPressed: (item: CatalogItem) -> Unit,
         onItemFocused: (item: CatalogItem) -> Unit = {},
         onEndReached: () -> Unit = {},
-        isUpcoming: Boolean = false
+        isUpcoming: Boolean = false,
+        // The current destination's nav rail item. D-pad Left from the row's
+        // first item is sent here explicitly: default spatial focus search
+        // picks whichever rail item is nearest in height to the item (e.g.
+        // News from a Movies row), not the rail item of the tab being viewed.
+        navRailFocusRequester: FocusRequester? = null,
+        // When focus enters the row from outside and there's no remembered
+        // item to restore, start on the first item instead of whichever card
+        // spatial focus search found nearest to where focus came from (e.g.
+        // the middle card, when entering from a wide search field above).
+        focusFirstOnEntry: Boolean = false
          ) {
     val listState = rememberLazyListState()
 
@@ -81,18 +91,24 @@ fun TvRow(
                     .focusGroup()
                     .onFocusChanged { focusState ->
                         if (focusState.hasFocus && !rowHasFocus) {
-                            lastFocusedKey?.let { key -> focusRequesters[key]?.let { runCatching { it.requestFocus() } } }
+                            // A remembered key can be stale (e.g. from an earlier
+                            // search's results) - only trust it if it's still here.
+                            val rememberedKey = lastFocusedKey?.takeIf { key -> list.any { "${it.mediaType}_${it.id}" == key } }
+                            val target = rememberedKey ?: list.firstOrNull()
+                                    ?.takeIf { focusFirstOnEntry }
+                                    ?.let { "${it.mediaType}_${it.id}" }
+                            target?.let { key -> focusRequesters[key]?.let { runCatching { it.requestFocus() } } }
                         }
                         rowHasFocus = focusState.hasFocus
                     },
             horizontalArrangement = Arrangement.spacedBy(12.dp)
            ) {
-        items(
+        itemsIndexed(
                 list,
                 // mediaType included: TMDB ids aren't unique across movies
                 // vs tv series, and Search mixes both in one row - a bare
                 // id key would crash LazyRow the first time they collided.
-                key = { "${it.mediaType}_${it.id}" }) { item ->
+                key = { _, item -> "${item.mediaType}_${item.id}" }) { index, item ->
             val itemKey = "${item.mediaType}_${item.id}"
             val focusRequester = remember(itemKey) { focusRequesters.getOrPut(itemKey) { FocusRequester() } }
             TvItem(
@@ -112,7 +128,23 @@ fun TvRow(
                             onItemFocused(item)
                             onItemPressed(item)
                         }
-                        false
+                        when {
+                            index == 0 &&
+                                    navRailFocusRequester != null &&
+                                    keyEvent.type == KeyEventType.KeyDown &&
+                                    keyEvent.key == Key.DirectionLeft -> {
+                                runCatching { navRailFocusRequester.requestFocus() }
+                                true
+                            }
+                            // Nothing lies to the right of a row's last card except
+                            // the profile button in the header, which spatial focus
+                            // search would otherwise jump to. Swallow the key; if
+                            // more pages are loading, the next press moves on.
+                            index == list.lastIndex &&
+                                    keyEvent.type == KeyEventType.KeyDown &&
+                                    keyEvent.key == Key.DirectionRight -> true
+                            else                                       -> false
+                        }
                     }
                   )
         }

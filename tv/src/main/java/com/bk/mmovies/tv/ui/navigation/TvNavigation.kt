@@ -14,11 +14,16 @@ import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.tv.ui.auth.AuthTvScreenContainer
 import com.bk.mmovies.tv.ui.catalog.CatalogTvScreen
+import com.bk.mmovies.tv.ui.inputtest.InputMonitorTestScreen
 import com.bk.mmovies.tv.ui.details.moviedetails.MovieDetailsTvScreen
 import com.bk.mmovies.tv.ui.details.tvseriesdetails.TvSeriesDetailsTvScreen
 import com.bk.mmovies.tv.ui.news.NewsDetailsTvScreen
 import com.bk.mmovies.tv.ui.splash.SplashScreenTv
 import com.bk.mmovies.tv.ui.webview.WebViewTvScreen
+
+// Debug switch: true launches straight into the TvInputMonitor playground
+// (BACK exits the app) instead of Splash. Keep false for normal use.
+private const val START_ON_INPUT_TEST_SCREEN = false
 
 @Composable
 fun TvNavigation(
@@ -41,9 +46,13 @@ fun TvNavigation(
 
     NavHost(
             navController,
-            TvDestination.SplashDestination,
+            if (START_ON_INPUT_TEST_SCREEN) TvDestination.InputTestDestination else TvDestination.SplashDestination,
             modifier,
             builder = {
+                composable<TvDestination.InputTestDestination>(content = {
+                    InputMonitorTestScreen(onExit = onAppExit)
+                })
+
                 composable<TvDestination.SplashDestination>(content = {
                     SplashScreenTv(
                             onNavigateToAuthScreen = {

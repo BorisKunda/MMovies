@@ -116,7 +116,10 @@ sealed interface TvCatalogScreenState {
     // rate, not favorite), and the tv app has no login flow wired yet.
     data class Favorites(
             val rows: List<TvCategoryRowContent> = emptyList(),
-            val loginRequired: Boolean = false
+            val loginRequired: Boolean = false,
+            val isLoading: Boolean = false,
+            // The item whose preview popup is open (like Movies/TvSeries).
+            val focusedItem: CatalogItem? = null
                          ) : TvCatalogScreenState
 
     data class News(
@@ -124,12 +127,20 @@ sealed interface TvCatalogScreenState {
             val keySetupRequired: Boolean = false,
             val currentPage: Int = 1,
             val endReached: Boolean = false,
-            val isLoadingNextPage: Boolean = false
+            val isLoadingNextPage: Boolean = false,
+            // First page in flight (as opposed to isLoadingNextPage) - the
+            // screen shows a row shimmer instead of a stale/empty row.
+            val isLoading: Boolean = false
                     ) : TvCatalogScreenState
 
     data class Search(
             val query: String = "",
             val items: List<CatalogItem> = emptyList(),
+            // A non-blank query's results are still being fetched (including
+            // the debounce wait) - the results row shows a shimmer meanwhile.
+            val isSearching: Boolean = false,
+            // The result whose preview popup is open (like Movies/TvSeries).
+            val focusedItem: CatalogItem? = null,
             // Shown when query is blank - mirrors :app's SearchViewModel,
             // just without its per-item remove affordance (see
             // onRecentSearchClicked's doc for why).
@@ -145,8 +156,15 @@ sealed interface TvCatalogScreenState {
             val keySetupRequired: Boolean = false,
             val isLoading: Boolean = false,
             val items: List<CatalogItem> = emptyList(),
-            val errorMessage: String? = null
+            val errorMessage: String? = null,
+            // The suggestion whose preview popup is open (like Movies/TvSeries).
+            val focusedItem: CatalogItem? = null
                                ) : TvCatalogScreenState
+
+    // Every request behind Movies/TV Series/Favorites/News failed for lack of
+    // a connection: shown instead of empty rows, with Try again / Open network
+    // settings. Never cached, so revisiting the tab tries again.
+    data object Offline : TvCatalogScreenState
 
     // Static Terms & Privacy content combined into one scrollable page - no
     // network call behind it, so unlike every other destination there's
@@ -233,6 +251,22 @@ class TvCatalogViewModel @Inject constructor(
     // on "is this still the same load".
     private val rowLoadJobs = mutableMapOf<Category, Job>()
 
+    // The successful Recommendations result for the signed-in account, kept
+    // until the ViewModel (i.e. app launch) goes away. Gemini is slow and
+    // quota-limited, so once it has answered it isn't called again for the same
+    // favorites: favoriteKeys is the set of favorites the result was built
+    // from, and a visit that finds a different set (a title added or removed
+    // anywhere) makes a new request. A failure is not cached: coming back to
+    // the tab after visiting another one tries again, as does the error
+    // state's Retry button - but nothing retries automatically while the user
+    // stays on the tab.
+    private data class RecommendationsCache(
+            val accountId: Int,
+            val state: TvCatalogScreenState.Recommendations,
+            val favoriteKeys: Set<Pair<Int, CatalogMediaType>>
+                                           )
+    private var recommendationsCache: RecommendationsCache? = null
+
     private fun cancelRowLoadJobs() {
         rowLoadJobs.values.forEach { it.cancel() }
         rowLoadJobs.clear()
@@ -241,10 +275,10 @@ class TvCatalogViewModel @Inject constructor(
     // Per-destination content cache, alive for as long as this ViewModel is
     // (i.e. reset by a fresh app launch, never invalidated manually) - lets
     // revisiting a tab within the same session reuse what's already loaded
-    // instead of re-fetching. Favorites and Recommendations are deliberately
-    // excluded: their content can change from outside this screen (toggling
-    // a favorite, saving a new Gemini API key), so those two always reload
-    // on selection - see loadFavorites()/loadRecommendations().
+    // instead of re-fetching. Favorites is deliberately excluded: its content
+    // can change from outside this screen (toggling a favorite), so it always
+    // reloads on selection - see loadFavorites(). Recommendations keeps its
+    // own per-account cache instead (recommendationsCache).
     private val destinationCache = mutableMapOf<TvCatalogDestination, TvCatalogScreenState>()
 
     init {
@@ -349,7 +383,11 @@ class TvCatalogViewModel @Inject constructor(
         val cached = destinationCache[destination]
         if (cached != null) {
             contentLoadJob?.cancel()
-            _screenState.value = cached
+            // The cache can be written while the preview dialog is open (e.g.
+            // toggling Favorite from it stores the state with focusedItem
+            // set), and dismissing the dialog only clears the live state -
+            // so a stale focusedItem here would reopen the dialog on revisit.
+            _screenState.value = cached.withoutFocusedItem()
         } else {
             fetch()
         }
@@ -362,9 +400,29 @@ class TvCatalogViewModel @Inject constructor(
     // right MovieDetailsDestination categoryId (needed for its TBA styling).
     fun onItemFocused(item: CatalogItem, category: Category? = null) {
         _screenState.value = when (val current = _screenState.value) {
-            is TvCatalogScreenState.Movies   -> current.copy(focusedItem = item, focusedCategory = category)
-            is TvCatalogScreenState.TvSeries -> current.copy(focusedItem = item, focusedCategory = category)
-            else                             -> current
+            is TvCatalogScreenState.Movies          -> current.copy(focusedItem = item, focusedCategory = category)
+            is TvCatalogScreenState.TvSeries        -> current.copy(focusedItem = item, focusedCategory = category)
+            is TvCatalogScreenState.Favorites       -> current.copy(focusedItem = item)
+            is TvCatalogScreenState.Search          -> current.copy(focusedItem = item)
+            is TvCatalogScreenState.Recommendations -> current.copy(focusedItem = item)
+            else                                    -> current
+        }
+    }
+
+    // "Try again" on the Offline screen: reload whichever tab is showing it.
+    fun onOfflineRetryClicked() {
+        // The account request behind the profile badge fails offline too and
+        // leaves it blank ("?") - fetch it again along with the tab.
+        _userProfileState.value.let { profile ->
+            if (!profile.isGuest && profile.name.isBlank()) loadUserProfile()
+        }
+        when (_selectedDestination.value) {
+            TvCatalogDestination.Movies    -> loadMovies()
+            TvCatalogDestination.TvSeries  -> loadTvSeries()
+            TvCatalogDestination.Favorites -> loadFavorites()
+            TvCatalogDestination.News      -> loadNews()
+            TvCatalogDestination.Recommendations -> loadRecommendations()
+            else                           -> Unit
         }
     }
 
@@ -373,6 +431,13 @@ class TvCatalogViewModel @Inject constructor(
         // Immediately try to load real suggestions with the key just
         // entered, rather than leaving the key-setup form on screen until
         // the user reselects the tab.
+        loadRecommendations()
+    }
+
+    // Retry button on the Recommendations error state - retries without
+    // needing to leave and re-enter the tab.
+    fun onRecommendationsRetryClicked() {
+        recommendationsCache = null
         loadRecommendations()
     }
 
@@ -395,30 +460,59 @@ class TvCatalogViewModel @Inject constructor(
 
         _screenState.value = TvCatalogScreenState.Recommendations(isLoading = true)
         contentLoadJob = viewModelScope.launch {
-            val (favorites, recentSearches) = coroutineScope {
-                val favoritesDeferred = async { fetchFavoriteCatalogItems(accountId, sessionId) }
-                val recentSearchesDeferred = async { searchRepository.getRecentSearches() }
-                favoritesDeferred.await() to recentSearchesDeferred.await()
+            val cached = recommendationsCache?.takeIf { it.accountId == accountId }
+
+            // The current favorites decide whether the cached result is still
+            // valid. (Two cheap TMDB calls - never a Gemini call.)
+            val favorites = fetchFavoriteCatalogItems(accountId, sessionId)
+            if (favorites == null) {
+                // Couldn't read favorites (offline): keep showing what we had, or
+                // say there's no connection - not "no favorites yet".
+                _screenState.value = cached?.state?.withoutFocusedItem() ?: TvCatalogScreenState.Offline
+                return@launch
+            }
+            val favoriteKeys = favorites.map { it.id to it.mediaType }.toSet()
+
+            // Same favorites as when the cached row was built: reuse it until the
+            // app is relaunched. Favorites changed (added or removed): fall
+            // through to a new request, which also leaves out anything favorited
+            // from the row in the meantime.
+            if (cached != null && cached.favoriteKeys == favoriteKeys) {
+                _screenState.value = cached.state.withoutFocusedItem()
+                return@launch
             }
 
-            when (val result = aiRecommendationRepository.getRecommendations(favorites, recentSearches)) {
+            when (val result = aiRecommendationRepository.getRecommendations(favorites)) {
                 is RecommendationResult.Success -> {
-                    val items = resolveSuggestions(result.suggestions)
-                    _screenState.value = TvCatalogScreenState.Recommendations(items = items)
+                    // The prompt only *asks* Gemini not to repeat favorites - enforce
+                    // it here, on the resolved real titles (same id + media type).
+                    val items = resolveSuggestions(result.suggestions).filterNot { (it.id to it.mediaType) in favoriteKeys }
+                    val state = TvCatalogScreenState.Recommendations(items = items)
+                    _screenState.value = state
+                    // Only real suggestions are pinned - with no favorites no
+                    // Gemini call was spent, and some may show up later.
+                    recommendationsCache = if (state.items.isNotEmpty()) RecommendationsCache(accountId, state, favoriteKeys) else null
                 }
                 is RecommendationResult.Failure -> {
+                    // Not cached, and nothing retries on its own while the user
+                    // stays here (each call spends quota): the next attempt is
+                    // either the Retry button or a fresh visit to this tab
+                    // after navigating elsewhere.
                     _screenState.value = TvCatalogScreenState.Recommendations(errorMessage = result.errorMessage)
+                    recommendationsCache = null
                 }
             }
         }
     }
 
-    private suspend fun fetchFavoriteCatalogItems(accountId: Int, sessionId: String): List<CatalogItem> = coroutineScope {
+    // The account's favorite movies and series, or null if either request
+    // failed - a failure must not be mistaken for "no favorites".
+    private suspend fun fetchFavoriteCatalogItems(accountId: Int, sessionId: String): List<CatalogItem>? = coroutineScope {
         val moviesDeferred = async { movieRepository.getFavoriteMovies(accountId, sessionId) }
         val tvSeriesDeferred = async { tvSeriesRepository.getFavoriteTvSeries(accountId, sessionId) }
-        val movies = (moviesDeferred.await() as? MoviesResult.Success)?.movies?.let(catalogItemMapper::fromMovies) ?: emptyList()
-        val tvSeries = (tvSeriesDeferred.await() as? TvSeriesResult.Success)?.tvSeries?.let(catalogItemMapper::fromTvSeries) ?: emptyList()
-        movies + tvSeries
+        val moviesResult = moviesDeferred.await() as? MoviesResult.Success ?: return@coroutineScope null
+        val tvSeriesResult = tvSeriesDeferred.await() as? TvSeriesResult.Success ?: return@coroutineScope null
+        catalogItemMapper.fromMovies(moviesResult.movies) + catalogItemMapper.fromTvSeries(tvSeriesResult.tvSeries)
     }
 
     // Never trust a suggestion's query as a real title on its own (see
@@ -436,16 +530,49 @@ class TvCatalogViewModel @Inject constructor(
                 }
                 suggestion.mediaTypeHint?.let { hint -> candidates.firstOrNull { it.mediaType == hint } } ?: candidates.firstOrNull()
             }
-        }.awaitAll().filterNotNull().distinctBy { it.id to it.mediaType }
+        }.awaitAll().filterNotNull().distinctBy { it.id to it.mediaType }.withFavoriteFlags()
     }
 
     // Closes the preview dialog (back press / scrim dismissal).
     fun onDialogDismissed() {
-        _screenState.value = when (val current = _screenState.value) {
-            is TvCatalogScreenState.Movies   -> current.copy(focusedItem = null, focusedCategory = null)
-            is TvCatalogScreenState.TvSeries -> current.copy(focusedItem = null, focusedCategory = null)
-            else                             -> current
+        _screenState.value = _screenState.value.withoutFocusedItem()
+    }
+
+    // Cards whose favorite state was flipped from the popup have to leave
+    // their row once the popup is closed: a title favorited from
+    // Recommendations (which never lists favorites), or un-favorited from
+    // Favorites (which lists nothing but). Deliberately a separate step from
+    // onDialogDismissed: the screen first moves D-pad focus off the card (to
+    // the rail item), because removing a card while it still holds focus makes
+    // Compose fall back to the first focusable node - the Movies rail item,
+    // which auto-navigates and hijacks the tab.
+    fun onPopupClosedPrune() {
+        when (val current = _screenState.value) {
+            is TvCatalogScreenState.Recommendations -> {
+                if (current.items.none { it.isFavorite }) return
+                val remaining = current.copy(items = current.items.filterNot { it.isFavorite })
+                _screenState.value = remaining
+                recommendationsCache = recommendationsCache?.copy(state = remaining)
+            }
+            is TvCatalogScreenState.Favorites       -> {
+                val rows = current.rows.map { row -> row.copy(items = row.items.filter { it.isFavorite }) }
+                if (rows != current.rows) _screenState.value = current.copy(rows = rows)
+            }
+            else                                    -> Unit
         }
+    }
+
+    // Clears the preview popup's item on any state that has one. Also used to
+    // sanitize states restored from a cache: a cache write can happen while the
+    // popup is open (e.g. toggling Favorite), and restoring that stale
+    // focusedItem would reopen the popup on a later revisit.
+    private fun TvCatalogScreenState.withoutFocusedItem(): TvCatalogScreenState = when (this) {
+        is TvCatalogScreenState.Movies          -> copy(focusedItem = null, focusedCategory = null)
+        is TvCatalogScreenState.TvSeries        -> copy(focusedItem = null, focusedCategory = null)
+        is TvCatalogScreenState.Favorites       -> copy(focusedItem = null)
+        is TvCatalogScreenState.Search          -> copy(focusedItem = null)
+        is TvCatalogScreenState.Recommendations -> copy(focusedItem = null)
+        else                                    -> this
     }
 
     // Toggles favorite on whichever item the hero dialog is currently
@@ -455,9 +582,12 @@ class TvCatalogViewModel @Inject constructor(
     fun onFeaturedFavoriteClicked() {
         val current = _screenState.value
         val item = when (current) {
-            is TvCatalogScreenState.Movies   -> current.focusedItem
-            is TvCatalogScreenState.TvSeries -> current.focusedItem
-            else                             -> null
+            is TvCatalogScreenState.Movies          -> current.focusedItem
+            is TvCatalogScreenState.TvSeries        -> current.focusedItem
+            is TvCatalogScreenState.Favorites       -> current.focusedItem
+            is TvCatalogScreenState.Search          -> current.focusedItem
+            is TvCatalogScreenState.Recommendations -> current.focusedItem
+            else                                    -> null
         } ?: return
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
         val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
@@ -473,6 +603,11 @@ class TvCatalogViewModel @Inject constructor(
             if (result is ToggleFavoriteResult.Failure) {
                 applyFavoriteState(item.id, item.mediaType, !newIsFavorite)
                 _messageEvent.tryEmit(result.errorMessage)
+            } else {
+                // The popup can now be opened from Favorites/Search/
+                // Recommendations too, so the Movies/TV Series rows (and their
+                // cache) may hold this title with a now-stale star.
+                refreshFavoriteStates()
             }
         }
     }
@@ -487,7 +622,14 @@ class TvCatalogViewModel @Inject constructor(
     // already correct the instant any toggle succeeds anywhere in the app -
     // fixes it. Called from CatalogTvScreen's LaunchedEffect(Unit), which
     // reruns on every genuine return to this screen (see its comment).
-    fun refreshFavoriteStates() {
+    // reloadFavoritesTab: on a return from a details screen the Favorites tab
+    // may now list a title that was un-favorited there (or miss a new one), and
+    // star-flipping isn't enough - it needs the real list. False for the
+    // popup's own toggle, which must not reload the list under an open popup.
+    fun refreshFavoriteStates(reloadFavoritesTab: Boolean = false) {
+        if (reloadFavoritesTab && _screenState.value is TvCatalogScreenState.Favorites) {
+            loadFavorites()
+        }
         viewModelScope.launch {
             val movieFavoriteIds = movieRepository.getCachedFavoriteIds()
             val tvFavoriteIds = tvSeriesRepository.getCachedFavoriteIds()
@@ -532,49 +674,70 @@ class TvCatalogViewModel @Inject constructor(
         fun CatalogItem.withUpdatedIsFavorite() =
                 if (id == itemId && this.mediaType == mediaType) copy(isFavorite = isFavorite) else this
 
+        fun List<CatalogItem>.withUpdatedItems() = map { it.withUpdatedIsFavorite() }
+
         _screenState.value = when (val current = _screenState.value) {
-            is TvCatalogScreenState.Movies   -> current.copy(
+            is TvCatalogScreenState.Movies          -> current.copy(
                     rows = current.rows.withUpdatedItem(),
                     focusedItem = current.focusedItem?.withUpdatedIsFavorite()
-                                                             )
-            is TvCatalogScreenState.TvSeries -> current.copy(
+                                                                    )
+            is TvCatalogScreenState.TvSeries        -> current.copy(
                     rows = current.rows.withUpdatedItem(),
                     focusedItem = current.focusedItem?.withUpdatedIsFavorite()
-                                                             )
-            else                              -> current
+                                                                    )
+            // Favorites keeps the row (star flips, item stays) until the next
+            // visit reloads it - removing a card under the open popup would
+            // pull focus out from under it.
+            is TvCatalogScreenState.Favorites       -> current.copy(
+                    rows = current.rows.withUpdatedItem(),
+                    focusedItem = current.focusedItem?.withUpdatedIsFavorite()
+                                                                    )
+            is TvCatalogScreenState.Search          -> current.copy(
+                    items = current.items.withUpdatedItems(),
+                    focusedItem = current.focusedItem?.withUpdatedIsFavorite()
+                                                                    )
+            is TvCatalogScreenState.Recommendations -> current.copy(
+                    items = current.items.withUpdatedItems(),
+                    focusedItem = current.focusedItem?.withUpdatedIsFavorite()
+                                                                    )
+            else                                    -> current
         }
         // Keep the per-destination cache in sync so a later tab revisit
         // doesn't revert this favorite toggle back to its pre-toggle state.
+        // (Cached states are stored without the popup's item - see
+        // withoutFocusedItem.)
         when (val latest = _screenState.value) {
-            is TvCatalogScreenState.Movies   -> destinationCache[TvCatalogDestination.Movies] = latest
-            is TvCatalogScreenState.TvSeries -> destinationCache[TvCatalogDestination.TvSeries] = latest
-            else                             -> Unit
+            is TvCatalogScreenState.Movies          -> destinationCache[TvCatalogDestination.Movies] = latest.withoutFocusedItem()
+            is TvCatalogScreenState.TvSeries        -> destinationCache[TvCatalogDestination.TvSeries] = latest.withoutFocusedItem()
+            is TvCatalogScreenState.Recommendations ->
+                recommendationsCache = recommendationsCache?.copy(state = latest.copy(focusedItem = null))
+            else                                    -> Unit
         }
     }
 
     fun onSearchQueryChanged(query: String) {
         val current = _screenState.value as? TvCatalogScreenState.Search ?: return
-        _screenState.value = current.copy(query = query)
+        _screenState.value = current.copy(query = query, isSearching = query.isNotBlank())
 
         searchJob?.cancel()
         if (query.isBlank()) {
             // Keep the already-loaded recentSearches rather than wiping them -
             // this state also carries no items, but this branch runs on
             // every deleted keystroke back to empty, not just on first entry.
-            _screenState.value = current.copy(query = query, items = emptyList())
+            _screenState.value = current.copy(query = query, items = emptyList(), isSearching = false)
             return
         }
         searchJob = viewModelScope.launch {
             delay(SEARCH_DEBOUNCE_MS)
             val items = when (val result = searchRepository.search(query)) {
-                is SearchResult.Success -> result.results.mapNotNull { it.toCatalogItemOrNull() }
+                is SearchResult.Success -> result.results.mapNotNull { it.toCatalogItemOrNull() }.withFavoriteFlags()
                 is SearchResult.Failure -> emptyList()
             }
             // The query may have changed again while this was in flight;
             // only apply the result if it's still the latest search state.
             val latest = _screenState.value as? TvCatalogScreenState.Search ?: return@launch
             if (latest.query == query) {
-                _screenState.value = latest.copy(items = items)
+                _screenState.value = latest.copy(items = items, isSearching = false)
             }
         }
     }
@@ -626,6 +789,21 @@ class TvCatalogViewModel @Inject constructor(
     // Search results include PERSON entries, which have no equivalent in
     // CatalogMediaType and nowhere to route to on tv yet, so they're dropped
     // rather than mapped to a fake movie/tv entry.
+    // Search results (and the AI suggestions resolved through search) come
+    // back without any favorite information, so every one would show "Favorite"
+    // in its popup even when it already is one. Stamp isFavorite from the
+    // repositories' favorite-id caches - the same source refreshFavoriteStates
+    // uses for the Movies/TV Series rows.
+    private suspend fun List<CatalogItem>.withFavoriteFlags(): List<CatalogItem> {
+        if (isEmpty()) return this
+        val movieFavoriteIds = movieRepository.getCachedFavoriteIds()
+        val tvFavoriteIds = tvSeriesRepository.getCachedFavoriteIds()
+        return map {
+            val favoriteIds = if (it.mediaType == CatalogMediaType.MOVIE) movieFavoriteIds else tvFavoriteIds
+            it.copy(isFavorite = favoriteIds.contains(it.id))
+        }
+    }
+
     private fun SearchResultModel.toCatalogItemOrNull(): CatalogItem? {
         val mediaType = when (mediaType) {
             SearchResultMediaType.MOVIE     -> CatalogMediaType.MOVIE
@@ -638,15 +816,20 @@ class TvCatalogViewModel @Inject constructor(
                 imageUrl = imageUrl,
                 backdropUrl = backdropUrl,
                 releaseDate = subtitle,
-                mediaType = mediaType
+                mediaType = mediaType,
+                rating = rating
                            )
     }
 
     private fun loadMovies() {
         contentLoadJob?.cancel()
         cancelRowLoadJobs()
+        // No rows yet -> the screen renders row shimmers (rather than leaving
+        // the previously selected tab's content up until the load resolves).
+        _screenState.value = TvCatalogScreenState.Movies(emptyList())
         contentLoadJob = viewModelScope.launch {
-            val rows = coroutineScope {
+            // Each row with whether its request failed for lack of a connection.
+            val outcomes = coroutineScope {
                 movieRowCategories.map { category ->
                     async {
                         when (val result = movieRepository.getMoviesByCategory(category, page = 1)) {
@@ -655,12 +838,17 @@ class TvCatalogViewModel @Inject constructor(
                                     items = catalogItemMapper.fromMovies(result.movies),
                                     currentPage = result.page,
                                     endReached = isLastPage(result.page, result.totalPages)
-                                                                            )
-                            is MoviesResult.Failure -> TvCategoryRowContent(category, emptyList(), endReached = true)
+                                                                            ) to false
+                            is MoviesResult.Failure -> TvCategoryRowContent(category, emptyList(), endReached = true) to result.isConnectivityFailure
                         }
                     }
                 }.awaitAll()
             }
+            if (outcomes.all { it.second }) {
+                _screenState.value = TvCatalogScreenState.Offline
+                return@launch
+            }
+            val rows = outcomes.map { it.first }
             // No default focusedItem anymore - the preview is now a dialog
             // that only appears once the user explicitly selects an item,
             // not something shown automatically on load.
@@ -673,8 +861,9 @@ class TvCatalogViewModel @Inject constructor(
     private fun loadTvSeries() {
         contentLoadJob?.cancel()
         cancelRowLoadJobs()
+        _screenState.value = TvCatalogScreenState.TvSeries(emptyList())
         contentLoadJob = viewModelScope.launch {
-            val rows = coroutineScope {
+            val outcomes = coroutineScope {
                 tvSeriesRowCategories.map { category ->
                     async {
                         when (val result = tvSeriesRepository.getTvSeriesByCategory(category, page = 1)) {
@@ -683,13 +872,17 @@ class TvCatalogViewModel @Inject constructor(
                                     items = catalogItemMapper.fromTvSeries(result.tvSeries),
                                     currentPage = result.page,
                                     endReached = isLastPage(result.page, result.totalPages)
-                                                                              )
-                            is TvSeriesResult.Failure -> TvCategoryRowContent(category, emptyList(), endReached = true)
+                                                                              ) to false
+                            is TvSeriesResult.Failure -> TvCategoryRowContent(category, emptyList(), endReached = true) to result.isConnectivityFailure
                         }
                     }
                 }.awaitAll()
             }
-            val state = TvCatalogScreenState.TvSeries(rows = rows)
+            if (outcomes.all { it.second }) {
+                _screenState.value = TvCatalogScreenState.Offline
+                return@launch
+            }
+            val state = TvCatalogScreenState.TvSeries(rows = outcomes.map { it.first })
             _screenState.value = state
             destinationCache[TvCatalogDestination.TvSeries] = state
         }
@@ -766,7 +959,10 @@ class TvCatalogViewModel @Inject constructor(
             _screenState.value = TvCatalogScreenState.Favorites(loginRequired = true)
             return
         }
+        _screenState.value = TvCatalogScreenState.Favorites(isLoading = true)
         contentLoadJob = viewModelScope.launch {
+            var moviesOffline = false
+            var tvSeriesOffline = false
             val (movieRow, tvSeriesRow) = coroutineScope {
                 val moviesDeferred = async { movieRepository.getFavoriteMovies(accountId, sessionId) }
                 val tvSeriesDeferred = async { tvSeriesRepository.getFavoriteTvSeries(accountId, sessionId) }
@@ -777,7 +973,10 @@ class TvCatalogViewModel @Inject constructor(
                             currentPage = result.page,
                             endReached = isLastPage(result.page, result.totalPages)
                                                                     )
-                    is MoviesResult.Failure -> TvCategoryRowContent(MovieCategory.FavoritesMovieCategory, emptyList(), endReached = true)
+                    is MoviesResult.Failure -> {
+                        moviesOffline = result.isConnectivityFailure
+                        TvCategoryRowContent(MovieCategory.FavoritesMovieCategory, emptyList(), endReached = true)
+                    }
                 }
                 val tvSeriesRow = when (val result = tvSeriesDeferred.await()) {
                     is TvSeriesResult.Success -> TvCategoryRowContent(
@@ -786,11 +985,20 @@ class TvCatalogViewModel @Inject constructor(
                             currentPage = result.page,
                             endReached = isLastPage(result.page, result.totalPages)
                                                                       )
-                    is TvSeriesResult.Failure -> TvCategoryRowContent(TvSeriesCategory.FavoritesTvSeriesCategory, emptyList(), endReached = true)
+                    is TvSeriesResult.Failure -> {
+                        tvSeriesOffline = result.isConnectivityFailure
+                        TvCategoryRowContent(TvSeriesCategory.FavoritesTvSeriesCategory, emptyList(), endReached = true)
+                    }
                 }
                 movieRow to tvSeriesRow
             }
-            _screenState.value = TvCatalogScreenState.Favorites(rows = listOf(movieRow, tvSeriesRow))
+            _screenState.value = if (moviesOffline && tvSeriesOffline) {
+                // Both requests failed for lack of a connection - not an empty
+                // favorites list.
+                TvCatalogScreenState.Offline
+            } else {
+                TvCatalogScreenState.Favorites(rows = listOf(movieRow, tvSeriesRow))
+            }
         }
     }
 
@@ -880,6 +1088,7 @@ class TvCatalogViewModel @Inject constructor(
             _screenState.value = TvCatalogScreenState.News(keySetupRequired = true)
             return
         }
+        _screenState.value = TvCatalogScreenState.News(isLoading = true)
         contentLoadJob = viewModelScope.launch {
             val state = when (val result = newsRepository.getNews()) {
                 is NewsResult.Success -> TvCatalogScreenState.News(
@@ -887,7 +1096,13 @@ class TvCatalogViewModel @Inject constructor(
                         currentPage = result.page,
                         endReached = isLastPage(result.page, result.totalPages)
                                                                    )
-                is NewsResult.Failure -> TvCatalogScreenState.News(endReached = true)
+                is NewsResult.Failure -> if (result.isConnectivityFailure) {
+                    // Not cached: revisiting the tab tries again.
+                    _screenState.value = TvCatalogScreenState.Offline
+                    return@launch
+                } else {
+                    TvCatalogScreenState.News(endReached = true)
+                }
             }
             _screenState.value = state
             destinationCache[TvCatalogDestination.News] = state

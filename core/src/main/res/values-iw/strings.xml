@@ -21,6 +21,8 @@
     <string name="error_no_network_generic">אין חיבור. אנא בדוק את החיבור לרשת.</string>
     <string name="error_news_load_failed">לא ניתן היה לטעון חדשות כרגע. אנא נסה שוב מאוחר יותר.</string>
     <string name="error_ai_recommendations_failed">לא ניתן היה לטעון המלצות כרגע. אנא נסה שוב מאוחר יותר.</string>
+    <string name="error_ai_recommendations_daily_limit">הגעת למגבלת השימוש היומית של Gemini. נסה שוב ב-%1$s.</string>
+    <string name="error_ai_recommendations_overloaded">Gemini עמוס כרגע. נסה שוב בעוד רגע.</string>
     <string name="category_popular_movies">סרטים פופולריים</string>
     <string name="category_popular_tv">סדרות פופולריות</string>
     <string name="category_upcoming_movies">סרטים שיצאו בקרוב</string>

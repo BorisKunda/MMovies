@@ -63,6 +63,7 @@ fun CatalogScreenContent(
                                               ),
                         message = stringResource(
                                 when {
+                                    isFavorites && isTv -> R.string.empty_favorites_tv_series_message
                                     isFavorites -> R.string.empty_favorites_message
                                     isTv        -> R.string.empty_tv_series_message
                                     else        -> R.string.empty_movies_message

@@ -62,6 +62,7 @@
     <!--EMPTY STATES-->
     <string name="empty_favorites_title">No favorites yet</string>
     <string name="empty_favorites_message">Movies you mark as a favorite will show up here.</string>
+    <string name="empty_favorites_tv_series_message">Series you mark as a favorite will show up here.</string>
     <string name="empty_movies_title">Nothing to show</string>
     <string name="empty_movies_message">There are no movies in this category right now.</string>
     <string name="empty_favorites_guest_title">Log in to see favorites</string>

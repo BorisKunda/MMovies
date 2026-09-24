@@ -5,8 +5,6 @@ import com.bk.mmovies.data.source.remote.QUERY_PARAM_API_KEY
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_SESSION_ID
 import okhttp3.Interceptor
 import okhttp3.Response
-import okhttp3.logging.HttpLoggingInterceptor
-import okhttp3.logging.HttpLoggingInterceptor.Level
 
 // Secrets TMDB carries in the query string. `api_key` is the user's own key;
 // `session_id` and `request_token` are bearer-equivalent — anyone holding one
@@ -18,35 +16,19 @@ private val REDACTED_QUERY_PARAMS = listOf(
                                           )
 
 /**
- * Body-level HTTP logging for debug builds, except on the credential-login
- * call, which is logged without its body.
- *
- * `HttpLoggingInterceptor.redactQueryParams` only covers the query string, so
- * at [Level.BODY] the login request — which posts `username`/`password` as
- * JSON — was writing the user's plaintext password into logcat.
- *
- * The level is fixed per delegate instance rather than toggled per request:
- * `HttpLoggingInterceptor.level` is shared mutable state, and flipping it
- * mid-flight would race concurrent calls into logging the wrong thing.
+ * Body-level HTTP logging of the TMDB calls for debug builds (see
+ * [ReadableLoggingInterceptor] for the format), except on the credential-login
+ * call, which is logged without its body: that request posts
+ * `username`/`password` as JSON, and a body log would write the user's
+ * plaintext password into logcat.
  */
-class DebugLoggingInterceptor(logger: HttpLoggingInterceptor.Logger) : Interceptor {
+class DebugLoggingInterceptor(log: (String) -> Unit) : Interceptor {
 
-    private val bodyLogger = buildLogger(logger, Level.BODY)
-    private val bodilessLogger = buildLogger(logger, Level.BASIC)
+    private val delegate = ReadableLoggingInterceptor(
+            log = log,
+            redactedQueryParams = REDACTED_QUERY_PARAMS,
+            skipBodiesForPathContaining = LOGIN_WITH_CREDENTIALS_ENDPOINT
+                                                     )
 
-    override fun intercept(chain: Interceptor.Chain): Response {
-        val isCredentialLogin = chain.request().url.encodedPath
-                .contains(LOGIN_WITH_CREDENTIALS_ENDPOINT)
-        val delegate = if (isCredentialLogin) bodilessLogger else bodyLogger
-        return delegate.intercept(chain)
-    }
-
-    private fun buildLogger(
-            logger: HttpLoggingInterceptor.Logger,
-            level: Level
-                           ): HttpLoggingInterceptor =
-            HttpLoggingInterceptor(logger).apply {
-                this.level = level
-                REDACTED_QUERY_PARAMS.forEach { redactQueryParams(it) }
-            }
+    override fun intercept(chain: Interceptor.Chain): Response = delegate.intercept(chain)
 }

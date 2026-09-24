@@ -62,6 +62,7 @@
     <!--EMPTY STATES-->
     <string name="empty_favorites_title">אין עדיין מועדפים</string>
     <string name="empty_favorites_message">סרטים שתסמן/י כמועדפים יופיעו כאן.</string>
+    <string name="empty_favorites_tv_series_message">סדרות שתסמן/י כמועדפות יופיעו כאן.</string>
     <string name="empty_movies_title">אין מה להציג</string>
     <string name="empty_movies_message">אין סרטים בקטגוריה זו כרגע.</string>
     <string name="empty_favorites_guest_title">התחבר/י כדי לראות מועדפים</string>

@@ -14,6 +14,9 @@ sealed interface TvDestination {
     object MoviesDestination : TvDestination
 
     @Serializable
+    object InputTestDestination : TvDestination
+
+    @Serializable
     data class MovieDetailsDestination(
             val movieId: Int,
             val categoryId: Int
