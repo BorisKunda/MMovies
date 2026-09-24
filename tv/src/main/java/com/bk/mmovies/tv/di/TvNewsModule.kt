@@ -17,7 +17,7 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import okhttp3.OkHttpClient
-import okhttp3.logging.HttpLoggingInterceptor
+import com.bk.mmovies.data.source.remote.interceptor.ReadableLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import javax.inject.Qualifier
@@ -48,10 +48,10 @@ object TvNewsModule {
                 .apply {
                     if (BuildConfig.DEBUG) {
                         addInterceptor(
-                                HttpLoggingInterceptor { message -> logDebug("Network", message) }.apply {
-                                    level = HttpLoggingInterceptor.Level.BASIC
-                                    redactQueryParams(QUERY_PARAM_GUARDIAN_API_KEY)
-                                }
+                                ReadableLoggingInterceptor(
+                                        log = { message -> logDebug("Network", message) },
+                                        redactedQueryParams = listOf(QUERY_PARAM_GUARDIAN_API_KEY)
+                                                          )
                                       )
                     }
                 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Icon
@@ -15,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
@@ -31,7 +33,11 @@ fun CategoryRow(
         items: List<CatalogItem>,
         onItemPressed: (item: CatalogItem) -> Unit,
         onItemFocused: (item: CatalogItem) -> Unit = {},
-        onEndReached: () -> Unit = {}
+        onEndReached: () -> Unit = {},
+        // Shown under the header in place of the (empty) row, e.g. for a
+        // favorites row the user hasn't added anything to yet.
+        emptyMessage: String? = null,
+        navRailFocusRequester: FocusRequester? = null
                ) {
     Column() {
         Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
@@ -50,13 +56,23 @@ fun CategoryRow(
                 )
         }
         Spacer(modifier = Modifier.height(16.dp))
+        if (items.isEmpty() && emptyMessage != null) {
+            Text(
+                    text = emptyMessage,
+                    modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                    color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
+                    style = MaterialTheme.typography.bodyLarge
+                )
+            return@Column
+        }
         TvRow(
                 rowId = "category_${category.categoryId}",
                 list = items,
                 onItemPressed = onItemPressed,
                 onItemFocused = onItemFocused,
                 onEndReached = onEndReached,
-                isUpcoming = category == MovieCategory.UpcomingMovieCategory || category == TvSeriesCategory.UpcomingTvSeriesCategory
+                isUpcoming = category == MovieCategory.UpcomingMovieCategory || category == TvSeriesCategory.UpcomingTvSeriesCategory,
+                navRailFocusRequester = navRailFocusRequester
              )
     }
 }

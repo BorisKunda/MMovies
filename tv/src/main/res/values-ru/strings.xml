@@ -19,6 +19,8 @@
     <string name="row_title_top_rated">Лучшие</string>
 
     <string name="favorites_login_required">Войдите, чтобы увидеть избранное.</string>
+    <string name="favorites_empty_movies">Фильмы, отмеченные как избранные, появятся здесь.</string>
+    <string name="favorites_empty_tv_series">Сериалы, отмеченные как избранные, появятся здесь.</string>
     <string name="search_placeholder">Поиск фильмов и сериалов</string>
     <string name="voice_search_action">Голосовой поиск</string>
     <string name="voice_search_prompt">Произнесите запрос</string>
@@ -45,6 +47,9 @@
     <string name="back_action">Назад</string>
     <string name="retry_action">Повторить</string>
     <string name="try_again">Попробовать снова</string>
+    <string name="offline_title">Нет подключения к интернету</string>
+    <string name="offline_message">Проверьте Wi-Fi или сетевой кабель и повторите попытку.</string>
+    <string name="open_network_settings_action">Открыть настройки сети</string>
     <string name="action_close">Закрыть</string>
     <string name="details_biography_label">БИОГРАФИЯ</string>
     <string name="details_biography_unavailable">Биография недоступна</string>
@@ -64,7 +69,7 @@
     <string name="ai_recommendations_empty_message">Рекомендации пока не настроены. На телефоне или компьютере перейдите на aistudio.google.com, войдите в аккаунт Google, затем создайте и скопируйте ключ API на странице API keys - и введите его ниже.</string>
     <string name="ai_recommendations_login_required">Войдите, чтобы получать персональные рекомендации.</string>
     <string name="gemini_api_key_saved">Ключ API Gemini сохранён.</string>
-    <string name="ai_recommendations_no_signal_message">Сначала добавьте пару названий в избранное или выполните поиск, а затем возвращайтесь сюда за персональными подборками.</string>
+    <string name="ai_recommendations_no_signal_message">Сначала добавьте пару названий в избранное, а затем возвращайтесь сюда за персональными подборками.</string>
     <string name="news_api_key_setup_message">Новости пока не настроены. На телефоне или компьютере перейдите на open-platform.theguardian.com, зарегистрируйтесь для получения ключа разработчика, затем скопируйте ключ API из письма с подтверждением - и введите его ниже.</string>
     <string name="news_api_key_saved">Ключ API Guardian сохранён.</string>
 

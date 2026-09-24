@@ -19,6 +19,8 @@
     <string name="row_title_top_rated">המדורגים ביותר</string>
 
     <string name="favorites_login_required">התחבר/י כדי לראות את המועדפים שלך.</string>
+    <string name="favorites_empty_movies">סרטים שתסמן/י כמועדפים יופיעו כאן.</string>
+    <string name="favorites_empty_tv_series">סדרות שתסמן/י כמועדפות יופיעו כאן.</string>
     <string name="search_placeholder">חיפוש סרטים וסדרות טלוויזיה</string>
     <string name="voice_search_action">חיפוש קולי</string>
     <string name="voice_search_prompt">דברו כדי לחפש</string>
@@ -45,6 +47,9 @@
     <string name="back_action">חזור</string>
     <string name="retry_action">נסה שוב</string>
     <string name="try_again">נסה שוב</string>
+    <string name="offline_title">אין חיבור לאינטרנט</string>
+    <string name="offline_message">כדאי לבדוק את ה-Wi-Fi או את כבל הרשת ולנסות שוב.</string>
+    <string name="open_network_settings_action">פתח הגדרות רשת</string>
     <string name="action_close">סגור</string>
     <string name="details_biography_label">ביוגרפיה</string>
     <string name="details_biography_unavailable">ביוגרפיה אינה זמינה</string>
@@ -64,7 +69,7 @@
     <string name="ai_recommendations_empty_message">ההמלצות עדיין לא הוגדרו. בטלפון או במחשב, גשו לאתר aistudio.google.com, התחברו עם חשבון Google שלכם, ואז צרו והעתיקו מפתח API מדף API keys - והזינו אותו למטה.</string>
     <string name="ai_recommendations_login_required">יש להתחבר כדי לקבל המלצות מותאמות אישית.</string>
     <string name="gemini_api_key_saved">מפתח ה-API של Gemini נשמר.</string>
-    <string name="ai_recommendations_no_signal_message">יש להוסיף כמה כותרים למועדפים או לחפש משהו, ואז לחזור לכאן להמלצות מותאמות אישית.</string>
+    <string name="ai_recommendations_no_signal_message">יש להוסיף כמה כותרים למועדפים, ואז לחזור לכאן להמלצות מותאמות אישית.</string>
     <string name="news_api_key_setup_message">החדשות עדיין לא הוגדרו. בטלפון או במחשב, גשו לאתר open-platform.theguardian.com, הירשמו לקבלת מפתח מפתחים, ואז העתיקו את מפתח ה-API מהודעת האימות שנשלחה במייל - והזינו אותו למטה.</string>
     <string name="news_api_key_saved">מפתח ה-API של Guardian נשמר.</string>
 

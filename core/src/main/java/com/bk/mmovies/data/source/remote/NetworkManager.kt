@@ -33,9 +33,9 @@ class NetworkManager @Inject constructor(private val gson: Gson) {
             } else {
                 val errorBody: ResponseBody? = response.errorBody()
                 var errorDto: ErrorDto? = null
+                var errorBodyText: String? = null
 
                 if (errorBody != null) {
-                    var errorBodyText: String? = null
                     try {
                         errorBodyText = errorBody.string()
                         errorDto = gson.fromJson(
@@ -60,7 +60,8 @@ class NetworkManager @Inject constructor(private val gson: Gson) {
                         NetworkError.HttpError(
                                 response.code(),
                                 response.message(),
-                                errorDto
+                                errorDto,
+                                errorBodyText
                                               )
                                             )
             }

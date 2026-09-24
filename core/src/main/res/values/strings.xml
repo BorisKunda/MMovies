@@ -21,6 +21,8 @@
     <string name="error_no_network_generic">No connection. Please check your network.</string>
     <string name="error_news_load_failed">Couldn\'t load news right now. Please try again later.</string>
     <string name="error_ai_recommendations_failed">Couldn\'t load recommendations right now. Please try again later.</string>
+    <string name="error_ai_recommendations_daily_limit">Gemini\'s daily usage limit has been reached. Please try again at %1$s.</string>
+    <string name="error_ai_recommendations_overloaded">Gemini is overloaded right now. Please try again in a moment.</string>
     <string name="category_popular_movies">Popular Movies</string>
     <string name="category_popular_tv">Popular TV Series</string>
     <string name="category_upcoming_movies">Upcoming Movies</string>

@@ -17,7 +17,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -37,6 +37,11 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -67,7 +72,11 @@ fun TvNewsRow(
         title: String,
         items: List<NewsItem>,
         onNewsItemClicked: (NewsItem) -> Unit = {},
-        onEndReached: () -> Unit = {}
+        onEndReached: () -> Unit = {},
+        // The News nav rail item. D-pad Left from the first card is sent here
+        // explicitly: default spatial focus search picks whichever rail item
+        // is nearest in height to the card (e.g. Favorites), not News.
+        navRailFocusRequester: FocusRequester? = null
              ) {
     val listState = rememberLazyListState()
 
@@ -111,13 +120,15 @@ fun TvNewsRow(
                         },
                 horizontalArrangement = Arrangement.spacedBy(12.dp)
                ) {
-            items(items, key = { it.articleUrl }) { newsItem ->
+            itemsIndexed(items, key = { _, item -> item.articleUrl }) { index, newsItem ->
                 val focusRequester = remember(newsItem.articleUrl) {
                     focusRequesters.getOrPut(newsItem.articleUrl) { FocusRequester() }
                 }
                 TvNewsCard(
                         newsItem,
                         isRemembered = newsItem.articleUrl == lastFocusedKey,
+                        leftFocusRequester = if (index == 0) navRailFocusRequester else null,
+                        isLast = index == items.lastIndex,
                         focusRequester = focusRequester,
                         onFocusChanged = { isFocused -> if (isFocused) lastFocusedKey = newsItem.articleUrl },
                         onClick = { onNewsItemClicked(newsItem) }
@@ -131,6 +142,10 @@ fun TvNewsRow(
 private fun TvNewsCard(
         newsItem: NewsItem,
         isRemembered: Boolean,
+        leftFocusRequester: FocusRequester?,
+        // The last card swallows DirectionRight: the only thing to its right is
+        // the header's profile button, which spatial focus search would jump to.
+        isLast: Boolean,
         focusRequester: FocusRequester,
         onFocusChanged: (isFocused: Boolean) -> Unit,
         onClick: () -> Unit
@@ -154,6 +169,26 @@ private fun TvNewsCard(
                             }
                          )
                     .focusRequester(focusRequester)
+                    .then(
+                            if (leftFocusRequester != null || isLast) {
+                                Modifier.onPreviewKeyEvent { keyEvent ->
+                                    when {
+                                        leftFocusRequester != null &&
+                                                keyEvent.type == KeyEventType.KeyDown &&
+                                                keyEvent.key == Key.DirectionLeft  -> {
+                                            runCatching { leftFocusRequester.requestFocus() }
+                                            true
+                                        }
+                                        isLast &&
+                                                keyEvent.type == KeyEventType.KeyDown &&
+                                                keyEvent.key == Key.DirectionRight -> true
+                                        else                                       -> false
+                                    }
+                                }
+                            } else {
+                                Modifier
+                            }
+                         )
                     // onFocusChanged only observes the focus target that
                     // comes AFTER it in the chain, so it must precede
                     // clickable() - same rule as TvItemView.

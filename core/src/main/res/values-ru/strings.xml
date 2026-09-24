@@ -21,6 +21,8 @@
     <string name="error_no_network_generic">Нет подключения. Пожалуйста, проверьте подключение к сети.</string>
     <string name="error_news_load_failed">Не удалось загрузить новости. Пожалуйста, попробуйте позже.</string>
     <string name="error_ai_recommendations_failed">Не удалось загрузить рекомендации. Пожалуйста, попробуйте позже.</string>
+    <string name="error_ai_recommendations_daily_limit">Достигнут дневной лимит использования Gemini. Повторите попытку в %1$s.</string>
+    <string name="error_ai_recommendations_overloaded">Gemini сейчас перегружен. Повторите попытку через минуту.</string>
     <string name="category_popular_movies">Популярные фильмы</string>
     <string name="category_popular_tv">Популярные сериалы</string>
     <string name="category_upcoming_movies">Скоро в кино</string>

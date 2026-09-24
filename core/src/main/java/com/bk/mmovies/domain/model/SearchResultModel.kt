@@ -16,6 +16,9 @@ data class SearchResultModel(
         val imageUrl: String,
         val backdropUrl: String = "",
         val subtitle: String,
+        // TMDB user score as a percentage (0 = none). Only movies and series
+        // have one; persons stay 0.
+        val rating: Int = 0,
         // Only meaningful for MOVIE results; used to route to details with the
         // right category so unreleased titles get the "coming soon" treatment.
         val isUpcoming: Boolean = false

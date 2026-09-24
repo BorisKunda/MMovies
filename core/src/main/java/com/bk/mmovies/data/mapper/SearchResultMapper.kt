@@ -34,6 +34,7 @@ class SearchResultMapper @Inject constructor(
                     imageUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
                     backdropUrl = dto.backdropPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM, it) } ?: "",
                     subtitle = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
+                    rating = dto.rating.toRatingPercent(),
                     isUpcoming = dto.releaseDate.isUpcomingDate()
                                                    )
 
@@ -43,7 +44,8 @@ class SearchResultMapper @Inject constructor(
                     title = dto.name ?: "",
                     imageUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
                     backdropUrl = dto.backdropPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM, it) } ?: "",
-                    subtitle = dto.firstAirDate?.let { getFormattedDate(it) } ?: ""
+                    subtitle = dto.firstAirDate?.let { getFormattedDate(it) } ?: "",
+                    rating = dto.rating.toRatingPercent()
                                                    )
 
             MEDIA_TYPE_PERSON -> SearchResultModel(

@@ -1,11 +1,14 @@
 package com.bk.mmovies.tv
 
+import android.annotation.SuppressLint
 import android.os.Bundle
+import android.view.KeyEvent
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.ui.focus.FocusRequester
 import androidx.navigation.compose.rememberNavController
+import com.bk.mmovies.tv.input.TvInputMonitor
 import com.bk.mmovies.tv.theme.MMoviesTvTheme
 import com.bk.mmovies.tv.ui.navigation.TvNavigation
 import dagger.hilt.android.AndroidEntryPoint
@@ -26,6 +29,17 @@ class TvMainActivity : ComponentActivity() {
     // the screen genuinely appears, so the Activity-level attempt was pure
     // guaranteed-to-warn dead weight and was removed.
     private val firstItemFocusRequester = FocusRequester()
+
+    // Logs every key event, applies any registered remaps, and lets any
+    // registered interceptor consume it; with none registered this is a
+    // plain pass-through.
+    // ComponentActivity.dispatchKeyEvent is flagged @RestrictTo(LIBRARY_GROUP)
+    // by androidx.core, though it's a normal Activity override.
+    @SuppressLint("RestrictedApi")
+    override fun dispatchKeyEvent(event: KeyEvent): Boolean {
+        val processed = TvInputMonitor.process(event) ?: return true
+        return super.dispatchKeyEvent(processed)
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

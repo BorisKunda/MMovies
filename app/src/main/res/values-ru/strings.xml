@@ -62,6 +62,7 @@
     <!--EMPTY STATES-->
     <string name="empty_favorites_title">Пока нет избранного</string>
     <string name="empty_favorites_message">Фильмы, отмеченные как избранные, появятся здесь.</string>
+    <string name="empty_favorites_tv_series_message">Сериалы, отмеченные как избранные, появятся здесь.</string>
     <string name="empty_movies_title">Нечего показать</string>
     <string name="empty_movies_message">В этой категории сейчас нет фильмов.</string>
     <string name="empty_favorites_guest_title">Войдите, чтобы увидеть избранное</string>

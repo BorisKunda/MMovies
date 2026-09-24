@@ -25,8 +25,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -58,6 +65,15 @@ fun TvProfileHeader(
         isGuest: Boolean,
         modifier: Modifier = Modifier,
         focusRequester: FocusRequester? = null,
+        // False makes the header invisible to D-pad focus search (and to
+        // requestFocus) - the catalog only lets it be reached from the Movies
+        // rail item, so everywhere else Up/Right never land on it.
+        canBeFocused: Boolean = true,
+        onFocusChanged: (isFocused: Boolean) -> Unit = {},
+        // D-pad Down/Left on the header hands focus back to where it came from
+        // (the nav rail's Movies item) instead of wherever spatial focus
+        // search would land (a nearby content card for Down).
+        onNavigateBack: (() -> Unit)? = null,
         onClick: () -> Unit = {}
                     ) {
     val displayName = if (isGuest) stringResource(R.string.guest_label) else name
@@ -72,6 +88,20 @@ fun TvProfileHeader(
                 modifier = Modifier
                         .clip(RoundedCornerShape(50))
                         .background(if (isFocused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f) else Color.Transparent)
+                        // Both must precede the focus target (clickable below).
+                        .focusProperties { canFocus = canBeFocused }
+                        .onFocusChanged { onFocusChanged(it.isFocused) }
+                        .onPreviewKeyEvent { keyEvent ->
+                            if (onNavigateBack != null &&
+                                keyEvent.type == KeyEventType.KeyDown &&
+                                (keyEvent.key == Key.DirectionDown || keyEvent.key == Key.DirectionLeft)
+                            ) {
+                                onNavigateBack()
+                                true
+                            } else {
+                                false
+                            }
+                        }
                         .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
                         .clickable(interactionSource = interactionSource, role = Role.Button, onClick = onClick)
                         .padding(horizontal = 12.dp, vertical = 8.dp),
