@@ -56,7 +56,8 @@ fun InvalidApiKeyView(
         onOpenTmdbSettingsClicked: () -> Unit,
         onApiKeyHelpClicked: () -> Unit,
         onSaveClicked: (apiKey: String) -> Unit,
-        missingKey: Boolean
+        missingKey: Boolean,
+        openSettingsLabel: String = stringResource(CoreR.string.open_tmdb_api_settings)
                      ) {
     var apiKey by rememberSaveable {
         mutableStateOf("")
@@ -110,9 +111,7 @@ fun InvalidApiKeyView(
                          )
 
                     Text(
-                            text = stringResource(
-                                    CoreR.string.open_tmdb_api_settings
-                                                 ),
+                            text = openSettingsLabel,
                             style = MaterialTheme.typography.titleMedium,
                             fontWeight = FontWeight.Bold
                         )

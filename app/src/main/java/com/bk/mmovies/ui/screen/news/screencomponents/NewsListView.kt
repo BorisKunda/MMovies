@@ -1,6 +1,13 @@
 package com.bk.mmovies.ui.screen.news.screencomponents
 
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -26,13 +33,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.bk.mmovies.R
@@ -75,6 +85,64 @@ fun NewsListView(
             item { LoadingMoreFooter() }
         }
     }
+}
+
+// Skeleton cards echoing NewsCard (image, title, source line, description,
+// footer), pulsing like the catalog's MovieRowLoadingPlaceholder so the list
+// doesn't jump when loading finishes.
+@Composable
+fun NewsCardLoadingPlaceholderList(modifier: Modifier = Modifier) {
+    val transition = rememberInfiniteTransition(label = "newsLoading")
+    val loadingAlpha by transition.animateFloat(
+            initialValue = 0.3f,
+            targetValue = 1f,
+            animationSpec = infiniteRepeatable(
+                    animation = tween(durationMillis = 900),
+                    repeatMode = RepeatMode.Reverse
+                                              ),
+            label = "newsLoadingAlpha"
+                                               )
+
+    LazyColumn(
+            userScrollEnabled = false,
+            modifier = modifier.fillMaxSize(),
+            contentPadding = PaddingValues(cardSpacing),
+            verticalArrangement = Arrangement.spacedBy(cardSpacing)
+              ) {
+        items(3) {
+            Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = cardCornerShape,
+                    colors = CardDefaults.cardColors(containerColor = CardSurface),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+                ) {
+                Column(
+                        modifier = Modifier.padding(cardPadding),
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                      ) {
+                    NewsPlaceholderBlock(1f, imageHeight, loadingAlpha)
+                    NewsPlaceholderBlock(0.9f, 18.dp, loadingAlpha)
+                    NewsPlaceholderBlock(0.45f, 12.dp, loadingAlpha)
+                    NewsPlaceholderBlock(1f, 12.dp, loadingAlpha)
+                    NewsPlaceholderBlock(0.7f, 12.dp, loadingAlpha)
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun NewsPlaceholderBlock(widthFraction: Float, height: Dp, alpha: Float) {
+    Box(
+            modifier = Modifier
+                    .fillMaxWidth(widthFraction)
+                    .height(height)
+                    .alpha(alpha)
+                    .background(
+                            color = MaterialTheme.colorScheme.surfaceVariant,
+                            shape = RoundedCornerShape(8.dp)
+                               )
+       )
 }
 
 @Composable

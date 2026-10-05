@@ -10,8 +10,11 @@ import com.bk.mmovies.domain.model.result.NewsResult
 import com.bk.mmovies.domain.repository.NewsRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -23,6 +26,9 @@ class NewsViewModel @Inject constructor(
 
     private val _screenState = MutableStateFlow<NewsScreenState>(NewsScreenState.Loading)
     val screenState: StateFlow<NewsScreenState> = _screenState.asStateFlow()
+
+    private val _invalidApiKeyToastEvent = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+    val invalidApiKeyToastEvent: SharedFlow<Unit> = _invalidApiKeyToastEvent.asSharedFlow()
 
     private var loadNewsJob: Job? = null
     private var loadNextPageJob: Job? = null
@@ -53,10 +59,24 @@ class NewsViewModel @Inject constructor(
         }
     }
 
+    /**
+     * Stores [apiKey] and loads page 1 with it. A key NewsAPI rejects is
+     * discarded again (see [applyResult]) so it can't keep failing every later
+     * load, and the key input comes back with an "invalid" toast.
+     */
+    fun saveApiKey(apiKey: String) {
+        newsRepository.saveSharedPrefApiKey(apiKey)
+        loadNews()
+    }
+
     private fun loadNews() {
         loadNextPageJob?.cancel()
         loadNewsJob?.cancel()
         loadNewsJob = viewModelScope.launch {
+            if (!newsRepository.hasApiKey()) {
+                _screenState.value = NewsScreenState.NeedsApiKey(missingKey = true)
+                return@launch
+            }
             _screenState.value = NewsScreenState.Loading
             applyResult(newsRepository.getNews(page = 1), page = 1)
         }
@@ -103,6 +123,12 @@ class NewsViewModel @Inject constructor(
             }
 
             is NewsResult.Failure -> {
+                if (page <= 1 && result.isInvalidApiKey) {
+                    newsRepository.removeSharedPrefApiKey()
+                    _invalidApiKeyToastEvent.tryEmit(Unit)
+                    _screenState.value = NewsScreenState.NeedsApiKey(missingKey = false)
+                    return
+                }
                 if (page <= 1) {
                     _screenState.value = NewsScreenState.Error(result.errorMessage)
                     return
@@ -119,6 +145,8 @@ class NewsViewModel @Inject constructor(
 sealed interface NewsScreenState {
     data object Loading : NewsScreenState
     data object Empty : NewsScreenState
+    // missingKey = false means a key was entered/baked in but NewsAPI rejected it.
+    data class NeedsApiKey(val missingKey: Boolean) : NewsScreenState
     data class Content(
             val newsItems: List<NewsItem>,
             val currentPage: Int = 1,

@@ -52,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import com.bk.mmovies.R
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
+import com.bk.mmovies.ui.component.PrimaryButton
 import com.bk.mmovies.ui.theme.primaryButtonCornerSize
 import com.bk.mmovies.ui.theme.primaryButtonHeight
 import com.bk.mmovies.ui.theme.primaryButtonIconPadding
@@ -190,31 +191,12 @@ fun AuthWelcomeScreen(
                 }
                          )
 
-        OutlinedButton(
-                onClick = {
-                    onLoginClicked(username, password)
-                },
-                enabled = username.isNotBlank() && password.isNotBlank(),
-                modifier = Modifier
-                        .fillMaxWidth()
-                        .height(primaryButtonHeight),
-                shape = RoundedCornerShape(primaryButtonCornerSize),
-                border = BorderStroke(
-                        width = outlineButtonBorderStrokeWidth,
-                        color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.4f)
-                                     ),
-                colors = ButtonDefaults.outlinedButtonColors(
-                        contentColor = MaterialTheme.colorScheme.onSurface
-                                                            )
-                      ) {
-            Text(
-                    text = stringResource(CoreR.string.log_in),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
-        }
+        PrimaryButton(
+                imageResId = null,
+                label = stringResource(CoreR.string.log_in),
+                onClick = { onLoginClicked(username, password) },
+                isEnabled = username.isNotBlank() && password.isNotBlank()
+                     )
 
         AuthDivider()
 

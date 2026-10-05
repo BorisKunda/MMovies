@@ -11,6 +11,7 @@ import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.NewsApi
 import com.bk.mmovies.data.source.remote.dto.NewsResponseDto
 import com.bk.mmovies.data.source.remote.result.ApiCallResult
+import com.bk.mmovies.data.source.remote.result.NetworkError
 import com.bk.mmovies.data.source.remote.result.isConnectivityFailure
 import com.bk.mmovies.domain.model.filterByRequiredTitleKeywords
 import com.bk.mmovies.domain.model.result.NewsArticleContentResult
@@ -85,7 +86,16 @@ class NewsRepositoryImpl @Inject constructor(
                     totalPages = totalPages
                               )
         }
-        is ApiCallResult.Failure -> NewsResult.Failure(failureMessage, apiCallResult.error.isConnectivityFailure)
+        is ApiCallResult.Failure -> {
+            val error = apiCallResult.error
+            // NewsAPI answers a missing/invalid/disabled key with HTTP 401, so
+            // that's a rejected key rather than a transient network/server issue.
+            if (error is NetworkError.HttpError && error.responseCode == 401) {
+                NewsResult.Failure(context.getString(R.string.toast_invalid_api_key), isInvalidApiKey = true)
+            } else {
+                NewsResult.Failure(failureMessage, error.isConnectivityFailure)
+            }
+        }
     }
 
     private companion object {

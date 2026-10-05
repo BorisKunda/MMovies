@@ -1,5 +1,6 @@
 package com.bk.mmovies.ui.screen.news
 
+import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +12,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -19,10 +21,15 @@ import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
+import com.bk.mmovies.connectivity.openWebPage
+import com.bk.mmovies.core.R as CoreR
+import com.bk.mmovies.data.source.remote.NEWS_API_WEBPAGE_ACCOUNT
+import com.bk.mmovies.data.source.remote.NEWS_API_WEBPAGE_GET_STARTED
 import com.bk.mmovies.domain.model.NewsItem
 import com.bk.mmovies.ui.component.EmptyStateView
 import com.bk.mmovies.ui.component.GenericErrorScreen
-import com.bk.mmovies.ui.component.LoaderView
+import com.bk.mmovies.ui.component.InvalidApiKeyView
+import com.bk.mmovies.ui.screen.news.screencomponents.NewsCardLoadingPlaceholderList
 import com.bk.mmovies.ui.screen.news.screencomponents.NewsListView
 
 /**
@@ -63,8 +70,18 @@ fun NewsScreen(onOpenArticle: (String) -> Unit, viewModel: NewsViewModel = hiltV
                     onRetry = viewModel::retry,
                     onReadFullArticle = { onOpenArticle(it.articleUrl) },
                     onLoadNextPage = viewModel::loadNextPage,
-                    onShare = { shareNewsItem(context, it) }
+                    onShare = { shareNewsItem(context, it) },
+                    onOpenNewsApiAccount = { openWebPage(context, NEWS_API_WEBPAGE_ACCOUNT) },
+                    onApiKeyHelp = { openWebPage(context, NEWS_API_WEBPAGE_GET_STARTED) },
+                    onSaveApiKey = viewModel::saveApiKey
                           )
+        }
+    }
+
+    val invalidApiKeyToastMessage = stringResource(CoreR.string.toast_invalid_api_key)
+    LaunchedEffect(Unit) {
+        viewModel.invalidApiKeyToastEvent.collect {
+            Toast.makeText(context, invalidApiKeyToastMessage, Toast.LENGTH_SHORT).show()
         }
     }
 }
@@ -77,13 +94,24 @@ internal fun NewsScreenBody(
         onRetry: () -> Unit,
         onReadFullArticle: (NewsItem) -> Unit,
         onLoadNextPage: () -> Unit = {},
-        onShare: (NewsItem) -> Unit = {}
+        onShare: (NewsItem) -> Unit = {},
+        onOpenNewsApiAccount: () -> Unit = {},
+        onApiKeyHelp: () -> Unit = {},
+        onSaveApiKey: (String) -> Unit = {}
                           ) {
     when (screenState) {
+        is NewsScreenState.NeedsApiKey -> {
+            InvalidApiKeyView(
+                    onOpenTmdbSettingsClicked = onOpenNewsApiAccount,
+                    onApiKeyHelpClicked = onApiKeyHelp,
+                    onSaveClicked = onSaveApiKey,
+                    missingKey = screenState.missingKey,
+                    openSettingsLabel = stringResource(CoreR.string.open_newsapi_account)
+                             )
+        }
+
         is NewsScreenState.Loading -> {
-            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                LoaderView()
-            }
+            NewsCardLoadingPlaceholderList()
         }
 
         is NewsScreenState.Empty   -> {
