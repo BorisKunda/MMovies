@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.connectivity.openDeviceInternetSettings
 import com.bk.mmovies.domain.model.Category
+import com.bk.mmovies.ui.component.PoweredByNewsApiFooter
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTab
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CatalogBottomTabBar
@@ -116,10 +117,14 @@ fun CatalogScreen(
                                 catalogViewModel.onTabSelected(tab)
                             }
                                        )
-                    PoweredByTmdbFooter(
-                            modifier = Modifier.padding(top = tmdbFooterTopPadding),
-                            onClick = onNavigateToTerms
-                                       )
+                    if (selectedTab == CatalogBottomTab.News) {
+                        PoweredByNewsApiFooter(modifier = Modifier.padding(top = tmdbFooterTopPadding))
+                    } else {
+                        PoweredByTmdbFooter(
+                                modifier = Modifier.padding(top = tmdbFooterTopPadding),
+                                onClick = onNavigateToTerms
+                                           )
+                    }
                 }
             }
             ) { innerPadding ->
@@ -128,18 +133,18 @@ fun CatalogScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
               ) {
-            // News owns its own top bar/category tabs and isn't a catalog
-            // list, so none of this movie/TV chrome applies to it.
+            // The user profile chip sits at the very top-right of the
+            // screen, above the search bar. Shown on every tab, News included.
+            UserProfileBar(
+                    userProfileState = userProfileState,
+                    onLogout = { catalogViewModel.onLogoutClicked() }
+                          )
+
+            CatalogSearchBar(onClick = onNavigateToSearch)
+
+            // News isn't a catalog list, so the movie/TV category picker
+            // doesn't apply to it.
             if (selectedTab != CatalogBottomTab.News) {
-                // The user profile chip sits at the very top-right of the
-                // screen, above the search bar.
-                UserProfileBar(
-                        userProfileState = userProfileState,
-                        onLogout = { catalogViewModel.onLogoutClicked() }
-                              )
-
-                CatalogSearchBar(onClick = onNavigateToSearch)
-
                 // Fixed above the tab content so switching tabs never resets
                 // the selected category.
                 CategorySelector(

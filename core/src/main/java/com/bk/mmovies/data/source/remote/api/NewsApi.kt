@@ -3,13 +3,18 @@ package com.bk.mmovies.data.source.remote.api
 import com.bk.mmovies.data.source.remote.NEWS_API_KEY
 import com.bk.mmovies.data.source.remote.NEWS_CATEGORY_ENTERTAINMENT
 import com.bk.mmovies.data.source.remote.NEWS_DEFAULT_COUNTRY
+import com.bk.mmovies.data.source.remote.NEWS_EVERYTHING_ENDPOINT
 import com.bk.mmovies.data.source.remote.NEWS_PAGE_SIZE
+import com.bk.mmovies.data.source.remote.NEWS_SORT_BY_PUBLISHED_AT
 import com.bk.mmovies.data.source.remote.NEWS_TOP_HEADLINES_ENDPOINT
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_API_KEY
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_CATEGORY
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_COUNTRY
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_LANGUAGE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_PAGE
 import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_PAGE_SIZE
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_QUERY
+import com.bk.mmovies.data.source.remote.QUERY_PARAM_NEWS_SORT_BY
 import com.bk.mmovies.data.source.remote.dto.NewsResponseDto
 import retrofit2.Response
 import retrofit2.http.GET
@@ -30,4 +35,14 @@ interface NewsApi {
             @Query(QUERY_PARAM_NEWS_PAGE_SIZE) pageSize: Int = NEWS_PAGE_SIZE,
             @Query(QUERY_PARAM_NEWS_API_KEY) apiKey: String = NEWS_API_KEY
                                ): Response<NewsResponseDto>
+
+    @GET(NEWS_EVERYTHING_ENDPOINT)
+    suspend fun getEverything(
+            @Query(QUERY_PARAM_NEWS_QUERY) query: String,
+            @Query(QUERY_PARAM_NEWS_LANGUAGE) language: String,
+            @Query(QUERY_PARAM_NEWS_SORT_BY) sortBy: String = NEWS_SORT_BY_PUBLISHED_AT,
+            @Query(QUERY_PARAM_NEWS_PAGE) page: Int = 1,
+            @Query(QUERY_PARAM_NEWS_PAGE_SIZE) pageSize: Int = NEWS_PAGE_SIZE,
+            @Query(QUERY_PARAM_NEWS_API_KEY) apiKey: String = NEWS_API_KEY
+                            ): Response<NewsResponseDto>
 }

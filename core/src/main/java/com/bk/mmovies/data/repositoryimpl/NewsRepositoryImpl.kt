@@ -2,11 +2,15 @@ package com.bk.mmovies.data.repositoryimpl
 
 import android.content.Context
 import androidx.core.content.edit
+import androidx.core.os.ConfigurationCompat
 import com.bk.mmovies.core.R
 import com.bk.mmovies.data.mapper.NewsMapper
 import com.bk.mmovies.data.source.remote.NEWS_API_KEY
 import com.bk.mmovies.data.source.remote.NEWS_MAX_RESULTS
 import com.bk.mmovies.data.source.remote.NEWS_PAGE_SIZE
+import com.bk.mmovies.data.source.remote.NEWS_QUERY_ENGLISH
+import com.bk.mmovies.data.source.remote.NEWS_QUERY_HEBREW
+import com.bk.mmovies.data.source.remote.NEWS_QUERY_RUSSIAN
 import com.bk.mmovies.data.source.remote.NetworkManager
 import com.bk.mmovies.data.source.remote.api.NewsApi
 import com.bk.mmovies.data.source.remote.dto.NewsResponseDto
@@ -17,7 +21,9 @@ import com.bk.mmovies.domain.model.filterByRequiredTitleKeywords
 import com.bk.mmovies.domain.model.result.NewsArticleContentResult
 import com.bk.mmovies.domain.model.result.NewsResult
 import com.bk.mmovies.domain.repository.NewsRepository
+import com.bk.mmovies.locale.AppLanguage
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.Locale
 import javax.inject.Inject
 
 class NewsRepositoryImpl @Inject constructor(
@@ -53,11 +59,19 @@ class NewsRepositoryImpl @Inject constructor(
 
     override suspend fun getNews(page: Int): NewsResult {
         val apiKey = getSharedPrefApiKey() ?: NEWS_API_KEY
+        val appLanguage = AppLanguage.fromLocale(
+                ConfigurationCompat.getLocales(context.resources.configuration)[0] ?: Locale.getDefault())
+        // NewsAPI language codes use ISO 639-1 "he", not Android's legacy "iw".
+        val (newsLanguage, newsQuery) = when (appLanguage) {
+            AppLanguage.HEBREW  -> "he" to NEWS_QUERY_HEBREW
+            AppLanguage.RUSSIAN -> "ru" to NEWS_QUERY_RUSSIAN
+            AppLanguage.ENGLISH -> "en" to NEWS_QUERY_ENGLISH
+        }
         val apiCallResult: ApiCallResult<NewsResponseDto> = networkManager.executeApiCall(
-                "GetNews_page$page",
-                apiCall = { -> api.getTopHeadlines(page = page, apiKey = apiKey) })
+                "GetNews_page${page}_$newsLanguage",
+                apiCall = { -> api.getEverything(query = newsQuery, language = newsLanguage, page = page, apiKey = apiKey) })
 
-        return toNewsResult(apiCallResult, page)
+        return toNewsResult(apiCallResult, page, appLanguage)
     }
 
     // NewsAPI has no per-article "full body" endpoint (see NewsMapper's
@@ -67,7 +81,11 @@ class NewsRepositoryImpl @Inject constructor(
     override suspend fun getNewsArticleContent(articleUrl: String): NewsArticleContentResult =
             NewsArticleContentResult.Failure(failureMessage)
 
-    private fun toNewsResult(apiCallResult: ApiCallResult<NewsResponseDto>, page: Int): NewsResult = when (apiCallResult) {
+    private fun toNewsResult(
+            apiCallResult: ApiCallResult<NewsResponseDto>,
+            page: Int,
+            appLanguage: AppLanguage
+                            ): NewsResult = when (apiCallResult) {
         is ApiCallResult.Success -> {
             val totalResults = apiCallResult.data.totalResults ?: 0
             // ceil(totalResults / NEWS_PAGE_SIZE) without floating-point math.
@@ -81,7 +99,11 @@ class NewsRepositoryImpl @Inject constructor(
             val totalPages = rawTotalPages.coerceAtMost(maxReachablePages)
             NewsResult.Success(
                     newsItems = newsMapper.toModels(apiCallResult.data.articles.orEmpty())
-                            .filterByRequiredTitleKeywords(),
+                            // The keyword list is English-only; applying it to
+                            // he/ru titles would drop every article.
+                            .let { items ->
+                                if (appLanguage == AppLanguage.ENGLISH) items.filterByRequiredTitleKeywords() else items
+                            },
                     page = page,
                     totalPages = totalPages
                               )

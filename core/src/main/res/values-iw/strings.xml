@@ -48,6 +48,7 @@
     <string name="series_ongoing_label">בשידור</string>
     <string name="series_tba_label">טרם נקבע</string>
     <string name="powered_by_tmdb">מופעל על ידי</string>
+    <string name="powered_by_newsapi">מופעל על ידי NewsAPI</string>
 
     <string name="error_missing_api_key_title">מפתח API חסר</string>
     <string name="error_missing_api_key_message">המשתמש טרם הזין מפתח.</string>

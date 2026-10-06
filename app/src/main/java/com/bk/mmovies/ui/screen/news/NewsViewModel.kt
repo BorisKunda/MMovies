@@ -2,14 +2,20 @@ package com.bk.mmovies.ui.screen.news
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.bk.mmovies.connectivity.InternetMonitor
 import com.bk.mmovies.domain.model.NewsItem
 import com.bk.mmovies.domain.model.canLoadNextPage
 import com.bk.mmovies.domain.model.isLastPage
 import com.bk.mmovies.domain.model.mergePagedItems
 import com.bk.mmovies.domain.model.result.NewsResult
 import com.bk.mmovies.domain.repository.NewsRepository
+import com.bk.mmovies.locale.LocaleMonitor
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.drop
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -21,7 +27,9 @@ import javax.inject.Inject
 
 @HiltViewModel
 class NewsViewModel @Inject constructor(
-        private val newsRepository: NewsRepository
+        private val newsRepository: NewsRepository,
+        localeMonitor: LocaleMonitor,
+        internetMonitor: InternetMonitor
                                         ) : ViewModel() {
 
     private val _screenState = MutableStateFlow<NewsScreenState>(NewsScreenState.Loading)
@@ -32,9 +40,39 @@ class NewsViewModel @Inject constructor(
 
     private var loadNewsJob: Job? = null
     private var loadNextPageJob: Job? = null
+    private var retryWhenOnline = false
 
     init {
         loadNews()
+        // NewsAPI results are requested per app language, so a language
+        // change reloads the feed (shimmer, then new-language articles)
+        // instead of leaving the old-language list until the app restarts.
+        // Waits for connectivity since a locale change can land mid-reconnect.
+        viewModelScope.launch {
+            localeMonitor.currentLanguage
+                    .drop(1)
+                    .collectLatest {
+                        internetMonitor.isInternetAvailable.first { it }
+                        // Right after a locale change DNS can still be down
+                        // even though the connectivity flag already says
+                        // "available" (and it then never flips again), so
+                        // retry connectivity failures a few times here.
+                        repeat(LANGUAGE_CHANGE_MAX_ATTEMPTS) { attempt ->
+                            if (attempt > 0) delay(LANGUAGE_CHANGE_RETRY_DELAY_MS)
+                            loadNews()
+                            loadNewsJob?.join()
+                            if (!retryWhenOnline) return@collectLatest
+                        }
+                    }
+        }
+        // The check above can pass on a stale "available" flag while DNS is
+        // still down right after a locale change, so a page-1 load that failed
+        // for connectivity reasons is retried once the network comes (back).
+        viewModelScope.launch {
+            internetMonitor.isInternetAvailable.collectLatest { isAvailable ->
+                if (isAvailable && retryWhenOnline) loadNews()
+            }
+        }
     }
 
     fun retry() {
@@ -72,7 +110,8 @@ class NewsViewModel @Inject constructor(
     private fun loadNews() {
         loadNextPageJob?.cancel()
         loadNewsJob?.cancel()
-        loadNewsJob = viewModelScope.launch {
+        retryWhenOnline = false
+        loadNewsJob =viewModelScope.launch {
             if (!newsRepository.hasApiKey()) {
                 _screenState.value = NewsScreenState.NeedsApiKey(missingKey = true)
                 return@launch
@@ -130,6 +169,7 @@ class NewsViewModel @Inject constructor(
                     return
                 }
                 if (page <= 1) {
+                    retryWhenOnline = result.isConnectivityFailure
                     _screenState.value = NewsScreenState.Error(result.errorMessage)
                     return
                 }
@@ -141,6 +181,9 @@ class NewsViewModel @Inject constructor(
         }
     }
 }
+
+private const val LANGUAGE_CHANGE_MAX_ATTEMPTS = 5
+private const val LANGUAGE_CHANGE_RETRY_DELAY_MS = 2_000L
 
 sealed interface NewsScreenState {
     data object Loading : NewsScreenState

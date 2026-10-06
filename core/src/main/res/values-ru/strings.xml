@@ -48,6 +48,7 @@
     <string name="series_ongoing_label">Настоящее время</string>
     <string name="series_tba_label">Дата уточняется</string>
     <string name="powered_by_tmdb">При поддержке</string>
+    <string name="powered_by_newsapi">При поддержке NewsAPI</string>
 
     <string name="error_missing_api_key_title">Отсутствует ключ API</string>
     <string name="error_missing_api_key_message">Пользователь ещё не ввёл ключ.</string>

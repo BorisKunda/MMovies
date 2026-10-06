@@ -228,5 +228,15 @@ class NewsRepositoryImplTest {
             if (throwOnTopHeadlines) throw java.io.IOException("network down")
             return topHeadlinesResponse
         }
+
+        override suspend fun getEverything(
+                query: String,
+                language: String,
+                sortBy: String,
+                page: Int,
+                pageSize: Int,
+                apiKey: String
+                                          ): Response<NewsResponseDto> =
+                getTopHeadlines(page = page, apiKey = apiKey)
     }
 }
