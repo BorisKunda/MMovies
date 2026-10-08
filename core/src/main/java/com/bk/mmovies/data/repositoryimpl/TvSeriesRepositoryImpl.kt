@@ -35,6 +35,8 @@ import com.bk.mmovies.domain.repository.TvSeriesRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
 import javax.inject.Inject
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 // TMDB returns 20 favorites per page, so this covers 1000 favorited series.
 private const val MAX_FAVORITE_SYNC_PAGES = 50
@@ -239,31 +241,37 @@ class TvSeriesRepositoryImpl @Inject constructor(
             tvSeriesId: Int,
             isFavorite: Boolean
                                         ): ToggleFavoriteResult {
-        val apiCallResult: ApiCallResult<ToggleFavoriteResponseDto> = networkManager.executeApiCall(
-                "ToggleTvFavorite",
-                apiCall = {
-                    ->
-                    api.toggleFavorite(
-                            accountId,
-                            sessionId,
-                            ToggleFavoriteRequestDto(mediaType = MEDIA_TYPE_TV, mediaId = tvSeriesId, favorite = isFavorite)
-                                       )
-                })
+        // Optimistic + NonCancellable - see MovieRepositoryImpl.toggleFavorite.
+        return withContext(NonCancellable) {
+            applyFavoriteLocally(tvSeriesId, isFavorite)
+            val apiCallResult: ApiCallResult<ToggleFavoriteResponseDto> = networkManager.executeApiCall(
+                    "ToggleTvFavorite",
+                    apiCall = {
+                        ->
+                        api.toggleFavorite(
+                                accountId,
+                                sessionId,
+                                ToggleFavoriteRequestDto(mediaType = MEDIA_TYPE_TV, mediaId = tvSeriesId, favorite = isFavorite)
+                                           )
+                    })
 
-        return when (apiCallResult) {
-            is ApiCallResult.Success<ToggleFavoriteResponseDto> -> {
-                if (isFavorite) {
-                    tvFavoriteDao.insert(TvFavoriteEntity(tvSeriesId))
-                    favoriteIdsCache = favoriteIdsCache?.plus(tvSeriesId)
-                } else {
-                    tvFavoriteDao.deleteById(tvSeriesId)
-                    favoriteIdsCache = favoriteIdsCache?.minus(tvSeriesId)
+            when (apiCallResult) {
+                is ApiCallResult.Success<ToggleFavoriteResponseDto> -> ToggleFavoriteResult.Success
+                is ApiCallResult.Failure                            -> {
+                    applyFavoriteLocally(tvSeriesId, !isFavorite)
+                    ToggleFavoriteResult.Failure(favoriteToggleFailureMessage)
                 }
-                ToggleFavoriteResult.Success
             }
-            is ApiCallResult.Failure                            -> {
-                ToggleFavoriteResult.Failure(favoriteToggleFailureMessage)
-            }
+        }
+    }
+
+    private suspend fun applyFavoriteLocally(tvSeriesId: Int, isFavorite: Boolean) {
+        if (isFavorite) {
+            tvFavoriteDao.insert(TvFavoriteEntity(tvSeriesId))
+            favoriteIdsCache = favoriteIdsCache?.plus(tvSeriesId)
+        } else {
+            tvFavoriteDao.deleteById(tvSeriesId)
+            favoriteIdsCache = favoriteIdsCache?.minus(tvSeriesId)
         }
     }
 

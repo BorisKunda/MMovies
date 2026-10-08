@@ -27,10 +27,15 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
@@ -39,6 +44,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.tv.R
+import com.bk.mmovies.tv.ui.details.FAVORITE_TAP_COOLDOWN_MS
+import kotlinx.coroutines.delay
 
 /** A single genre pill, mirroring app's GenreChip. */
 @Composable
@@ -77,12 +84,38 @@ fun TvMetaRow(icon: androidx.compose.ui.graphics.vector.ImageVector, text: Strin
     }
 }
 
+/**
+ * Wraps a favorite click so presses (including a held remote button's repeats)
+ * are ignored for FAVORITE_TAP_COOLDOWN_MS after an accepted one. Returns
+ * whether the cooldown is active (for dimming) and the guarded click. The
+ * button stays enabled - disabling it would drop D-pad focus.
+ */
+@Composable
+fun rememberFavoriteTapCooldown(onClick: () -> Unit): Pair<Boolean, () -> Unit> {
+    var cooling by remember { mutableStateOf(false) }
+    val latestOnClick by rememberUpdatedState(onClick)
+    LaunchedEffect(cooling) {
+        if (cooling) {
+            delay(FAVORITE_TAP_COOLDOWN_MS)
+            cooling = false
+        }
+    }
+    return cooling to {
+        if (!cooling) {
+            cooling = true
+            latestOnClick()
+        }
+    }
+}
+
 /** D-pad focusable favorite toggle, mirroring app's FavoriteStarButton. */
 @Composable
 fun TvFavoriteStarButton(isFavorite: Boolean, onClick: () -> Unit, modifier: Modifier = Modifier) {
+    val (cooling, guardedClick) = rememberFavoriteTapCooldown(onClick)
     IconButton(
-            onClick = onClick,
+            onClick = guardedClick,
             modifier = modifier
+                    .alpha(if (cooling) 0.5f else 1f)
                     .clip(RoundedCornerShape(50))
                     .background(Color.Black.copy(alpha = 0.5f))
               ) {

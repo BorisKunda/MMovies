@@ -25,6 +25,8 @@ import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
 import com.bk.mmovies.domain.repository.MovieRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
+import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.withContext
 
 // TMDB returns 20 favorites per page, so this covers 1000 favorited movies.
 private const val MAX_FAVORITE_SYNC_PAGES = 50
@@ -186,31 +188,40 @@ class MovieRepositoryImpl @Inject constructor(
             movieId: Int,
             isFavorite: Boolean
                                         ): ToggleFavoriteResult {
-        val apiCallResult: ApiCallResult<ToggleFavoriteResponseDto> = networkManager.executeApiCall(
-                "ToggleFavorite",
-                apiCall = {
-                    ->
-                    api.toggleFavorite(
-                            accountId,
-                            sessionId,
-                            ToggleFavoriteRequestDto(mediaId = movieId, favorite = isFavorite)
-                                       )
-                })
+        // Optimistic: a details screen can be left (BACK) before the request
+        // returns, and the catalog re-reads this cache the moment it is shown
+        // again - waiting for the response left it on the old state. Also
+        // NonCancellable so leaving the screen can't drop the request.
+        return withContext(NonCancellable) {
+            applyFavoriteLocally(movieId, isFavorite)
+            val apiCallResult: ApiCallResult<ToggleFavoriteResponseDto> = networkManager.executeApiCall(
+                    "ToggleFavorite",
+                    apiCall = {
+                        ->
+                        api.toggleFavorite(
+                                accountId,
+                                sessionId,
+                                ToggleFavoriteRequestDto(mediaId = movieId, favorite = isFavorite)
+                                           )
+                    })
 
-        return when (apiCallResult) {
-            is ApiCallResult.Success<ToggleFavoriteResponseDto> -> {
-                if (isFavorite) {
-                    favoriteDao.insert(FavoriteEntity(movieId))
-                    favoriteIdsCache = favoriteIdsCache?.plus(movieId)
-                } else {
-                    favoriteDao.deleteById(movieId)
-                    favoriteIdsCache = favoriteIdsCache?.minus(movieId)
+            when (apiCallResult) {
+                is ApiCallResult.Success<ToggleFavoriteResponseDto> -> ToggleFavoriteResult.Success
+                is ApiCallResult.Failure                            -> {
+                    applyFavoriteLocally(movieId, !isFavorite)
+                    ToggleFavoriteResult.Failure(favoriteToggleFailureMessage)
                 }
-                ToggleFavoriteResult.Success
             }
-            is ApiCallResult.Failure                            -> {
-                ToggleFavoriteResult.Failure(favoriteToggleFailureMessage)
-            }
+        }
+    }
+
+    private suspend fun applyFavoriteLocally(movieId: Int, isFavorite: Boolean) {
+        if (isFavorite) {
+            favoriteDao.insert(FavoriteEntity(movieId))
+            favoriteIdsCache = favoriteIdsCache?.plus(movieId)
+        } else {
+            favoriteDao.deleteById(movieId)
+            favoriteIdsCache = favoriteIdsCache?.minus(movieId)
         }
     }
 

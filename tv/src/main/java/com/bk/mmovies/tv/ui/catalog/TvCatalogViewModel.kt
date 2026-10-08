@@ -1,5 +1,6 @@
 package com.bk.mmovies.tv.ui.catalog
 
+import android.os.SystemClock
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.material.icons.Icons
@@ -42,6 +43,7 @@ import com.bk.mmovies.domain.repository.SearchRepository
 import com.bk.mmovies.domain.repository.TvSeriesRepository
 import com.bk.mmovies.tv.BuildConfig
 import com.bk.mmovies.tv.R
+import com.bk.mmovies.tv.ui.details.FAVORITE_TAP_COOLDOWN_MS
 import com.bk.mmovies.tv.ui.catalog.TvCatalogScreenState.*
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -148,7 +150,7 @@ sealed interface TvCatalogScreenState {
                       ) : TvCatalogScreenState
 
     // loginRequired: same reasoning as Favorites - recommendations are built
-    // from the account's favorites/recent searches. keySetupRequired: no
+    // from the account's favorites only. keySetupRequired: no
     // Gemini key saved (runtime or BuildConfig) yet, so items/errorMessage
     // are both meaningless until one is entered.
     data class Recommendations(
@@ -207,6 +209,11 @@ class TvCatalogViewModel @Inject constructor(
         // actual request go out. Matches Google's own documented ~300ms
         // debounce for TV search (Leanback SearchFragment).
         private const val SEARCH_DEBOUNCE_MS = 300L
+
+        // Temporarily turns recent searches off for the TV module: nothing is
+        // loaded or recorded. Pairs with SHOW_RECENT_SEARCHES in
+        // CatalogTvScreen (the UI); flip both to true to bring the feature back.
+        private const val RECENT_SEARCHES_ENABLED = false
     }
 
     private val _selectedDestination = MutableStateFlow(TvCatalogDestination.Movies)
@@ -314,6 +321,13 @@ class TvCatalogViewModel @Inject constructor(
                             imageUrl = result.avatarUrl,
                             isGuest = false
                                                                    )
+                    // Like :app: pull the account's real favorites into the
+                    // repositories' id caches. Without this the TV cache only
+                    // knew titles toggled on this device, so a title favorited
+                    // or un-favorited elsewhere showed the wrong star/button.
+                    movieRepository.syncFavoriteIds(result.accountId, loginSessionId)
+                    tvSeriesRepository.syncFavoriteIds(result.accountId, loginSessionId)
+                    refreshFavoriteStates()
                 }
                 is AccountDetailsResult.Failure -> {
                     _userProfileState.value = TvUserProfileUiState(isGuest = false)
@@ -579,6 +593,8 @@ class TvCatalogViewModel @Inject constructor(
     // showing. Optimistic like the details screens' equivalent, updating
     // both focusedItem and the item's entry in its row so the row still
     // reflects the new state after the dialog closes; reverts on failure.
+    private var lastFavoriteTapAt = 0L
+
     fun onFeaturedFavoriteClicked() {
         val current = _screenState.value
         val item = when (current) {
@@ -591,6 +607,10 @@ class TvCatalogViewModel @Inject constructor(
         } ?: return
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
         val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
+        // Same 500 ms star cooldown as the details screens.
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastFavoriteTapAt < FAVORITE_TAP_COOLDOWN_MS) return
+        lastFavoriteTapAt = now
 
         val newIsFavorite = !item.isFavorite
         applyFavoriteState(item.id, item.mediaType, newIsFavorite)
@@ -743,6 +763,7 @@ class TvCatalogViewModel @Inject constructor(
     }
 
     private fun loadRecentSearches() {
+        if (!RECENT_SEARCHES_ENABLED) return
         viewModelScope.launch {
             val recentSearches = searchRepository.getRecentSearches()
             val current = _screenState.value as? TvCatalogScreenState.Search ?: return@launch
@@ -780,7 +801,7 @@ class TvCatalogViewModel @Inject constructor(
     // covers the "start over" case in the meantime.
     fun onSearchResultClicked(item: CatalogItem) {
         val query = (_screenState.value as? TvCatalogScreenState.Search)?.query?.trim()
-        if (query.isNullOrEmpty()) return
+        if (!RECENT_SEARCHES_ENABLED || query.isNullOrEmpty()) return
         viewModelScope.launch {
             searchRepository.addRecentSearch(query)
         }
