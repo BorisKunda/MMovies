@@ -1,5 +1,6 @@
 package com.bk.mmovies.tv.ui.details
 
+import android.os.SystemClock
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.domain.model.result.ToggleFavoriteResult
@@ -8,6 +9,8 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.launch
+
+const val FAVORITE_TAP_COOLDOWN_MS = 500L
 
 // Mirrors app's DetailsViewModel<Id> - :tv can't depend on :app, so this
 // shared load/retry/locale-reload/optimistic-favorite-revert base is
@@ -52,6 +55,18 @@ abstract class DetailsTvViewModel<Id : Any>(
         loadJob = viewModelScope.launch {
             fetchDetails(id)
         }
+    }
+
+    private var lastFavoriteTapAt = 0L
+
+    // The star ignores taps for FAVORITE_TAP_COOLDOWN_MS after an accepted
+    // one, so rapid taps can't leave several toggle requests in flight whose
+    // responses could finish out of order.
+    protected fun acceptFavoriteTap(): Boolean {
+        val now = SystemClock.elapsedRealtime()
+        if (now - lastFavoriteTapAt < FAVORITE_TAP_COOLDOWN_MS) return false
+        lastFavoriteTapAt = now
+        return true
     }
 
     protected abstract fun onReload()

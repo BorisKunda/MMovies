@@ -61,6 +61,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.foundation.focusGroup
 import androidx.compose.ui.focus.FocusDirection
@@ -103,6 +104,7 @@ import com.bk.mmovies.tv.ui.component.TvProfileHeader
 import com.bk.mmovies.tv.ui.component.TvProviderFooter
 import com.bk.mmovies.tv.ui.component.TvRow
 import com.bk.mmovies.tv.ui.component.TvRowShimmer
+import com.bk.mmovies.tv.ui.component.rememberFavoriteTapCooldown
 import com.bk.mmovies.tv.ui.legal.TvAboutContent
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.component.UserScoreView
@@ -720,7 +722,10 @@ fun CatalogTvScreenContent(
         // same reason as the details screens' own initial-focus grab: this
         // can race the Button's focusRequester() modifier attaching on the
         // dialog's very first composition.
-        LaunchedEffect(focusedItem) {
+        // Keyed on the item's identity, not the item itself: toggling favorite
+        // replaces focusedItem with a copy, which would re-run this and yank
+        // focus from the Favorite button back to View details.
+        LaunchedEffect(focusedItem.id, focusedItem.mediaType) {
             repeat(FOCUS_REQUEST_RETRY_FRAMES) {
                 runCatching { viewDetailsFocusRequester.requestFocus() }
                 withFrameNanos {}
@@ -1279,12 +1284,14 @@ private fun CatalogHeroBanner(
                     }
 
                     if (showFavoriteButton) {
+                        val (favoriteCooling, guardedFavoriteClick) = rememberFavoriteTapCooldown(onFavoriteClicked)
                         OutlinedButton(
-                                onClick = onFavoriteClicked,
+                                onClick = guardedFavoriteClick,
                                 colors = ButtonDefaults.outlinedButtonColors(
                                         contentColor = Color.White
                                                                             ),
-                                shape = RoundedCornerShape(10.dp)
+                                shape = RoundedCornerShape(10.dp),
+                                modifier = Modifier.alpha(if (favoriteCooling) 0.5f else 1f)
                                       ) {
                             Icon(
                                     imageVector = if (item.isFavorite) Icons.Default.Star else Icons.Default.StarBorder,

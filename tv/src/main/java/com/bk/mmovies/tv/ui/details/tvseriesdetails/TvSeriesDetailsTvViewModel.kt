@@ -59,11 +59,18 @@ class TvSeriesDetailsTvViewModel @Inject constructor(
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
         when (val result = tvRepository.getTvSeriesDetails(id, sessionId)) {
             is TvSeriesDetailsResult.Success -> {
+                // account_states can lag right after a toggle elsewhere; the
+                // repository cache is updated the instant a toggle is made.
+                val details = if (sessionId != null) {
+                    result.tvSeriesDetails.copy(isFavorite = tvRepository.getCachedFavoriteIds().contains(id))
+                } else {
+                    result.tvSeriesDetails
+                }
                 _screenState.value = TvSeriesDetailsTvScreenState.Content(
-                        tvSeriesDetailsModel = result.tvSeriesDetails,
-                        seasons = result.tvSeriesDetails.seasons
+                        tvSeriesDetailsModel = details,
+                        seasons = details.seasons
                                                                          )
-                loadAllSeasonEpisodes(id, result.tvSeriesDetails.seasons)
+                loadAllSeasonEpisodes(id, details.seasons)
             }
             is TvSeriesDetailsResult.Failure -> {
                 _screenState.value = TvSeriesDetailsTvScreenState.Error(result.errorMessage)
@@ -94,6 +101,7 @@ class TvSeriesDetailsTvViewModel @Inject constructor(
     fun onFavoriteClicked() {
         val currentState = _screenState.value
         if (currentState !is TvSeriesDetailsTvScreenState.Content) return
+        if (!acceptFavoriteTap()) return
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
         val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
         val details = currentState.tvSeriesDetailsModel

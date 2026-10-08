@@ -46,7 +46,15 @@ class MovieDetailsTvViewModel @Inject constructor(
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId()
         when (val result = movieRepository.getMovieDetails(id, sessionId)) {
             is MovieDetailsResult.Success -> {
-                _screenState.value = MovieDetailsTvScreenState.Content(result.movieDetails)
+                // account_states can lag right after a toggle elsewhere (popup,
+                // another details visit); the repository cache is updated
+                // the instant a toggle is made, so it wins when logged in.
+                val details = if (sessionId != null) {
+                    result.movieDetails.copy(isFavorite = movieRepository.getCachedFavoriteIds().contains(id))
+                } else {
+                    result.movieDetails
+                }
+                _screenState.value = MovieDetailsTvScreenState.Content(details)
             }
             is MovieDetailsResult.Failure -> {
                 _screenState.value = MovieDetailsTvScreenState.Error(result.errorMessage)
@@ -57,6 +65,7 @@ class MovieDetailsTvViewModel @Inject constructor(
     fun onFavoriteClicked() {
         val currentState = _screenState.value
         if (currentState !is MovieDetailsTvScreenState.Content) return
+        if (!acceptFavoriteTap()) return
         val sessionId = authenticationRepository.getSharedPrefLoginSessionId() ?: return
         val accountId = authenticationRepository.getSharedPrefAccountId() ?: return
         val movieDetails = currentState.movieDetails
