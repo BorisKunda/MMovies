@@ -25,8 +25,6 @@
     <string name="voice_search_action">חיפוש קולי</string>
     <string name="voice_search_prompt">דברו כדי לחפש</string>
     <string name="voice_search_unavailable">חיפוש קולי אינו זמין במכשיר זה.</string>
-    <string name="recent_searches_label">חיפושים אחרונים</string>
-    <string name="clear_recent_searches_action">נקה</string>
 
     <string name="details_overview_label">תקציר</string>
     <string name="details_cast_label">שחקנים</string>

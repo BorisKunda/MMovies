@@ -1,4 +1,4 @@
-package com.bk.mmovies.tv.ui.component
+package com.bk.mmovies.tv.ui.catalog.content.rows
 
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode

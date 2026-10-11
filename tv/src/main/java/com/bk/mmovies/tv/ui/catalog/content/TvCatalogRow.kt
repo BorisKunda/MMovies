@@ -1,6 +1,5 @@
-package com.bk.mmovies.tv.ui.catalog
+package com.bk.mmovies.tv.ui.catalog.content
 
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -28,7 +26,7 @@ import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.tv.ui.component.TvRow
 
 @Composable
-fun CategoryRow(
+fun TvCatalogRow(
         category: Category,
         items: List<CatalogItem>,
         onItemPressed: (item: CatalogItem) -> Unit,
@@ -38,7 +36,7 @@ fun CategoryRow(
         // favorites row the user hasn't added anything to yet.
         emptyMessage: String? = null,
         navRailFocusRequester: FocusRequester? = null
-               ) {
+                ) {
     Column() {
         Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
             Icon(

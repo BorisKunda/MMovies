@@ -142,11 +142,7 @@ sealed interface TvCatalogScreenState {
             // the debounce wait) - the results row shows a shimmer meanwhile.
             val isSearching: Boolean = false,
             // The result whose preview popup is open (like Movies/TvSeries).
-            val focusedItem: CatalogItem? = null,
-            // Shown when query is blank - mirrors :app's SearchViewModel,
-            // just without its per-item remove affordance (see
-            // onRecentSearchClicked's doc for why).
-            val recentSearches: List<String> = emptyList()
+            val focusedItem: CatalogItem? = null
                       ) : TvCatalogScreenState
 
     // loginRequired: same reasoning as Favorites - recommendations are built
@@ -209,11 +205,6 @@ class TvCatalogViewModel @Inject constructor(
         // actual request go out. Matches Google's own documented ~300ms
         // debounce for TV search (Leanback SearchFragment).
         private const val SEARCH_DEBOUNCE_MS = 300L
-
-        // Temporarily turns recent searches off for the TV module: nothing is
-        // loaded or recorded. Pairs with SHOW_RECENT_SEARCHES in
-        // CatalogTvScreen (the UI); flip both to true to bring the feature back.
-        private const val RECENT_SEARCHES_ENABLED = false
     }
 
     private val _selectedDestination = MutableStateFlow(TvCatalogDestination.Movies)
@@ -383,7 +374,6 @@ class TvCatalogViewModel @Inject constructor(
             TvCatalogDestination.Search    -> {
                 contentLoadJob?.cancel()
                 _screenState.value = Search()
-                loadRecentSearches()
             }
             TvCatalogDestination.Recommendations -> loadRecommendations()
             TvCatalogDestination.About     -> {
@@ -741,9 +731,6 @@ class TvCatalogViewModel @Inject constructor(
 
         searchJob?.cancel()
         if (query.isBlank()) {
-            // Keep the already-loaded recentSearches rather than wiping them -
-            // this state also carries no items, but this branch runs on
-            // every deleted keystroke back to empty, not just on first entry.
             _screenState.value = current.copy(query = query, items = emptyList(), isSearching = false)
             return
         }
@@ -759,51 +746,6 @@ class TvCatalogViewModel @Inject constructor(
             if (latest.query == query) {
                 _screenState.value = latest.copy(items = items, isSearching = false)
             }
-        }
-    }
-
-    private fun loadRecentSearches() {
-        if (!RECENT_SEARCHES_ENABLED) return
-        viewModelScope.launch {
-            val recentSearches = searchRepository.getRecentSearches()
-            val current = _screenState.value as? TvCatalogScreenState.Search ?: return@launch
-            _screenState.value = current.copy(recentSearches = recentSearches)
-        }
-    }
-
-    // Mirrors :app's onRecentSearchClicked: re-running a past query also
-    // bumps it back to the front of the MRU list (addRecentSearch), same as
-    // typing it fresh and getting a result would.
-    fun onRecentSearchClicked(query: String) {
-        onSearchQueryChanged(query)
-        viewModelScope.launch {
-            searchRepository.addRecentSearch(query)
-            loadRecentSearches()
-        }
-    }
-
-    fun onClearRecentSearchesClicked() {
-        viewModelScope.launch {
-            searchRepository.clearRecentSearches()
-            loadRecentSearches()
-        }
-    }
-
-    // Records the query that actually led somewhere - mirrors :app's
-    // onResultClicked/onSearchSubmitted, which only ever save a query once
-    // it either produced a picked result or was explicitly submitted, never
-    // on every debounced keystroke. TV search has no separate submit
-    // affordance, so a picked result is the only such moment here. No
-    // per-item remove affordance is offered on this screen (unlike :app's
-    // RecentSearchRow) - D-pad-reachable removal would need its own
-    // focusable target interleaved with the chip list, which is deferred
-    // rather than shipped half-considered; onClearRecentSearchesClicked
-    // covers the "start over" case in the meantime.
-    fun onSearchResultClicked(item: CatalogItem) {
-        val query = (_screenState.value as? TvCatalogScreenState.Search)?.query?.trim()
-        if (!RECENT_SEARCHES_ENABLED || query.isNullOrEmpty()) return
-        viewModelScope.launch {
-            searchRepository.addRecentSearch(query)
         }
     }
 
