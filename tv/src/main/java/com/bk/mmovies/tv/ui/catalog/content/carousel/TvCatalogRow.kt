@@ -1,10 +1,9 @@
-package com.bk.mmovies.tv.ui.catalog.content
+package com.bk.mmovies.tv.ui.catalog.content.carousel
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -23,7 +22,8 @@ import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.TvSeriesCategory
-import com.bk.mmovies.tv.ui.component.TvRow
+import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderIconSize
 
 @Composable
 fun TvCatalogRow(
@@ -43,17 +43,17 @@ fun TvCatalogRow(
                     painter = painterResource(category.drawableRes),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.size(32.dp)
+                    modifier = Modifier.size(tvHeaderIconSize)
                 )
             Spacer(modifier = Modifier.width(6.dp))
             Text(
                     text = stringResource(category.labelRes),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.headlineSmall
+                    style = tvHeaderFontStyle
                 )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+       // Spacer(modifier = Modifier.height(16.dp))
         if (items.isEmpty() && emptyMessage != null) {
             Text(
                     text = emptyMessage,

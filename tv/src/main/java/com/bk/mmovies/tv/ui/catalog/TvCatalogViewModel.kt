@@ -9,6 +9,7 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
@@ -83,7 +84,7 @@ enum class TvCatalogDestination(@StringRes val labelResId: Int, val icon: TvNavI
     Movies(R.string.nav_movies, TvNavIcon.Vector(Icons.Default.Movie)),
     TvSeries(R.string.nav_tv_series, TvNavIcon.Vector(Icons.Default.LiveTv)),
     Search(R.string.nav_search, TvNavIcon.Vector(Icons.Default.Search)),
-    Favorites(R.string.nav_favorites, TvNavIcon.Vector(Icons.Default.FavoriteBorder)),
+    Favorites(R.string.nav_favorites, TvNavIcon.Vector(Icons.Default.Star)),
     News(R.string.nav_news, TvNavIcon.Vector(Icons.AutoMirrored.Filled.Article)),
     Recommendations(R.string.nav_recommendations, TvNavIcon.Drawable(CoreR.drawable.ic_ai)),
     About(R.string.nav_about, TvNavIcon.Vector(Icons.Outlined.Info))

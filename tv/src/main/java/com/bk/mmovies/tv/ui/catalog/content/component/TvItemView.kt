@@ -1,4 +1,4 @@
-package com.bk.mmovies.tv.ui.component
+package com.bk.mmovies.tv.ui.catalog.content.component
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
@@ -45,16 +45,9 @@ import coil3.compose.AsyncImage
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.ui.theme.MMoviesTheme
 
-private val tvItemWidth = 140.dp
-private val tvItemHeight = 210.dp
+private val tvItemWidth = 105.dp
+private val tvItemHeight = 158.dp
 private val tvItemShape = RoundedCornerShape(10.dp)
-private val rememberedAccentHeight = 4.dp
-
-// Matches the amber accent used for "remembered" state in the catalog focus
-// design (see TV_DETAILS_TRAILER_NEWS_AUTH.md / the catalog focus map) -
-// distinct from MaterialTheme.colorScheme.primary, which is reserved for
-// true focus, so the two states never read as the same color.
-private val rememberedAccentColor = Color(0xFFE7A23D)
 
 @Composable
 fun TvItem(
@@ -66,11 +59,6 @@ fun TvItem(
         // title on the placeholder there. Other rows keep the bare
         // placeholder look rather than every blank poster growing a label.
         isUpcoming: Boolean = false,
-        // True for the item a row would restore focus to if re-entered right
-        // now (see TvRow's row-level focus memory) - shown only while this
-        // item itself isn't the one truly focused, so the two states never
-        // overlap on the same tile.
-        isRemembered: Boolean = false,
         focusRequester: FocusRequester? = null,
         onFocusChanged: (isFocused: Boolean) -> Unit = {},
         onKeyPressed: (keyEvent: KeyEvent) -> Boolean = { false }
@@ -138,15 +126,6 @@ fun TvItem(
                         .clip(tvItemShape)
                         .background(Color.Black.copy(alpha = if (isFocused) 0.15f else 0.3f))
            )
-        if (isRemembered && !isFocused) {
-            Box(
-                    modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(rememberedAccentHeight)
-                            .background(rememberedAccentColor)
-               )
-        }
         if (isUpcoming && posterUrl.isBlank() && title.isNotBlank()) {
             Text(
                     text = title,

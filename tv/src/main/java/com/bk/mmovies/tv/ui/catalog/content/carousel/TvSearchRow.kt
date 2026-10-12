@@ -1,4 +1,4 @@
-package com.bk.mmovies.tv.ui.catalog.content
+package com.bk.mmovies.tv.ui.catalog.content.carousel
 
 import android.content.ActivityNotFoundException
 import android.content.Intent
@@ -35,12 +35,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.tv.R
-import com.bk.mmovies.tv.ui.component.TvRow
+import com.bk.mmovies.tv.theme.tvHeaderFontStyle
 
 @Composable
-fun TvSearchBar(
+fun TvSearchRow(
         query: String,
         onQueryChanged: (String) -> Unit,
         focusRequester: FocusRequester = remember { FocusRequester() },
@@ -84,7 +83,7 @@ fun TvSearchBar(
                                 else                              -> false
                             }
                         },
-                placeholder = { Text(text = stringResource(R.string.search_placeholder)) },
+                placeholder = { Text(text = stringResource(R.string.search_placeholder), style = tvHeaderFontStyle) },
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(
@@ -116,19 +115,4 @@ fun TvSearchBar(
                 )
         }
     }
-}
-
-@Composable
-fun TvSearchResultsRow(
-        items: List<CatalogItem>,
-        onItemPressed: (item: CatalogItem) -> Unit,
-        navRailFocusRequester: FocusRequester? = null
-                      ) {
-    TvRow(
-            rowId = "search",
-            list = items,
-            onItemPressed = onItemPressed,
-            navRailFocusRequester = navRailFocusRequester,
-            focusFirstOnEntry = true
-         )
 }

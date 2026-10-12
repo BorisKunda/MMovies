@@ -10,11 +10,11 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -28,6 +28,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
@@ -41,39 +43,60 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderIconSize
 import com.bk.mmovies.tv.ui.catalog.TvCatalogDestination
 import com.bk.mmovies.tv.ui.catalog.TvNavIcon
 import kotlinx.coroutines.delay
 import kotlin.time.Duration.Companion.milliseconds
 
-private val navRailExpandedWidth = 260.dp
-private val navRailCollapsedWidth = 96.dp
+private val catalogNavRailPadStart = 20.dp
+private val catalogNavRailPadTop = 70.dp
+private val catalogNavRailPadBottom = 30.dp
+private val catalogNavRailPadEnd =10.dp
+private val navRailExpandedWidth = 210.dp
+private val navRailCollapsedWidth = 80.dp
+private val navRailDividerWidth = 1.dp
+private val navRailDividerMarginTop = 70.dp
+private val navRailDividerMarginBottom = 30.dp
+private const val navRailDividerAlpha = 0.12f
 private val navItemCornerShape = 12.dp
-private val navIconSize = 24.dp
 private const val navRailFocusDebounce = 250L
 
 @Composable
-internal fun CatalogNavRail(
+internal fun TvCatalogNavRail(
         selectedDestination: TvCatalogDestination,
         onDestinationSelected: (TvCatalogDestination) -> Unit,
         navItemFocusRequesters: Map<TvCatalogDestination, FocusRequester> = emptyMap(),
         profileFocusRequester: FocusRequester? = null,
+        isProfileFocused: Boolean = false,
         onMoviesItemFocusChanged: (isFocused: Boolean) -> Unit = {},
         aboutContentFocusRequester: FocusRequester? = null,
         isFocusedState: State<Boolean> = remember { mutableStateOf(false) },
         onFocusChanged: (Boolean) -> Unit = {}
-                           ) {
+                             ) {
     val isFocused by isFocusedState
     val railWidth = if (isFocused) navRailExpandedWidth else navRailCollapsedWidth
+    val dividerColor = MaterialTheme.colorScheme.onSurface.copy(alpha = navRailDividerAlpha)
 
     Column(
             modifier = Modifier
                     .width(railWidth)
                     .fillMaxHeight()
                     .background(MaterialTheme.colorScheme.background)
+                    .drawBehind {
+                        drawLine(
+                                color = dividerColor,
+                                start = Offset(size.width - navRailDividerWidth.toPx() / 2, navRailDividerMarginTop.toPx()),
+                                end = Offset(size.width - navRailDividerWidth.toPx() / 2, size.height - navRailDividerMarginBottom.toPx()),
+                                strokeWidth = navRailDividerWidth.toPx()
+                                )
+                    }
                     .padding(
-                            horizontal = 20.dp,
-                            vertical = 32.dp
+                            start = catalogNavRailPadStart,
+                            top = catalogNavRailPadTop,
+                            bottom = catalogNavRailPadBottom,
+                            end = catalogNavRailPadEnd
                             )
                     .focusGroup()
                     .onFocusChanged { onFocusChanged(it.hasFocus) },
@@ -112,7 +135,7 @@ internal fun CatalogNavRail(
             CatalogNavRailItem(
                     label = stringResource(destination.labelResId),
                     icon = destination.icon,
-                    isSelected = destination == selectedDestination && !isFocused,
+                    isSelected = destination == selectedDestination && !isFocused && !isProfileFocused,
                     isExpanded = isFocused,
                     onClick = { onDestinationSelected(destination) },
                     modifier = itemModifier
@@ -150,7 +173,7 @@ private fun CatalogNavRailItem(
     }
     Row(
             modifier = modifier
-                    .fillMaxWidth()
+                    .wrapContentWidth()
                     .wrapContentHeight()
                     .clip(RoundedCornerShape(navItemCornerShape))
                     .background(backgroundColor)
@@ -160,8 +183,8 @@ private fun CatalogNavRailItem(
                             onClick = onClick
                               )
                     .padding(
-                            horizontal = 16.dp,
-                            vertical = 14.dp
+                            horizontal = 10.dp,
+                            vertical = 10.dp
                             ),
 
 
@@ -173,13 +196,13 @@ private fun CatalogNavRailItem(
                     imageVector = icon.imageVector,
                     contentDescription = if (isExpanded) null else label,
                     tint = contentColor,
-                    modifier = Modifier.size(navIconSize)
+                    modifier = Modifier.size(tvHeaderIconSize)
                                          )
             is TvNavIcon.Drawable -> Icon(
                     painter = painterResource(icon.resId),
                     contentDescription = if (isExpanded) null else label,
                     tint = contentColor,
-                    modifier = Modifier.size(navIconSize)
+                    modifier = Modifier.size(tvHeaderIconSize)
                                          )
         }
 
@@ -190,7 +213,7 @@ private fun CatalogNavRailItem(
                         text = label,
                         color = contentColor,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        style = MaterialTheme.typography.bodyLarge,
+                        style = tvHeaderFontStyle,
                         maxLines = 1
                     )
             }

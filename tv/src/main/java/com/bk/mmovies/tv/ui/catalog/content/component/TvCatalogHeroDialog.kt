@@ -1,4 +1,4 @@
-package com.bk.mmovies.tv.ui.catalog.content
+package com.bk.mmovies.tv.ui.catalog.content.component
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
