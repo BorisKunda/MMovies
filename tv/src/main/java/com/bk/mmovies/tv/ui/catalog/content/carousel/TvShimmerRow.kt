@@ -9,12 +9,12 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -25,64 +25,84 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 
-private val shimmerLabelWidth = 200.dp
+private val shimmerPadding = 5.dp
+private val shimmerHeaderWidth = 210.dp
 private val shimmerLabelHeight = 20.dp
-private val shimmerTileWidth = 105.dp
-private val shimmerTileHeight = 158.dp
-private val shimmerTileShape = RoundedCornerShape(10.dp)
-private const val SHIMMER_TILE_COUNT = 10
+private val shimmerListItemWidth = 105.dp
+private val shimmerListItemHeight = 158.dp
+private val shimmerListItemShape = RoundedCornerShape(10.dp)
+private const val SHIMMER_LIST_ITEMS_COUNT = 10
 
-// A row-shaped loading placeholder - a label-sized bar plus a run of
-// tile-shaped boxes matching TvItem's own width/height/corner radius - shown
-// in place of TvRow/CategoryRow while a row's data is still loading. Unlike
-// LoaderView (a full-screen icon), this preserves the catalog's row/tile
-// rhythm so real content sliding in doesn't jump the layout, and reads as
-// "this row is loading" rather than "the app restarted".
 @Composable
 fun TvShimmerRow(modifier: Modifier = Modifier) {
     val transition = rememberInfiniteTransition(label = "tvRowShimmer")
-    val alpha = transition.animateFloat(
+    val alpha: State<Float> = transition.animateFloat(
             initialValue = 0.35f,
             targetValue = 0.7f,
             animationSpec = infiniteRepeatable(
-                    animation = tween(durationMillis = 700, easing = FastOutSlowInEasing),
+                    animation = tween(
+                            durationMillis = 700,
+                            easing = FastOutSlowInEasing
+                                     ),
                     repeatMode = RepeatMode.Reverse
                                               ),
             label = "tvRowShimmerAlpha"
-                                        )
+                                                     )
     Column(modifier = modifier.fillMaxWidth()) {
-        ShimmerBox(
-                modifier = Modifier
-                        .width(shimmerLabelWidth)
-                        .height(shimmerLabelHeight),
-                shape = RoundedCornerShape(6.dp),
-                alpha = alpha
-                  )
-        LazyRow(
-                modifier = Modifier.fillMaxWidth(),
-                userScrollEnabled = false,
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-               ) {
-            items(SHIMMER_TILE_COUNT) {
-                ShimmerBox(
-                        modifier = Modifier
-                                .padding(5.dp)
-                                .width(shimmerTileWidth)
-                                .height(shimmerTileHeight),
-                        shape = shimmerTileShape,
-                        alpha = alpha
-                          )
-            }
-        }
+        ShimmerHeader(alpha)
+        Spacer(Modifier.height(10.dp))
+        ShimmerList(alpha)
     }
 }
 
 @Composable
-private fun ShimmerBox(modifier: Modifier = Modifier, shape: Shape, alpha: State<Float>) {
+private fun ShimmerHeader(alpha: State<Float>) {
+    ShimmerContainer(
+            modifier = Modifier
+                    .width(shimmerHeaderWidth)
+                    .height(shimmerLabelHeight)
+                    .padding(start = shimmerPadding),
+            shape = RoundedCornerShape(6.dp),
+            alpha = alpha
+                    )
+}
+
+@Composable
+private fun ShimmerList(alpha: State<Float>) {
+    LazyRow(
+            modifier = Modifier.fillMaxWidth(),
+            userScrollEnabled = false,
+            horizontalArrangement = Arrangement.spacedBy(12.dp)
+           ) {
+        items(SHIMMER_LIST_ITEMS_COUNT) {
+            ShimmerContainer(
+                    modifier = Modifier
+                            .padding(shimmerPadding)
+                            .width(shimmerListItemWidth)
+                            .height(shimmerListItemHeight),
+                    shape = shimmerListItemShape,
+                    alpha = alpha
+                            )
+        }
+    }
+}
+
+
+@Composable
+private fun ShimmerContainer(
+        modifier: Modifier = Modifier,
+        shape: Shape,
+        alpha: State<Float>
+                            ) {
     val baseColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.24f)
     Box(
             modifier = modifier
                     .clip(shape)
-                    .drawBehind { drawRect(color = baseColor, alpha = alpha.value) }
+                    .drawBehind {
+                        drawRect(
+                                color = baseColor,
+                                alpha = alpha.value
+                                )
+                    }
        )
 }

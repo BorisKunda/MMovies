@@ -25,7 +25,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -47,6 +46,7 @@ import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.tv.ui.catalog.FOCUS_REQUEST_RETRY_FRAMES
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import com.bk.mmovies.tv.R
 import com.bk.mmovies.tv.ui.component.rememberFavoriteTapCooldown
@@ -65,9 +65,9 @@ fun TvCatalogHeroDialog(
         onViewDetailsClicked: (item: CatalogItem, category: Category?) -> Unit,
         onFavoriteClicked: () -> Unit,
         onDismissed: () -> Unit,
-        onPopupClosedPrune: () -> Unit
+        onPopupClosedPrune: () -> Unit,
+        closeCoroutineScope: CoroutineScope
                        ) {
-    val coroutineScope = rememberCoroutineScope()
     val viewDetailsFocusRequester = remember { FocusRequester() }
     val isUpcoming = focusedCategory == MovieCategory.UpcomingMovieCategory ||
                      focusedCategory == TvSeriesCategory.UpcomingTvSeriesCategory
@@ -82,7 +82,7 @@ fun TvCatalogHeroDialog(
     val closeDialog: () -> Unit = {
         onDismissed()
         if (pruneOnClose) {
-            coroutineScope.launch {
+            closeCoroutineScope.launch {
                 withFrameNanos {}
                 railFocusRequester?.let { runCatching { it.requestFocus() } }
                 withFrameNanos {}

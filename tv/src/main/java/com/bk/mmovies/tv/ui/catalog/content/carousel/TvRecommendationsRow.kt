@@ -16,7 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.tv.R
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 import com.bk.mmovies.tv.ui.catalog.content.recommendations.AiIcon
 
 @Composable
@@ -33,7 +33,7 @@ fun TvRecommendationsRow(
                     text = stringResource(R.string.ai_recommendations_title),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    style = tvHeaderFontStyle
+                    style = tvHeaderTextStyle
                 )
         }
 

@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -32,12 +33,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.Category
+import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.NewsItem
 import com.bk.mmovies.domain.model.TvSeriesCategory
 import com.bk.mmovies.tv.R
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 import com.bk.mmovies.tv.ui.catalog.TvCatalogDestination
 import com.bk.mmovies.tv.ui.catalog.TvCatalogScreenState
+import com.bk.mmovies.tv.ui.catalog.content.about.TvAboutContent
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvCatalogRow
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvNewsRow
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvSearchResultsRow
@@ -46,7 +49,6 @@ import com.bk.mmovies.tv.ui.catalog.content.carousel.TvShimmerRow
 import com.bk.mmovies.tv.ui.catalog.content.keysetup.NewsKeySetup
 import com.bk.mmovies.tv.ui.catalog.content.recommendations.TvRecommendationsContent
 import com.bk.mmovies.tv.ui.component.TvOfflineView
-import com.bk.mmovies.tv.ui.legal.TvAboutContent
 import kotlinx.coroutines.launch
 
 private val catalogContentPadStart = 20.dp
@@ -67,6 +69,7 @@ fun CatalogContentList(
         aboutContentFocusRequester: FocusRequester,
         modifier: Modifier = Modifier,
         onNewsItemClicked: (newsItem: NewsItem) -> Unit = {},
+        onLoginClicked: () -> Unit = {},
         onItemFocused: (item: CatalogItem, category: Category?) -> Unit = { _, _ -> },
         onSearchQueryChanged: (String) -> Unit = {},
         onSearchItemPressed: (item: CatalogItem) -> Unit = {},
@@ -134,12 +137,21 @@ fun CatalogContentList(
             }
             is TvCatalogScreenState.Favorites       -> if (screenState.loginRequired) {
                 item {
-                    Text(
-                            text = stringResource(R.string.favorites_login_required),
-                            modifier = Modifier.padding(top = 8.dp),
-                            color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                            style = MaterialTheme.typography.bodyLarge
-                        )
+                    Column {
+                        TvCatalogRow(
+                                category = MovieCategory.FavoritesMovieCategory,
+                                items = emptyList(),
+                                onItemPressed = {},
+                                emptyMessage = stringResource(R.string.favorites_login_required),
+                                headerLabelRes = R.string.nav_favorites
+                                    )
+                        Button(
+                                onClick = onLoginClicked,
+                                modifier = Modifier.padding(start = 25.dp)
+                              ) {
+                            Text(text = stringResource(R.string.login_action))
+                        }
+                    }
                 }
             } else if (screenState.isLoading) {
                 items(SHIMMER_ROW_PLACEHOLDER_COUNT) { TvShimmerRow() }
@@ -189,7 +201,7 @@ fun CatalogContentList(
                             text = stringResource(TvCatalogDestination.Search.labelResId),
                             color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Bold,
-                            style = tvHeaderFontStyle
+                            style = tvHeaderTextStyle
                         )
                     Spacer(modifier = Modifier.height(16.dp))
                     val searchFieldFocusRequester = remember { FocusRequester() }
@@ -251,8 +263,10 @@ fun CatalogContentList(
                                             coroutineScope.launch { listState.animateScrollBy(SCROLL_STEP_PX) }
                                             true
                                         }
-                                        keyEvent.key == Key.DirectionUp && listState.canScrollBackward -> {
-                                            coroutineScope.launch { listState.animateScrollBy(-SCROLL_STEP_PX) }
+                                        keyEvent.key == Key.DirectionUp                                       -> {
+                                            if (listState.canScrollBackward) {
+                                                coroutineScope.launch { listState.animateScrollBy(-SCROLL_STEP_PX) }
+                                            }
                                             true
                                         }
                                         keyEvent.key == Key.DirectionLeft                                     -> {

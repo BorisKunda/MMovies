@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.layout.wrapContentWidth
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,7 +43,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 import com.bk.mmovies.tv.theme.tvHeaderIconSize
 import com.bk.mmovies.tv.ui.catalog.TvCatalogDestination
 import com.bk.mmovies.tv.ui.catalog.TvNavIcon
@@ -132,6 +132,9 @@ internal fun TvCatalogNavRail(
                     }
                 }
             }
+            itemModifier = itemModifier.onPreviewKeyEvent { keyEvent ->
+                keyEvent.type == KeyEventType.KeyDown && keyEvent.key == Key.DirectionLeft
+            }
             CatalogNavRailItem(
                     label = stringResource(destination.labelResId),
                     icon = destination.icon,
@@ -173,7 +176,7 @@ private fun CatalogNavRailItem(
     }
     Row(
             modifier = modifier
-                    .wrapContentWidth()
+                    .fillMaxWidth()
                     .wrapContentHeight()
                     .clip(RoundedCornerShape(navItemCornerShape))
                     .background(backgroundColor)
@@ -213,7 +216,7 @@ private fun CatalogNavRailItem(
                         text = label,
                         color = contentColor,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        style = tvHeaderFontStyle,
+                        style = tvHeaderTextStyle,
                         maxLines = 1
                     )
             }

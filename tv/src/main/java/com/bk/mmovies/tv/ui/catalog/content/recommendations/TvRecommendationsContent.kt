@@ -27,7 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.tv.R
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 import com.bk.mmovies.tv.ui.catalog.TvCatalogScreenState
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvRecommendationsRow
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvShimmerRow
@@ -45,7 +45,7 @@ fun TvRecommendationsContent(
     when {
         screenState.loginRequired        -> RecommendationsMessage(stringResource(R.string.ai_recommendations_login_required))
         screenState.keySetupRequired     -> RecommendationsKeySetup(onApiKeySaved)
-        screenState.isLoading            -> TvShimmerRow(modifier = Modifier.padding(top = 24.dp))
+        screenState.isLoading            -> TvShimmerRow()
         screenState.items.isNotEmpty()   -> TvRecommendationsRow(
                 items = screenState.items,
                 onItemPressed = onItemPressed,
@@ -67,9 +67,7 @@ private fun RecommendationsMessage(
         navRailFocusRequester: FocusRequester? = null
                                   ) {
     Column(
-            modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(top = 24.dp)
+            modifier = Modifier.fillMaxWidth()
           ) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             AiIcon()
@@ -78,7 +76,7 @@ private fun RecommendationsMessage(
                     text = stringResource(R.string.ai_recommendations_title),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    style = tvHeaderFontStyle
+                    style = tvHeaderTextStyle
                 )
         }
         Text(
@@ -87,7 +85,7 @@ private fun RecommendationsMessage(
                         .padding(top = 12.dp)
                         .fillMaxWidth(0.6f),
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                style = tvHeaderFontStyle
+                style = tvHeaderTextStyle
             )
         if (onRetryClicked != null) {
             Spacer(modifier = Modifier.height(24.dp))

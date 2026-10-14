@@ -43,7 +43,8 @@ import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.domain.model.NewsItem
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvContentTextStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 
 private val newsItemWidth = 260.dp
 private val newsItemHeight = 146.dp
@@ -80,7 +81,7 @@ fun TvNewsRow(
                 text = title,
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
-                style = tvHeaderFontStyle
+                style = tvHeaderTextStyle
             )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -191,14 +192,14 @@ private fun TvNewsCard(
                     fontWeight = FontWeight.Bold,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium
+                    style = tvContentTextStyle
                 )
             if (newsItem.sourceName.isNotBlank()) {
                 Text(
                         text = newsItem.sourceName,
                         modifier = Modifier.padding(top = 4.dp),
                         color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                        style = MaterialTheme.typography.bodySmall
+                        style = tvContentTextStyle
                     )
             }
         }

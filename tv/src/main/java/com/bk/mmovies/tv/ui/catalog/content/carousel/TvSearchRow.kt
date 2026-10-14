@@ -36,7 +36,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.tv.R
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 
 @Composable
 fun TvSearchRow(
@@ -83,7 +83,7 @@ fun TvSearchRow(
                                 else                              -> false
                             }
                         },
-                placeholder = { Text(text = stringResource(R.string.search_placeholder), style = tvHeaderFontStyle) },
+                placeholder = { Text(text = stringResource(R.string.search_placeholder), style = tvHeaderTextStyle) },
                 singleLine = true,
                 shape = RoundedCornerShape(16.dp),
                 colors = OutlinedTextFieldDefaults.colors(

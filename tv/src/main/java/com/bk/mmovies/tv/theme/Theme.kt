@@ -5,7 +5,6 @@ import androidx.compose.material3.darkColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.bk.mmovies.ui.theme.Gray300
@@ -17,7 +16,7 @@ private val TvColorScheme = darkColorScheme(
         onPrimary = DarkBackground,
         background = DarkBackground,
         surface = DarkBackground,
-                                            )
+                                           )
 
 @Composable
 fun MMoviesTvTheme(content: @Composable () -> Unit) {
@@ -29,8 +28,20 @@ fun MMoviesTvTheme(content: @Composable () -> Unit) {
 
 val tvHeaderIconSize = 20.dp
 
-val tvHeaderFontStyle = TextStyle(
-        fontSize = 14.sp,
-        lineHeight = 14.sp,
-        fontWeight = FontWeight.Bold
-                                 )
+
+val tvHeaderTextStyle: TextStyle
+    @Composable
+    get() = MaterialTheme.typography.titleMedium.copy(
+            //color for debug
+            //  background = Color.Red,
+            fontSize = 14.sp,
+            lineHeight = 14.sp
+                                                     )
+
+//blue-todo-remove-color
+val tvContentTextStyle: TextStyle
+    @Composable
+    get() = MaterialTheme.typography.bodyMedium.copy(
+            //color for debug
+            // color = Color.Blue,
+                                                    )

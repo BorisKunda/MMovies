@@ -16,13 +16,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRestorer
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.tv.ui.catalog.content.component.TvItem
 
@@ -54,6 +55,7 @@ fun TvRow(
         focusFirstOnEntry: Boolean = false
          ) {
     val listState = rememberLazyListState()
+    val placeholderPainter = painterResource(CoreR.drawable.placeholder)
 
     var rowHasFocus by remember(rowId) { mutableStateOf(false) }
     val focusRequesters = remember(rowId) { mutableMapOf<String, FocusRequester>() }
@@ -71,7 +73,7 @@ fun TvRow(
             state = listState,
             modifier = Modifier
                   //  .padding(10.dp)
-                    .then(if (focusFirstOnEntry) Modifier.focusGroup() else Modifier.focusRestorer())
+                    .then(if (focusFirstOnEntry) Modifier.focusGroup() else Modifier)
                     .onFocusChanged { focusState ->
                         if (focusState.hasFocus && !rowHasFocus && focusFirstOnEntry) {
                             list.firstOrNull()?.let { first ->
@@ -95,6 +97,7 @@ fun TvRow(
                     posterUrl = item.imageUrl,
                     title = item.title,
                     isUpcoming = isUpcoming,
+                    placeholderPainter = placeholderPainter,
                     focusRequester = focusRequester,
                     onKeyPressed = { keyEvent ->
                         // The preview banner only reacts to an explicit

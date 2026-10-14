@@ -40,11 +40,10 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.tv.R
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 
 private val avatarSize = 30.dp
 private const val AVATAR_BACKGROUND_ALPHA = 0.10f
@@ -123,7 +122,7 @@ fun TvProfileHeader(
                     text = displayName,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    style = tvHeaderFontStyle
+                    style = tvHeaderTextStyle
                 )
         }
     }
@@ -172,7 +171,7 @@ private fun InitialsAvatar(name: String) {
         Text(
                 text = initial,
                 color = Color.White,
-                style = tvHeaderFontStyle,
+                style = tvHeaderTextStyle,
                 fontWeight = FontWeight.Bold
             )
     }

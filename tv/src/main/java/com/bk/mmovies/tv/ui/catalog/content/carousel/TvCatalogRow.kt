@@ -22,8 +22,11 @@ import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.domain.model.TvSeriesCategory
-import com.bk.mmovies.tv.theme.tvHeaderFontStyle
+import com.bk.mmovies.tv.theme.tvContentTextStyle
 import com.bk.mmovies.tv.theme.tvHeaderIconSize
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
+
+private val iconToHeaderSpacing = 5.dp
 
 @Composable
 fun TvCatalogRow(
@@ -35,31 +38,38 @@ fun TvCatalogRow(
         // Shown under the header in place of the (empty) row, e.g. for a
         // favorites row the user hasn't added anything to yet.
         emptyMessage: String? = null,
+        headerLabelRes: Int = category.labelRes,
         navRailFocusRequester: FocusRequester? = null
                 ) {
     Column() {
-        Row(horizontalArrangement = Arrangement.Start, verticalAlignment = Alignment.CenterVertically) {
+        Row(
+                horizontalArrangement = Arrangement.Start,
+                verticalAlignment = Alignment.CenterVertically
+           ) {
             Icon(
                     painter = painterResource(category.drawableRes),
                     contentDescription = null,
                     tint = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.size(tvHeaderIconSize)
                 )
-            Spacer(modifier = Modifier.width(6.dp))
+            Spacer(modifier = Modifier.width(5.dp))
             Text(
-                    text = stringResource(category.labelRes),
+                    text = stringResource(headerLabelRes),
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    style = tvHeaderFontStyle
+                    style = tvHeaderTextStyle
                 )
         }
-       // Spacer(modifier = Modifier.height(16.dp))
+        // Spacer(modifier = Modifier.height(16.dp))
         if (items.isEmpty() && emptyMessage != null) {
             Text(
                     text = emptyMessage,
-                    modifier = Modifier.padding(start = 10.dp, bottom = 10.dp),
+                    modifier = Modifier.padding(
+                            start = 25.dp,
+                            bottom = 10.dp
+                                               ),
                     color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                    style = MaterialTheme.typography.bodyLarge
+                    style = tvContentTextStyle
                 )
             return@Column
         }

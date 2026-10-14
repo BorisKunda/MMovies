@@ -2,6 +2,7 @@ package com.bk.mmovies.tv.ui.catalog
 
 import android.widget.Toast
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.layout.LazyLayoutCacheWindow
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -16,6 +18,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.runtime.withFrameNanos
@@ -40,6 +43,7 @@ import com.bk.mmovies.tv.ui.component.TvProviderFooter
 import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 
 internal const val FOCUS_REQUEST_RETRY_FRAMES = 5
+private val CONTENT_LIST_CACHE_WINDOW = 220.dp
 
 @Composable
 fun CatalogTvScreen(
@@ -98,6 +102,7 @@ fun CatalogTvScreen(
             onMovieClicked = onMovieClicked,
             onNewsItemClicked = onNewsItemClicked,
             onProfileClicked = { showProfileDialog = true },
+            onLoginClicked = onNavigateToAuth,
             onItemFocused = viewModel::onItemFocused,
             onDialogDismissed = viewModel::onDialogDismissed,
             onPopupClosedPrune = viewModel::onPopupClosedPrune,
@@ -132,6 +137,7 @@ fun CatalogTvScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun CatalogTvScreenContent(
         selectedDestination: TvCatalogDestination,
@@ -144,6 +150,7 @@ fun CatalogTvScreenContent(
         onMovieClicked: (item: CatalogItem) -> Unit,
         onNewsItemClicked: (newsItem: NewsItem) -> Unit = {},
         onProfileClicked: () -> Unit = {},
+        onLoginClicked: () -> Unit = {},
         onItemFocused: (item: CatalogItem, category: Category?) -> Unit = { _, _ -> },
         onDialogDismissed: () -> Unit = {},
         onPopupClosedPrune: () -> Unit = {},
@@ -175,9 +182,15 @@ fun CatalogTvScreenContent(
     val profileFocusRequester = remember { FocusRequester() }
     var moviesRailItemFocused by remember { mutableStateOf(false) }
     var profileFocused by remember { mutableStateOf(false) }
-    val contentListState = rememberLazyListState()
+    val contentListState = rememberLazyListState(
+            cacheWindow = LazyLayoutCacheWindow(
+                    ahead = CONTENT_LIST_CACHE_WINDOW,
+                    behind = CONTENT_LIST_CACHE_WINDOW
+                                               )
+                                                )
     val aboutContentFocusRequester = remember { FocusRequester() }
     val isRailFocused = remember { mutableStateOf(false) }
+    val dialogCloseCoroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(selectedDestination) { contentListState.scrollToItem(0) }
     BackToRailHandler(
@@ -213,6 +226,7 @@ fun CatalogTvScreenContent(
                         aboutContentFocusRequester = aboutContentFocusRequester,
                         modifier = Modifier.weight(1f),
                         onNewsItemClicked = onNewsItemClicked,
+                        onLoginClicked = onLoginClicked,
                         onItemFocused = onItemFocused,
                         onSearchQueryChanged = onSearchQueryChanged,
                         onSearchItemPressed = onSearchItemPressed,
@@ -277,7 +291,8 @@ fun CatalogTvScreenContent(
                 onViewDetailsClicked = onViewDetailsClicked,
                 onFavoriteClicked = onFeaturedFavoriteClicked,
                 onDismissed = onDialogDismissed,
-                onPopupClosedPrune = onPopupClosedPrune
+                onPopupClosedPrune = onPopupClosedPrune,
+                closeCoroutineScope = dialogCloseCoroutineScope
                            )
     }
 }

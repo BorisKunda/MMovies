@@ -16,6 +16,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.data.mapper.CatalogItemMapper
+import com.bk.mmovies.data.source.local.preferences.RecommendationsDiskCacheSharedPrefs
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.Category
@@ -197,7 +198,8 @@ class TvCatalogViewModel @Inject constructor(
         private val searchRepository: SearchRepository,
         private val catalogItemMapper: CatalogItemMapper,
         private val authenticationRepository: AuthenticationRepository,
-        private val aiRecommendationRepository: AiRecommendationRepository
+        private val aiRecommendationRepository: AiRecommendationRepository,
+        private val recommendationsDiskCache: RecommendationsDiskCacheSharedPrefs
                                              ) : ViewModel() {
 
     companion object {
@@ -339,6 +341,8 @@ class TvCatalogViewModel @Inject constructor(
     // isFavorite=true stars left over from the logged-in account's rows.
     fun onLogoutClicked() {
         viewModelScope.launch {
+            authenticationRepository.getSharedPrefAccountId()?.let { recommendationsDiskCache.clear(it) }
+            recommendationsCache = null
             authenticationRepository.logout()
             when (val result = authenticationRepository.getGuestSessionIdResult()) {
                 is GuestSessionIdResult.Success -> authenticationRepository.saveSharedPrefGuestSessionId(result.guestSessionId)
@@ -487,6 +491,18 @@ class TvCatalogViewModel @Inject constructor(
                 return@launch
             }
 
+            val saved = recommendationsDiskCache.load(accountId)?.takeIf { it.items.isNotEmpty() }
+            if (saved != null && saved.favoriteKeys == favoriteKeys) {
+                val state = TvCatalogScreenState.Recommendations(items = saved.items)
+                _screenState.value = state
+                recommendationsCache = RecommendationsCache(accountId, state, favoriteKeys)
+                return@launch
+            }
+
+            val staleItems = (cached?.state?.items ?: saved?.items).orEmpty().filterNot { (it.id to it.mediaType) in favoriteKeys }
+            val staleState = TvCatalogScreenState.Recommendations(items = staleItems).takeIf { staleItems.isNotEmpty() }
+            if (staleState != null) _screenState.value = staleState
+
             when (val result = aiRecommendationRepository.getRecommendations(favorites)) {
                 is RecommendationResult.Success -> {
                     // The prompt only *asks* Gemini not to repeat favorites - enforce
@@ -497,13 +513,14 @@ class TvCatalogViewModel @Inject constructor(
                     // Only real suggestions are pinned - with no favorites no
                     // Gemini call was spent, and some may show up later.
                     recommendationsCache = if (state.items.isNotEmpty()) RecommendationsCache(accountId, state, favoriteKeys) else null
+                    if (state.items.isNotEmpty()) recommendationsDiskCache.save(accountId, favoriteKeys, state.items)
                 }
                 is RecommendationResult.Failure -> {
                     // Not cached, and nothing retries on its own while the user
                     // stays here (each call spends quota): the next attempt is
                     // either the Retry button or a fresh visit to this tab
                     // after navigating elsewhere.
-                    _screenState.value = TvCatalogScreenState.Recommendations(errorMessage = result.errorMessage)
+                    _screenState.value = staleState ?: TvCatalogScreenState.Recommendations(errorMessage = result.errorMessage)
                     recommendationsCache = null
                 }
             }

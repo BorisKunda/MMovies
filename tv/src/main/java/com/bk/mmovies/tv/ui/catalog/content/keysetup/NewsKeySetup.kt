@@ -13,6 +13,8 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.tv.R
+import com.bk.mmovies.tv.theme.tvContentTextStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 import com.bk.mmovies.tv.ui.catalog.TvCatalogDestination
 import com.bk.mmovies.tv.ui.component.ApiKeySetupSteps
 
@@ -30,7 +32,7 @@ fun NewsKeySetup(onApiKeySaved: (apiKey: String) -> Unit) {
                 text = stringResource(TvCatalogDestination.News.labelResId),
                 color = MaterialTheme.colorScheme.onBackground,
                 fontWeight = FontWeight.Bold,
-                style = MaterialTheme.typography.headlineSmall
+                style = tvHeaderTextStyle
             )
         Text(
                 text = stringResource(R.string.news_api_key_setup_message),
@@ -41,7 +43,7 @@ fun NewsKeySetup(onApiKeySaved: (apiKey: String) -> Unit) {
                                 )
                         .fillMaxWidth(0.6f),
                 color = MaterialTheme.colorScheme.onBackground.copy(alpha = 0.7f),
-                style = MaterialTheme.typography.bodyLarge
+                style = tvContentTextStyle
             )
 
         ApiKeySetupSteps(
