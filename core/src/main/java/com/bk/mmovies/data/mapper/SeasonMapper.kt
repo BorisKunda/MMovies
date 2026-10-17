@@ -3,7 +3,7 @@ package com.bk.mmovies.data.mapper
 import android.content.Context
 import com.bk.mmovies.core.R
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
-import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_DETAILS
 import com.bk.mmovies.data.source.remote.STILL_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.dto.CrewMemberDto
 import com.bk.mmovies.data.source.remote.dto.EpisodeDto
@@ -29,7 +29,7 @@ class SeasonMapper @Inject constructor(
             id = dto.id ?: 0,
             name = dto.name ?: "",
             overview = dto.overview ?: "",
-            posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
+            posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_DETAILS, it) } ?: "",
             airDate = dto.airDate?.let { getFormattedDate(it) } ?: "",
             seasonNumber = dto.seasonNumber ?: 0,
             rating = dto.voteAverage.toRatingPercent(),
@@ -45,7 +45,7 @@ class SeasonMapper @Inject constructor(
                 id = id,
                 name = dto.name ?: "",
                 overview = dto.overview ?: "",
-                posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
+                posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_DETAILS, it) } ?: "",
                 airDate = dto.airDate?.let { getFormattedDate(it) } ?: "",
                 seasonNumber = dto.seasonNumber ?: 0,
                 rating = dto.voteAverage.toRatingPercent(),

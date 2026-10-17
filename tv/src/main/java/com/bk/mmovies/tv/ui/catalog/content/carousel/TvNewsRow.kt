@@ -36,6 +36,7 @@ import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.input.key.type
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -46,8 +47,9 @@ import com.bk.mmovies.domain.model.NewsItem
 import com.bk.mmovies.tv.theme.tvContentTextStyle
 import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 
-private val newsItemWidth = 260.dp
-private val newsItemHeight = 146.dp
+private const val NEWS_IMAGE_ASPECT_RATIO = 5f / 4f
+internal val newsItemHeight = 146.dp
+internal val newsItemWidth = newsItemHeight * NEWS_IMAGE_ASPECT_RATIO
 private val newsItemShape = RoundedCornerShape(10.dp)
 
 // How many items from the end of the row trigger the next page fetch - same
@@ -162,6 +164,7 @@ private fun TvNewsCard(
             AsyncImage(
                     model = newsItem.imageUrl,
                     contentDescription = null,
+                    contentScale = ContentScale.Crop,
                     modifier = Modifier
                             .fillMaxSize()
                             .clip(newsItemShape)

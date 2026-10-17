@@ -46,6 +46,8 @@ import com.bk.mmovies.tv.ui.catalog.content.carousel.TvNewsRow
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvSearchResultsRow
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvSearchRow
 import com.bk.mmovies.tv.ui.catalog.content.carousel.TvShimmerRow
+import com.bk.mmovies.tv.ui.catalog.content.carousel.newsItemHeight
+import com.bk.mmovies.tv.ui.catalog.content.carousel.newsItemWidth
 import com.bk.mmovies.tv.ui.catalog.content.keysetup.NewsKeySetup
 import com.bk.mmovies.tv.ui.catalog.content.recommendations.TvRecommendationsContent
 import com.bk.mmovies.tv.ui.component.TvOfflineView
@@ -184,7 +186,12 @@ fun CatalogContentList(
                             }
                                 )
                 } else if (screenState.isLoading) {
-                    TvShimmerRow()
+                    TvShimmerRow(
+                            itemWidth = newsItemWidth,
+                            itemHeight = newsItemHeight,
+                            itemPadding = 0.dp,
+                            rowPadding = 10.dp
+                                 )
                 } else {
                     TvNewsRow(
                             title = stringResource(TvCatalogDestination.News.labelResId),

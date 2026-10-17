@@ -7,12 +7,41 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.bk.mmovies.domain.model.CatalogItem
+import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.MovieCategory
 import com.bk.mmovies.tv.ui.catalog.CatalogTvScreenContent
 import com.bk.mmovies.tv.ui.catalog.TvCatalogDestination
 import com.bk.mmovies.tv.ui.catalog.TvCatalogScreenState
 import com.bk.mmovies.tv.ui.catalog.TvCategoryRowContent
 import com.bk.mmovies.ui.theme.MMoviesTheme
+
+private fun previewMovieItems(firstId: Int, titles: List<String>): List<CatalogItem> =
+        titles.mapIndexed { index, title ->
+            CatalogItem(
+                    id = firstId + index,
+                    title = title,
+                    imageUrl = "",
+                    backdropUrl = "",
+                    releaseDate = "Jan ${index + 1}, 2025",
+                    releaseDateIso = "2025-01-${(index + 1).toString().padStart(2, '0')}",
+                    mediaType = CatalogMediaType.MOVIE,
+                    rating = 60 + index * 4,
+                    isFavorite = index % 3 == 0
+                       )
+        }
+
+private val previewPopularItems = previewMovieItems(
+        firstId = 100,
+        titles = listOf("Midnight Harbor", "Echoes of Tomorrow", "The Last Lighthouse", "Silver Skies",
+                        "Paper Kingdoms", "Neon Requiem", "Winter Orchard", "Crimson Tide")
+                                                   )
+
+private val previewNowPlayingItems = previewMovieItems(
+        firstId = 200,
+        titles = listOf("Burning Meridian", "A Quiet Storm", "Glass Horizon", "Northbound",
+                        "The Cartographer", "Dust and Thunder", "Velvet Hour", "Harvest Moon")
+                                                       )
 
 @Preview(device = "id:tv_1080p")
 @Composable
@@ -25,12 +54,18 @@ private fun CatalogTvScreenPreview() {
                 CatalogTvScreenContent(
                         selectedDestination = TvCatalogDestination.Movies,
                         screenState = TvCatalogScreenState.Movies(
-                                listOf(
+                                rows = listOf(
                                         TvCategoryRowContent(
                                                 MovieCategory.PopularMovieCategory,
-                                                emptyList()
+                                                previewPopularItems
+                                                            ),
+                                        TvCategoryRowContent(
+                                                MovieCategory.NowPlayingMovieCategory,
+                                                previewNowPlayingItems
                                                             )
-                                      )
+                                            ),
+                                focusedItem = previewPopularItems.first(),
+                                focusedCategory = MovieCategory.PopularMovieCategory
                                                                  ),
                         onDestinationSelected = {},
                         onViewDetailsClicked = { _, _ -> },

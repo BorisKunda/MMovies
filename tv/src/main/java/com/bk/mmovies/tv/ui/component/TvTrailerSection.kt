@@ -1,6 +1,7 @@
 package com.bk.mmovies.tv.ui.component
 
 import android.content.ActivityNotFoundException
+import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import androidx.compose.foundation.background
@@ -55,15 +56,16 @@ private fun youtubeStandardThumbnailUrl(videoId: String) = "https://img.youtube.
 
 /**
  * The details screen's trailer section: a thumbnail with a play affordance
- * (D-pad center to open). Selecting it hands the trailer off to the YouTube
- * app rather than playing it embedded - TV playback belongs to YouTube's own
- * player, not a WebView-backed one inside MMovies.
+ * (D-pad center to open). Selecting it plays the trailer fullscreen in an
+ * embedded YouTube WebView player; if YouTube refuses embedded playback, it
+ * falls back to handing the trailer off to the YouTube app.
  */
 @Composable
 fun TvTrailerSection(trailerUrl: String, modifier: Modifier = Modifier) {
     val videoId = remember(trailerUrl) { trailerUrl.toYoutubeVideoId() } ?: return
     val context = LocalContext.current
     var isFocused by remember { mutableStateOf(false) }
+    var isPlayerVisible by remember { mutableStateOf(false) }
     var thumbnailUrl by remember(videoId) { mutableStateOf(youtubeMaxResThumbnailUrl(videoId)) }
 
     Box(
@@ -84,19 +86,7 @@ fun TvTrailerSection(trailerUrl: String, modifier: Modifier = Modifier) {
                     // onFocusChanged only observes the focus target that comes
                     // AFTER it in the chain, so it must precede clickable().
                     .onFocusChanged { focusState -> isFocused = focusState.isFocused }
-                    .clickable {
-                        val watchUrl = "https://www.youtube.com/watch?v=$videoId"
-                        val tvAppIntent = Intent(Intent.ACTION_VIEW,
-                                                 watchUrl.toUri()).apply {
-                            setPackage(YOUTUBE_TV_PACKAGE)
-                        }
-                        try {
-                            context.startActivity(tvAppIntent)
-                        } catch (e: ActivityNotFoundException) {
-                            context.startActivity(Intent(Intent.ACTION_VIEW,
-                                                         watchUrl.toUri()))
-                        }
-                    },
+                    .clickable { isPlayerVisible = true },
             contentAlignment = Alignment.Center
        ) {
         AsyncImage(
@@ -117,5 +107,41 @@ fun TvTrailerSection(trailerUrl: String, modifier: Modifier = Modifier) {
                 tint = Color.White,
                 modifier = Modifier.height(thumbnailPlayIconSize)
             )
+    }
+    if (isPlayerVisible) {
+        TvFullscreenTrailerPlayer(
+                videoId = videoId,
+                onDismissRequest = { isPlayerVisible = false },
+                onPlaybackError = {
+                    isPlayerVisible = false
+                    openTrailerInYoutubeApp(
+                            context,
+                            videoId
+                                           )
+                }
+                                 )
+    }
+}
+
+private fun openTrailerInYoutubeApp(
+        context: Context,
+        videoId: String
+                                   ) {
+    val watchUrl = "https://www.youtube.com/watch?v=$videoId"
+    val tvAppIntent = Intent(
+            Intent.ACTION_VIEW,
+            watchUrl.toUri()
+                            ).apply {
+        setPackage(YOUTUBE_TV_PACKAGE)
+    }
+    try {
+        context.startActivity(tvAppIntent)
+    } catch (e: ActivityNotFoundException) {
+        context.startActivity(
+                Intent(
+                        Intent.ACTION_VIEW,
+                        watchUrl.toUri()
+                      )
+                             )
     }
 }

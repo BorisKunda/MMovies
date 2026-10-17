@@ -3,7 +3,7 @@ package com.bk.mmovies.data.mapper
 import android.content.Context
 import com.bk.mmovies.core.R
 import com.bk.mmovies.data.source.remote.CAST_PROFILE_PATH_SIZE_SEGMENT
-import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM
+import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_DETAILS
 import com.bk.mmovies.data.source.remote.POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM
 import com.bk.mmovies.data.source.remote.dto.CastMemberDto
 import com.bk.mmovies.data.source.remote.dto.CrewMemberDto
@@ -31,7 +31,7 @@ class MovieDetailsMapper @Inject constructor(
     fun toModel(dto: MovieDetailsDto): MovieDetailsModel = MovieDetailsModel(
             id = dto.id ?: 0,
             title = dto.title ?: "",
-            posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM, it) } ?: "",
+            posterUrl = dto.posterPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_DETAILS, it) } ?: "",
             backdropUrl = dto.backdropPath?.let { getFullImageUrl(POSTER_PATH_SIZE_SEGMENT_LIST_ITEM_ZOOM, it) } ?: "",
             releaseDate = dto.releaseDate?.let { getFormattedDate(it) } ?: "",
             runtime = runtimeLabelFormatter.format(dto.runtime),

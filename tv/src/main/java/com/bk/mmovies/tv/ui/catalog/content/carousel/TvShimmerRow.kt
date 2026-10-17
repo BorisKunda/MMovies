@@ -23,6 +23,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 private val shimmerPadding = 5.dp
@@ -34,7 +35,13 @@ private val shimmerListItemShape = RoundedCornerShape(10.dp)
 private const val SHIMMER_LIST_ITEMS_COUNT = 10
 
 @Composable
-fun TvShimmerRow(modifier: Modifier = Modifier) {
+fun TvShimmerRow(
+        modifier: Modifier = Modifier,
+        itemWidth: Dp = shimmerListItemWidth,
+        itemHeight: Dp = shimmerListItemHeight,
+        itemPadding: Dp = shimmerPadding,
+        rowPadding: Dp = 0.dp
+                ) {
     val transition = rememberInfiniteTransition(label = "tvRowShimmer")
     val alpha: State<Float> = transition.animateFloat(
             initialValue = 0.35f,
@@ -51,7 +58,13 @@ fun TvShimmerRow(modifier: Modifier = Modifier) {
     Column(modifier = modifier.fillMaxWidth()) {
         ShimmerHeader(alpha)
         Spacer(Modifier.height(10.dp))
-        ShimmerList(alpha)
+        ShimmerList(
+                alpha = alpha,
+                itemWidth = itemWidth,
+                itemHeight = itemHeight,
+                itemPadding = itemPadding,
+                rowPadding = rowPadding
+                   )
     }
 }
 
@@ -68,18 +81,26 @@ private fun ShimmerHeader(alpha: State<Float>) {
 }
 
 @Composable
-private fun ShimmerList(alpha: State<Float>) {
+private fun ShimmerList(
+        alpha: State<Float>,
+        itemWidth: Dp,
+        itemHeight: Dp,
+        itemPadding: Dp,
+        rowPadding: Dp
+                       ) {
     LazyRow(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(rowPadding),
             userScrollEnabled = false,
             horizontalArrangement = Arrangement.spacedBy(12.dp)
            ) {
         items(SHIMMER_LIST_ITEMS_COUNT) {
             ShimmerContainer(
                     modifier = Modifier
-                            .padding(shimmerPadding)
-                            .width(shimmerListItemWidth)
-                            .height(shimmerListItemHeight),
+                            .padding(itemPadding)
+                            .width(itemWidth)
+                            .height(itemHeight),
                     shape = shimmerListItemShape,
                     alpha = alpha
                             )
