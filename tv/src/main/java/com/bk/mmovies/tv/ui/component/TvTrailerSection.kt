@@ -92,7 +92,7 @@ fun TvTrailerSection(trailerUrl: String, modifier: Modifier = Modifier) {
         AsyncImage(
                 model = thumbnailUrl,
                 contentDescription = null,
-                contentScale = ContentScale.Fit,
+                contentScale = ContentScale.Crop,
                 onError = { thumbnailUrl = youtubeStandardThumbnailUrl(videoId) },
                 modifier = Modifier.fillMaxSize()
                   )

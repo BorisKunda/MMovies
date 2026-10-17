@@ -40,12 +40,14 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import coil3.compose.AsyncImage
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.data.source.remote.STILL_PATH_SIZE_SEGMENT
 import com.bk.mmovies.data.source.remote.STILL_PATH_SIZE_SEGMENT_ZOOM
 import com.bk.mmovies.domain.model.EpisodeModel
@@ -132,8 +134,11 @@ fun TvEpisodeDetailsDialog(episode: EpisodeModel, onDismiss: () -> Unit) {
                                 STILL_PATH_SIZE_SEGMENT,
                                 STILL_PATH_SIZE_SEGMENT_ZOOM
                                                                     )
+                        val stillPlaceholderPainter = painterResource(CoreR.drawable.placeholder_wide)
                         AsyncImage(
-                                model = largeStillUrl,
+                                model = largeStillUrl.takeIf { it.isNotBlank() },
+                                error = stillPlaceholderPainter,
+                                fallback = stillPlaceholderPainter,
                                 contentDescription = null,
                                 contentScale = ContentScale.Crop,
                                 modifier = Modifier
