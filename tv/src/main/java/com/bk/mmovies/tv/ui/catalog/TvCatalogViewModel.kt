@@ -9,12 +9,14 @@ import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.LiveTv
 import androidx.compose.material.icons.filled.Movie
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.data.mapper.CatalogItemMapper
+import com.bk.mmovies.data.source.local.preferences.RecommendationsDiskCacheSharedPrefs
 import com.bk.mmovies.domain.model.CatalogItem
 import com.bk.mmovies.domain.model.CatalogMediaType
 import com.bk.mmovies.domain.model.Category
@@ -83,7 +85,7 @@ enum class TvCatalogDestination(@StringRes val labelResId: Int, val icon: TvNavI
     Movies(R.string.nav_movies, TvNavIcon.Vector(Icons.Default.Movie)),
     TvSeries(R.string.nav_tv_series, TvNavIcon.Vector(Icons.Default.LiveTv)),
     Search(R.string.nav_search, TvNavIcon.Vector(Icons.Default.Search)),
-    Favorites(R.string.nav_favorites, TvNavIcon.Vector(Icons.Default.FavoriteBorder)),
+    Favorites(R.string.nav_favorites, TvNavIcon.Vector(Icons.Default.Star)),
     News(R.string.nav_news, TvNavIcon.Vector(Icons.AutoMirrored.Filled.Article)),
     Recommendations(R.string.nav_recommendations, TvNavIcon.Drawable(CoreR.drawable.ic_ai)),
     About(R.string.nav_about, TvNavIcon.Vector(Icons.Outlined.Info))
@@ -142,11 +144,7 @@ sealed interface TvCatalogScreenState {
             // the debounce wait) - the results row shows a shimmer meanwhile.
             val isSearching: Boolean = false,
             // The result whose preview popup is open (like Movies/TvSeries).
-            val focusedItem: CatalogItem? = null,
-            // Shown when query is blank - mirrors :app's SearchViewModel,
-            // just without its per-item remove affordance (see
-            // onRecentSearchClicked's doc for why).
-            val recentSearches: List<String> = emptyList()
+            val focusedItem: CatalogItem? = null
                       ) : TvCatalogScreenState
 
     // loginRequired: same reasoning as Favorites - recommendations are built
@@ -200,7 +198,8 @@ class TvCatalogViewModel @Inject constructor(
         private val searchRepository: SearchRepository,
         private val catalogItemMapper: CatalogItemMapper,
         private val authenticationRepository: AuthenticationRepository,
-        private val aiRecommendationRepository: AiRecommendationRepository
+        private val aiRecommendationRepository: AiRecommendationRepository,
+        private val recommendationsDiskCache: RecommendationsDiskCacheSharedPrefs
                                              ) : ViewModel() {
 
     companion object {
@@ -209,11 +208,6 @@ class TvCatalogViewModel @Inject constructor(
         // actual request go out. Matches Google's own documented ~300ms
         // debounce for TV search (Leanback SearchFragment).
         private const val SEARCH_DEBOUNCE_MS = 300L
-
-        // Temporarily turns recent searches off for the TV module: nothing is
-        // loaded or recorded. Pairs with SHOW_RECENT_SEARCHES in
-        // CatalogTvScreen (the UI); flip both to true to bring the feature back.
-        private const val RECENT_SEARCHES_ENABLED = false
     }
 
     private val _selectedDestination = MutableStateFlow(TvCatalogDestination.Movies)
@@ -347,6 +341,8 @@ class TvCatalogViewModel @Inject constructor(
     // isFavorite=true stars left over from the logged-in account's rows.
     fun onLogoutClicked() {
         viewModelScope.launch {
+            authenticationRepository.getSharedPrefAccountId()?.let { recommendationsDiskCache.clear(it) }
+            recommendationsCache = null
             authenticationRepository.logout()
             when (val result = authenticationRepository.getGuestSessionIdResult()) {
                 is GuestSessionIdResult.Success -> authenticationRepository.saveSharedPrefGuestSessionId(result.guestSessionId)
@@ -383,7 +379,6 @@ class TvCatalogViewModel @Inject constructor(
             TvCatalogDestination.Search    -> {
                 contentLoadJob?.cancel()
                 _screenState.value = Search()
-                loadRecentSearches()
             }
             TvCatalogDestination.Recommendations -> loadRecommendations()
             TvCatalogDestination.About     -> {
@@ -496,6 +491,18 @@ class TvCatalogViewModel @Inject constructor(
                 return@launch
             }
 
+            val saved = recommendationsDiskCache.load(accountId)?.takeIf { it.items.isNotEmpty() }
+            if (saved != null && saved.favoriteKeys == favoriteKeys) {
+                val state = TvCatalogScreenState.Recommendations(items = saved.items)
+                _screenState.value = state
+                recommendationsCache = RecommendationsCache(accountId, state, favoriteKeys)
+                return@launch
+            }
+
+            val staleItems = (cached?.state?.items ?: saved?.items).orEmpty().filterNot { (it.id to it.mediaType) in favoriteKeys }
+            val staleState = TvCatalogScreenState.Recommendations(items = staleItems).takeIf { staleItems.isNotEmpty() }
+            if (staleState != null) _screenState.value = staleState
+
             when (val result = aiRecommendationRepository.getRecommendations(favorites)) {
                 is RecommendationResult.Success -> {
                     // The prompt only *asks* Gemini not to repeat favorites - enforce
@@ -506,13 +513,14 @@ class TvCatalogViewModel @Inject constructor(
                     // Only real suggestions are pinned - with no favorites no
                     // Gemini call was spent, and some may show up later.
                     recommendationsCache = if (state.items.isNotEmpty()) RecommendationsCache(accountId, state, favoriteKeys) else null
+                    if (state.items.isNotEmpty()) recommendationsDiskCache.save(accountId, favoriteKeys, state.items)
                 }
                 is RecommendationResult.Failure -> {
                     // Not cached, and nothing retries on its own while the user
                     // stays here (each call spends quota): the next attempt is
                     // either the Retry button or a fresh visit to this tab
                     // after navigating elsewhere.
-                    _screenState.value = TvCatalogScreenState.Recommendations(errorMessage = result.errorMessage)
+                    _screenState.value = staleState ?: TvCatalogScreenState.Recommendations(errorMessage = result.errorMessage)
                     recommendationsCache = null
                 }
             }
@@ -741,9 +749,6 @@ class TvCatalogViewModel @Inject constructor(
 
         searchJob?.cancel()
         if (query.isBlank()) {
-            // Keep the already-loaded recentSearches rather than wiping them -
-            // this state also carries no items, but this branch runs on
-            // every deleted keystroke back to empty, not just on first entry.
             _screenState.value = current.copy(query = query, items = emptyList(), isSearching = false)
             return
         }
@@ -759,51 +764,6 @@ class TvCatalogViewModel @Inject constructor(
             if (latest.query == query) {
                 _screenState.value = latest.copy(items = items, isSearching = false)
             }
-        }
-    }
-
-    private fun loadRecentSearches() {
-        if (!RECENT_SEARCHES_ENABLED) return
-        viewModelScope.launch {
-            val recentSearches = searchRepository.getRecentSearches()
-            val current = _screenState.value as? TvCatalogScreenState.Search ?: return@launch
-            _screenState.value = current.copy(recentSearches = recentSearches)
-        }
-    }
-
-    // Mirrors :app's onRecentSearchClicked: re-running a past query also
-    // bumps it back to the front of the MRU list (addRecentSearch), same as
-    // typing it fresh and getting a result would.
-    fun onRecentSearchClicked(query: String) {
-        onSearchQueryChanged(query)
-        viewModelScope.launch {
-            searchRepository.addRecentSearch(query)
-            loadRecentSearches()
-        }
-    }
-
-    fun onClearRecentSearchesClicked() {
-        viewModelScope.launch {
-            searchRepository.clearRecentSearches()
-            loadRecentSearches()
-        }
-    }
-
-    // Records the query that actually led somewhere - mirrors :app's
-    // onResultClicked/onSearchSubmitted, which only ever save a query once
-    // it either produced a picked result or was explicitly submitted, never
-    // on every debounced keystroke. TV search has no separate submit
-    // affordance, so a picked result is the only such moment here. No
-    // per-item remove affordance is offered on this screen (unlike :app's
-    // RecentSearchRow) - D-pad-reachable removal would need its own
-    // focusable target interleaved with the chip list, which is deferred
-    // rather than shipped half-considered; onClearRecentSearchesClicked
-    // covers the "start over" case in the meantime.
-    fun onSearchResultClicked(item: CatalogItem) {
-        val query = (_screenState.value as? TvCatalogScreenState.Search)?.query?.trim()
-        if (!RECENT_SEARCHES_ENABLED || query.isNullOrEmpty()) return
-        viewModelScope.launch {
-            searchRepository.addRecentSearch(query)
         }
     }
 

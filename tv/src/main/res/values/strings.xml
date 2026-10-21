@@ -25,10 +25,10 @@
     <string name="favorites_empty_tv_series">Series you mark as a favorite will show up here.</string>
     <string name="search_placeholder">Search movies and TV series</string>
     <string name="voice_search_action">Search by voice</string>
+    <string name="search_field_clear_action">Clear search</string>
     <string name="voice_search_prompt">Speak to search</string>
     <string name="voice_search_unavailable">Voice search isn\'t available on this device.</string>
-    <string name="recent_searches_label">Recent Searches</string>
-    <string name="clear_recent_searches_action">Clear</string>
+    <string name="voice_search_permission_denied">Allow microphone access to use voice search.</string>
 
     <string name="details_overview_label">OVERVIEW</string>
     <string name="details_cast_label">CAST</string>
@@ -85,6 +85,8 @@
     <string name="terms_guardian_attribution_body">The News section uses the Guardian Open Platform API to display movie and TV headlines. This content belongs to Guardian News &amp; Media Limited and is not owned by MMovies.</string>
     <string name="terms_gemini_attribution_heading">Gemini Attribution</string>
     <string name="terms_gemini_attribution_body">AI-powered Recommendations, when enabled with a user-supplied Gemini API key, are generated using Google\'s Gemini API. This feature is not active until a valid API key is provided.</string>
+    <string name="terms_voice_search_heading">Voice Search</string>
+    <string name="terms_voice_search_body">Voice search is optional and uses your device\'s speech recognition service, which is provided by Google and subject to Google\'s own terms. It is only active while you are using the microphone button in Search, and only if you grant microphone permission.</string>
     <string name="terms_data_accuracy_heading">Data Accuracy</string>
     <string name="terms_data_accuracy_body">Content is provided by TMDB \"as is.\" Neither TMDB nor the developer of this app guarantees that the information shown is accurate, complete, or up to date. Details may be missing, outdated, or incorrect.</string>
     <string name="terms_no_warranty_heading">No Warranty</string>
@@ -101,6 +103,8 @@
     <string name="privacy_policy_account_body">When you log in, your TMDB username and password are sent directly to TMDB\'s servers to create a session and are never stored or seen by anyone other than TMDB. You can also use the app as a guest without providing any credentials.</string>
     <string name="privacy_policy_local_storage_heading">Locally Stored Data</string>
     <string name="privacy_policy_local_storage_body">The app stores your TMDB session identifier and account ID on your device to keep you signed in. This data stays on your device and is removed when you log out or clear the app\'s storage.</string>
+    <string name="privacy_policy_voice_search_heading">Voice Search</string>
+    <string name="privacy_policy_voice_search_body">If you use voice search, the app asks for microphone permission and listens only while you have pressed the microphone button in Search. Your speech is processed by your device\'s speech recognition service (provided by Google), which may send the audio to Google\'s servers. MMovies does not record, store, or receive the audio; it only receives the recognized text and uses it as your search query. You can revoke the permission at any time in your device settings.</string>
     <string name="privacy_policy_third_party_heading">Third-Party Services</string>
     <string name="privacy_policy_third_party_body">Movie and TV data, images, and account authentication are provided by The Movie Database (TMDB). News headlines are provided by the Guardian Open Platform. AI-powered recommendations, when enabled, are provided by Google\'s Gemini API using a key you supply. Use of these services is subject to each provider\'s own privacy policy.</string>
     <string name="privacy_policy_no_collection_heading">No Analytics or Tracking</string>

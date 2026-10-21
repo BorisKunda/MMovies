@@ -1,4 +1,4 @@
-package com.bk.mmovies.tv.ui.component
+package com.bk.mmovies.tv.ui.catalog.content.component.profile
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -40,15 +40,19 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import coil3.compose.SubcomposeAsyncImage
 import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.tv.R
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 
-private val avatarSize = 40.dp
+private val avatarSize = 30.dp
 private const val AVATAR_BACKGROUND_ALPHA = 0.10f
 private const val AVATAR_BORDER_ALPHA = 0.2f
 private val avatarBorderWidth = 1.dp
+
+private val tvProfileHeaderPadHorizontal = 20.dp
+private val tvProfileHeaderPadVertical = 20.dp
+private val tvProfileHeaderHighlightPad = 5.dp
 
 /**
  * Shown above the catalog content, mirroring :app's UserProfileBar - the
@@ -83,28 +87,33 @@ fun TvProfileHeader(
     // outer fillMaxWidth() one, so the hit target and focus highlight stay
     // tight around the avatar+name instead of spanning the whole header
     // width that Arrangement.End uses to right-align them.
-    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+    Row(modifier = modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Start) {
         Row(
                 modifier = Modifier
-                        .clip(RoundedCornerShape(50))
-                        .background(if (isFocused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f) else Color.Transparent)
                         // Both must precede the focus target (clickable below).
                         .focusProperties { canFocus = canBeFocused }
                         .onFocusChanged { onFocusChanged(it.isFocused) }
                         .onPreviewKeyEvent { keyEvent ->
-                            if (onNavigateBack != null &&
-                                keyEvent.type == KeyEventType.KeyDown &&
-                                (keyEvent.key == Key.DirectionDown || keyEvent.key == Key.DirectionLeft)
-                            ) {
-                                onNavigateBack()
-                                true
-                            } else {
-                                false
+                            when {
+                                keyEvent.type != KeyEventType.KeyDown -> false
+                                onNavigateBack != null &&
+                                        (keyEvent.key == Key.DirectionDown || keyEvent.key == Key.DirectionLeft) -> {
+                                    onNavigateBack()
+                                    true
+                                }
+                                keyEvent.key == Key.DirectionUp || keyEvent.key == Key.DirectionRight -> true
+                                else -> false
                             }
                         }
                         .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
-                        .clickable(interactionSource = interactionSource, role = Role.Button, onClick = onClick)
-                        .padding(horizontal = 12.dp, vertical = 8.dp),
+                        .clickable(interactionSource = interactionSource, indication = null, role = Role.Button, onClick = onClick)
+                        .padding(
+                                horizontal = tvProfileHeaderPadHorizontal - tvProfileHeaderHighlightPad,
+                                vertical = tvProfileHeaderPadVertical - tvProfileHeaderHighlightPad
+                                )
+                        .clip(RoundedCornerShape(50))
+                        .background(if (isFocused) MaterialTheme.colorScheme.onSurface.copy(alpha = 0.14f) else Color.Transparent)
+                        .padding(horizontal = tvProfileHeaderHighlightPad, vertical = tvProfileHeaderHighlightPad),
                 verticalAlignment = Alignment.CenterVertically
            ) {
             Avatar(name = name, imageUrl = imageUrl, isGuest = isGuest)
@@ -113,7 +122,7 @@ fun TvProfileHeader(
                     text = displayName,
                     color = MaterialTheme.colorScheme.onBackground,
                     fontWeight = FontWeight.Bold,
-                    style = MaterialTheme.typography.titleMedium
+                    style = tvHeaderTextStyle
                 )
         }
     }
@@ -162,7 +171,7 @@ private fun InitialsAvatar(name: String) {
         Text(
                 text = initial,
                 color = Color.White,
-                style = MaterialTheme.typography.titleMedium.copy(fontSize = 18.sp, lineHeight = 18.sp),
+                style = tvHeaderTextStyle,
                 fontWeight = FontWeight.Bold
             )
     }

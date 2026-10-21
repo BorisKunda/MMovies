@@ -89,6 +89,7 @@ dependencies {
     implementation(libs.coil)
     implementation(libs.coil.network.okhttp)
     implementation(libs.androidx.webkit)
+    implementation(libs.android.youtube.player)
     // For TvNewsModule's debug-only Guardian request logging - :core's own
     // okhttp-logging dependency is `implementation`, not `api`, so it isn't
     // visible here without declaring it directly.

@@ -26,7 +26,11 @@ import com.bk.mmovies.domain.repository.MovieRepository
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.NonCancellable
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.withContext
+import com.bk.mmovies.data.source.remote.MIN_FEATURE_FILM_RUNTIME_MINUTES
+import com.bk.mmovies.data.source.remote.UNKNOWN_RUNTIME_MINUTES
 
 // TMDB returns 20 favorites per page, so this covers 1000 favorited movies.
 private const val MAX_FAVORITE_SYNC_PAGES = 50
@@ -66,9 +70,7 @@ class MovieRepositoryImpl @Inject constructor(
             }
 
             MovieCategory.UpcomingMovieCategory -> {
-                apiCallResult = networkManager.executeApiCall(
-                        "GetUpcomingMovies",
-                        apiCall = { -> api.getUpcomingMovies(primaryReleaseDateGte = tomorrowDate(), page = page) })
+                apiCallResult = getUpcomingMoviesExcludingShortFilms(page)
             }
 
             MovieCategory.NowPlayingMovieCategory -> {
@@ -114,6 +116,41 @@ class MovieRepositoryImpl @Inject constructor(
                 MoviesResult.Failure(failureMessage, apiCallResult.error.isConnectivityFailure)
             }
        }
+    }
+
+    // TMDB can't express "at least an hour OR runtime not set yet" in one
+    // discover query, and an unreleased movie commonly has no runtime, so the
+    // two groups are fetched side by side for the same page and merged.
+    private suspend fun getUpcomingMoviesExcludingShortFilms(page: Int): ApiCallResult<MovieListDto> = coroutineScope {
+        val releaseDateFloor = tomorrowDate()
+        val knownFeatureLengthMovies = async {
+            networkManager.executeApiCall(
+                    "GetUpcomingMovies",
+                    apiCall = { -> api.getUpcomingMovies(
+                            primaryReleaseDateGte = releaseDateFloor,
+                            withRuntimeGte = MIN_FEATURE_FILM_RUNTIME_MINUTES,
+                            page = page) })
+        }
+        val unknownRuntimeMovies = async {
+            networkManager.executeApiCall(
+                    "GetUpcomingMoviesUnknownRuntime",
+                    apiCall = { -> api.getUpcomingMovies(
+                            primaryReleaseDateGte = releaseDateFloor,
+                            withRuntimeLte = UNKNOWN_RUNTIME_MINUTES,
+                            page = page) })
+        }
+        val featureLengthResult = knownFeatureLengthMovies.await()
+        val unknownRuntimeResult = unknownRuntimeMovies.await()
+        if (featureLengthResult is ApiCallResult.Failure) return@coroutineScope featureLengthResult
+        if (unknownRuntimeResult is ApiCallResult.Failure) return@coroutineScope unknownRuntimeResult
+        val featureLengthPage = (featureLengthResult as ApiCallResult.Success).data
+        val unknownRuntimePage = (unknownRuntimeResult as ApiCallResult.Success).data
+        ApiCallResult.Success(
+                MovieListDto(
+                        movies = featureLengthPage.movies.orEmpty() + unknownRuntimePage.movies.orEmpty(),
+                        totalPages = maxOf(featureLengthPage.totalPages ?: page, unknownRuntimePage.totalPages ?: page)
+                            )
+                             )
     }
 
     override suspend fun getMovieDetails(movieId: Int, sessionId: String?): MovieDetailsResult {

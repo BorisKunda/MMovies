@@ -44,6 +44,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.core.R
+import com.bk.mmovies.tv.theme.tvContentTextStyle
+import com.bk.mmovies.tv.theme.tvHeaderTextStyle
 
 private val stepIndicatorSize = 44.dp
 private val stepHeaderPaddingBottom = 20.dp
@@ -146,7 +148,7 @@ fun ApiKeySetupSteps(
                     modifier = Modifier.padding(bottom = stepHeaderPaddingBottom),
                     text = stringResource(R.string.enter_your_api_key),
                     color = MaterialTheme.colorScheme.onSurface,
-                    style = MaterialTheme.typography.titleLarge,
+                    style = tvHeaderTextStyle,
                     fontWeight = FontWeight.Bold
                 )
         }
@@ -172,7 +174,7 @@ fun ApiKeySetupSteps(
                             }
                         },
                 placeholder = {
-                    Text(text = stringResource(R.string.api_key))
+                    Text(text = stringResource(R.string.api_key), style = tvContentTextStyle)
                 },
                 singleLine = true,
                 shape = RoundedCornerShape(buttonCornerSize),
@@ -216,7 +218,7 @@ fun ApiKeySetupSteps(
               ) {
             Text(
                     text = stringResource(R.string.save_and_continue),
-                    style = MaterialTheme.typography.titleMedium,
+                    style = tvHeaderTextStyle,
                     fontWeight = FontWeight.Bold
                 )
         }

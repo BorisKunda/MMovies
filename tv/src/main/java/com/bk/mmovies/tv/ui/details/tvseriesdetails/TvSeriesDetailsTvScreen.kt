@@ -21,8 +21,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,7 +35,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -52,6 +52,7 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -60,6 +61,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
 import com.bk.mmovies.AppDevice
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.EpisodeModel
 import com.bk.mmovies.domain.model.SeasonModel
@@ -114,11 +116,27 @@ fun TvSeriesDetailsTvScreen(
     // this tree. One requester per season here (rather than a fixed few
     // constants) since a series can have anywhere from one season to dozens -
     // each one's first episode (if it has any) becomes its own stop.
-    val seasonFocusRequesters = remember(screenState) {
-        val content = screenState as? TvSeriesDetailsTvScreenState.Content
-        List(content?.seasons?.size ?: 0) { FocusRequester() }
+    val seasonCount = (screenState as? TvSeriesDetailsTvScreenState.Content)?.seasons?.size ?: 0
+    val seasonFocusRequesters = remember(seasonCount) { List(seasonCount) { FocusRequester() } }
+    val seasonListStates = remember(seasonCount) { List(seasonCount) { LazyListState() } }
+    var currentStop by remember { mutableStateOf<FocusRequester?>(null) }
+    val castListState = rememberLazyListState()
+    val focusStop: (FocusRequester) -> Unit = { stop ->
+        coroutineScope.launch {
+            val seasonIndex = seasonFocusRequesters.indexOf(stop)
+            when {
+                seasonIndex >= 0 -> {
+                    seasonListStates[seasonIndex].scrollToItem(0)
+                    withFrameNanos {}
+                }
+                stop == castFocusRequester -> {
+                    castListState.scrollToItem(0)
+                    withFrameNanos {}
+                }
+            }
+            runCatching { stop.requestFocus() }
+        }
     }
-    var stopIndex by remember { mutableIntStateOf(-1) }
     val stops = remember(screenState, viewModel.canToggleFavorite) {
         buildList {
             val content = screenState as? TvSeriesDetailsTvScreenState.Content ?: return@buildList
@@ -134,8 +152,8 @@ fun TvSeriesDetailsTvScreen(
     // wired up in TvNavigation, covers it) - so the first stop takes initial
     // focus directly instead of a back button.
     LaunchedEffect(stops) {
-        if (stopIndex == -1 && stops.isNotEmpty()) {
-            stopIndex = 0
+        if (currentStop == null && stops.isNotEmpty()) {
+            currentStop = stops[0]
             // Same requestFocus() race as MovieDetailsTvScreen - see its
             // identical LaunchedEffect for the full explanation of why a
             // single attempt (even wrapped in runCatching) isn't enough.
@@ -159,18 +177,22 @@ fun TvSeriesDetailsTvScreen(
                         if (keyEvent.type != KeyEventType.KeyDown) return@onKeyEvent false
                         when (keyEvent.key) {
                             Key.DirectionDown -> {
+                                val stopIndex = stops.indexOf(currentStop)
                                 if (stopIndex < stops.size - 1) {
-                                    stopIndex++
-                                    stops[stopIndex].requestFocus()
+                                    val nextStop = stops[stopIndex + 1]
+                                    currentStop = nextStop
+                                    focusStop(nextStop)
                                 } else {
                                     coroutineScope.launch { scrollState.animateScrollBy(SCROLL_STEP_PX) }
                                 }
                                 true
                             }
                             Key.DirectionUp   -> {
+                                val stopIndex = stops.indexOf(currentStop)
                                 if (stopIndex > 0) {
-                                    stopIndex--
-                                    stops[stopIndex].requestFocus()
+                                    val previousStop = stops[stopIndex - 1]
+                                    currentStop = previousStop
+                                    focusStop(previousStop)
                                 } else {
                                     coroutineScope.launch { scrollState.animateScrollBy(-SCROLL_STEP_PX) }
                                 }
@@ -197,7 +219,9 @@ fun TvSeriesDetailsTvScreen(
                     favoriteFocusRequester = favoriteFocusRequester,
                     trailerFocusRequester = trailerFocusRequester,
                     castFocusRequester = castFocusRequester,
-                    seasonFocusRequesters = seasonFocusRequesters
+                    seasonFocusRequesters = seasonFocusRequesters,
+                    seasonListStates = seasonListStates,
+                    castListState = castListState
                                                                                        )
         }
     }
@@ -223,7 +247,9 @@ fun TvSeriesDetailsTvScreenContent(
         favoriteFocusRequester: FocusRequester? = null,
         trailerFocusRequester: FocusRequester? = null,
         castFocusRequester: FocusRequester? = null,
-        seasonFocusRequesters: List<FocusRequester> = emptyList()
+        seasonFocusRequesters: List<FocusRequester> = emptyList(),
+        seasonListStates: List<LazyListState> = emptyList(),
+        castListState: LazyListState = rememberLazyListState()
                                    ) {
     Column(
             modifier = modifier
@@ -233,8 +259,11 @@ fun TvSeriesDetailsTvScreenContent(
           ) {
         Row {
             Box(modifier = Modifier.size(width = posterWidth, height = posterHeight)) {
+                val posterPlaceholderPainter = painterResource(CoreR.drawable.placeholder)
                 AsyncImage(
-                        model = tvSeriesDetails.posterUrl,
+                        model = tvSeriesDetails.posterUrl.takeIf { it.isNotBlank() },
+                        error = posterPlaceholderPainter,
+                        fallback = posterPlaceholderPainter,
                         contentDescription = tvSeriesDetails.title,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -336,13 +365,15 @@ fun TvSeriesDetailsTvScreenContent(
                         fontWeight = FontWeight.Bold
                     )
                 LazyRow(
-                        modifier = Modifier.padding(top = 12.dp),
+                        state = castListState,
+                        modifier = Modifier
+                                .padding(top = 12.dp)
+                                .let { if (castFocusRequester != null) it.focusRequester(castFocusRequester) else it },
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                        ) {
-                    itemsIndexed(tvSeriesDetails.cast, key = { _, it -> it.id }) { index, it ->
+                    items(tvSeriesDetails.cast, key = { it.id }) {
                         TvCastMemberItem(
                                 it.name, it.character, it.profileUrl,
-                                focusRequester = if (index == 0) castFocusRequester else null,
                                 onClick = { onCastMemberClicked(it) }
                                         )
                     }
@@ -363,6 +394,7 @@ fun TvSeriesDetailsTvScreenContent(
                             season,
                             modifier = Modifier.padding(top = 20.dp),
                             firstEpisodeFocusRequester = seasonFocusRequesters.getOrNull(index),
+                            listState = seasonListStates.getOrNull(index) ?: rememberLazyListState(),
                             onEpisodeClicked = onEpisodeClicked
                                     )
                 }
@@ -378,6 +410,7 @@ private fun TvSeasonSection(
         season: SeasonModel,
         modifier: Modifier = Modifier,
         firstEpisodeFocusRequester: FocusRequester? = null,
+        listState: LazyListState = rememberLazyListState(),
         onEpisodeClicked: (EpisodeModel) -> Unit = {}
                             ) {
     Column(modifier = modifier) {
@@ -398,13 +431,15 @@ private fun TvSeasonSection(
         }
         if (season.episodes.isNotEmpty()) {
             LazyRow(
-                    modifier = Modifier.padding(top = 12.dp),
+                    state = listState,
+                    modifier = Modifier
+                            .padding(top = 12.dp)
+                            .let { if (firstEpisodeFocusRequester != null) it.focusRequester(firstEpisodeFocusRequester) else it },
                     horizontalArrangement = Arrangement.spacedBy(16.dp)
                    ) {
-                itemsIndexed(season.episodes, key = { _, it -> it.id }) { index, episode ->
+                items(season.episodes, key = { it.id }) { episode ->
                     TvEpisodeItem(
                             episode,
-                            focusRequester = if (index == 0) firstEpisodeFocusRequester else null,
                             onClick = { onEpisodeClicked(episode) }
                                  )
                 }
@@ -417,15 +452,17 @@ private fun TvSeasonSection(
 private fun TvEpisodeItem(
         episode: EpisodeModel,
         modifier: Modifier = Modifier,
-        focusRequester: FocusRequester? = null,
         onClick: () -> Unit = {}
                           ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isFocused by interactionSource.collectIsFocusedAsState()
 
     Column(modifier = modifier.width(episodeStillWidth)) {
+        val stillPlaceholderPainter = painterResource(CoreR.drawable.placeholder_wide)
         AsyncImage(
-                model = episode.stillUrl,
+                model = episode.stillUrl.takeIf { it.isNotBlank() },
+                error = stillPlaceholderPainter,
+                fallback = stillPlaceholderPainter,
                 contentDescription = episode.name,
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
@@ -439,7 +476,6 @@ private fun TvEpisodeItem(
                                     Modifier
                                 }
                              )
-                        .let { if (focusRequester != null) it.focusRequester(focusRequester) else it }
                         .clickable(interactionSource = interactionSource, indication = null, onClick = onClick)
                   )
         Text(

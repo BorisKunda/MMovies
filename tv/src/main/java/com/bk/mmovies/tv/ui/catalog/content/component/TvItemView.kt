@@ -1,9 +1,7 @@
-package com.bk.mmovies.tv.ui.component
+package com.bk.mmovies.tv.ui.catalog.content.component
 
 import android.annotation.SuppressLint
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -23,10 +21,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.geometry.CornerRadius
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEvent
 import androidx.compose.ui.input.key.KeyEventType
@@ -34,7 +39,6 @@ import androidx.compose.ui.input.key.key
 import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -42,19 +46,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil3.compose.AsyncImage
-import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.ui.theme.MMoviesTheme
 
-private val tvItemWidth = 140.dp
-private val tvItemHeight = 210.dp
-private val tvItemShape = RoundedCornerShape(10.dp)
-private val rememberedAccentHeight = 4.dp
-
-// Matches the amber accent used for "remembered" state in the catalog focus
-// design (see TV_DETAILS_TRAILER_NEWS_AUTH.md / the catalog focus map) -
-// distinct from MaterialTheme.colorScheme.primary, which is reserved for
-// true focus, so the two states never read as the same color.
-private val rememberedAccentColor = Color(0xFFE7A23D)
+private val tvItemWidth = 105.dp
+private val tvItemHeight = 158.dp
+private val tvItemCornerRadius = 10.dp
+private val tvItemFocusBorderWidth = 3.dp
+private val tvItemShape = RoundedCornerShape(tvItemCornerRadius)
 
 @Composable
 fun TvItem(
@@ -66,33 +64,39 @@ fun TvItem(
         // title on the placeholder there. Other rows keep the bare
         // placeholder look rather than every blank poster growing a label.
         isUpcoming: Boolean = false,
-        // True for the item a row would restore focus to if re-entered right
-        // now (see TvRow's row-level focus memory) - shown only while this
-        // item itself isn't the one truly focused, so the two states never
-        // overlap on the same tile.
-        isRemembered: Boolean = false,
+        placeholderPainter: Painter,
         focusRequester: FocusRequester? = null,
         onFocusChanged: (isFocused: Boolean) -> Unit = {},
         onKeyPressed: (keyEvent: KeyEvent) -> Boolean = { false }
           ) {
     var isFocused by remember { mutableStateOf(false) }
+    val focusBorderColor = MaterialTheme.colorScheme.primary
 
     Box(
             modifier = Modifier
                     .padding(5.dp)
                     .width(tvItemWidth)
                     .height(tvItemHeight)
-                    .then(
-                            if (isFocused) {
-                                Modifier.border(
-                                        width = 3.dp,
-                                        color = MaterialTheme.colorScheme.primary,
-                                        shape = tvItemShape
-                                               )
-                            } else {
-                                Modifier
-                            }
-                         )
+                    .drawWithContent {
+                        drawContent()
+                        if (isFocused) {
+                            val strokeWidthPx = tvItemFocusBorderWidth.toPx()
+                            val halfStrokePx = strokeWidthPx / 2f
+                            drawRoundRect(
+                                    color = focusBorderColor,
+                                    topLeft = Offset(
+                                            halfStrokePx,
+                                            halfStrokePx
+                                                    ),
+                                    size = Size(
+                                            size.width - strokeWidthPx,
+                                            size.height - strokeWidthPx
+                                               ),
+                                    cornerRadius = CornerRadius(tvItemCornerRadius.toPx() - halfStrokePx),
+                                    style = Stroke(width = strokeWidthPx)
+                                         )
+                        }
+                    }
                     .then(if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier)
                     // onFocusChanged only observes the focus target that comes
                     // AFTER it in the chain - same rule as focusRequester - so
@@ -110,43 +114,18 @@ fun TvItem(
                         onKeyPressed(keyEvent)
                     }
        ) {
-        if (posterUrl.isBlank()) {
-            Image(
-                    painter = painterResource(CoreR.drawable.placeholder),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                            .width(tvItemWidth)
-                            .height(tvItemHeight)
-                            .clip(tvItemShape)
-                 )
-        } else {
-            AsyncImage(
-                    model = posterUrl,
-                    error = painterResource(CoreR.drawable.placeholder),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier
-                            .width(tvItemWidth)
-                            .height(tvItemHeight)
-                            .clip(tvItemShape)
-                      )
-        }
+        TvItemPoster(
+                posterUrl = posterUrl,
+                placeholderPainter = placeholderPainter
+                    )
         Box(
                 modifier = Modifier
                         .fillMaxSize()
                         .clip(tvItemShape)
-                        .background(Color.Black.copy(alpha = if (isFocused) 0.15f else 0.3f))
+                        .drawBehind {
+                            drawRect(color = Color.Black.copy(alpha = if (isFocused) 0.15f else 0.3f))
+                        }
            )
-        if (isRemembered && !isFocused) {
-            Box(
-                    modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .fillMaxWidth()
-                            .height(rememberedAccentHeight)
-                            .background(rememberedAccentColor)
-               )
-        }
         if (isUpcoming && posterUrl.isBlank() && title.isNotBlank()) {
             Text(
                     text = title,
@@ -162,6 +141,35 @@ fun TvItem(
                     style = MaterialTheme.typography.bodySmall
                 )
         }
+    }
+}
+
+@Composable
+private fun TvItemPoster(
+        posterUrl: String,
+        placeholderPainter: Painter
+                         ) {
+    if (posterUrl.isBlank()) {
+        Image(
+                painter = placeholderPainter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                        .width(tvItemWidth)
+                        .height(tvItemHeight)
+                        .clip(tvItemShape)
+             )
+    } else {
+        AsyncImage(
+                model = posterUrl,
+                error = placeholderPainter,
+                contentDescription = null,
+                contentScale = ContentScale.Crop,
+                modifier = Modifier
+                        .width(tvItemWidth)
+                        .height(tvItemHeight)
+                        .clip(tvItemShape)
+                  )
     }
 }
 

@@ -138,6 +138,8 @@ interface TmdbApi {
             @Query("sort_by") sortBy: String = "popularity.desc",
             @Query("primary_release_date.gte") primaryReleaseDateGte: String,
             @Query("with_release_type") withReleaseType: String = "2|3|4",
+            @Query("with_runtime.gte") withRuntimeGte: Int? = null,
+            @Query("with_runtime.lte") withRuntimeLte: Int? = null,
             @Query("page") page: Int = 1
                                  ): Response<MovieListDto>
 
