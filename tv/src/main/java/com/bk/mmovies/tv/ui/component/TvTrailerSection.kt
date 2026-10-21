@@ -17,6 +17,9 @@ import androidx.compose.material.icons.filled.PlayCircle
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,6 +70,17 @@ fun TvTrailerSection(trailerUrl: String, modifier: Modifier = Modifier) {
     var isFocused by remember { mutableStateOf(false) }
     var isPlayerVisible by remember { mutableStateOf(false) }
     var thumbnailUrl by remember(videoId) { mutableStateOf(youtubeMaxResThumbnailUrl(videoId)) }
+    val thumbnailFocusRequester = remember { FocusRequester() }
+    var wasPlayerShown by remember { mutableStateOf(false) }
+
+    LaunchedEffect(isPlayerVisible) {
+        if (isPlayerVisible) {
+            wasPlayerShown = true
+        } else if (wasPlayerShown) {
+            wasPlayerShown = false
+            runCatching { thumbnailFocusRequester.requestFocus() }
+        }
+    }
 
     Box(
             modifier = modifier
@@ -86,6 +100,7 @@ fun TvTrailerSection(trailerUrl: String, modifier: Modifier = Modifier) {
                     // onFocusChanged only observes the focus target that comes
                     // AFTER it in the chain, so it must precede clickable().
                     .onFocusChanged { focusState -> isFocused = focusState.isFocused }
+                    .focusRequester(thumbnailFocusRequester)
                     .clickable { isPlayerVisible = true },
             contentAlignment = Alignment.Center
        ) {

@@ -23,8 +23,10 @@
     <string name="favorites_empty_tv_series">Сериалы, отмеченные как избранные, появятся здесь.</string>
     <string name="search_placeholder">Поиск фильмов и сериалов</string>
     <string name="voice_search_action">Голосовой поиск</string>
+    <string name="search_field_clear_action">Очистить поиск</string>
     <string name="voice_search_prompt">Произнесите запрос</string>
     <string name="voice_search_unavailable">Голосовой поиск недоступен на этом устройстве.</string>
+    <string name="voice_search_permission_denied">Разрешите доступ к микрофону для голосового поиска.</string>
 
     <string name="details_overview_label">ОПИСАНИЕ</string>
     <string name="details_cast_label">В РОЛЯХ</string>
@@ -81,6 +83,8 @@
     <string name="terms_guardian_attribution_body">Раздел «Новости» использует Guardian Open Platform API для отображения заголовков о фильмах и сериалах. Этот контент принадлежит Guardian News &amp; Media Limited и не является собственностью MMovies.</string>
     <string name="terms_gemini_attribution_heading">Атрибуция Gemini</string>
     <string name="terms_gemini_attribution_body">Рекомендации на основе ИИ, при включении с помощью предоставленного пользователем ключа API Gemini, создаются с использованием Gemini API от Google. Эта функция неактивна, пока не указан действительный ключ API.</string>
+    <string name="terms_voice_search_heading">Голосовой поиск</string>
+    <string name="terms_voice_search_body">Голосовой поиск необязателен и использует службу распознавания речи вашего устройства, которую предоставляет Google и на которую распространяются условия Google. Он работает только пока вы используете кнопку микрофона в поиске и только если вы предоставили разрешение на доступ к микрофону.</string>
     <string name="terms_data_accuracy_heading">Точность данных</string>
     <string name="terms_data_accuracy_body">Контент предоставляется TMDB «как есть». Ни TMDB, ни разработчик этого приложения не гарантируют точность, полноту или актуальность отображаемой информации. Данные могут отсутствовать, устаревать или быть неверными.</string>
     <string name="terms_no_warranty_heading">Отсутствие гарантий</string>
@@ -97,6 +101,8 @@
     <string name="privacy_policy_account_body">При входе ваш логин и пароль TMDB отправляются напрямую на серверы TMDB для создания сессии и никогда не сохраняются и не видны никому, кроме TMDB. Вы также можете использовать приложение как гость, не указывая учётные данные.</string>
     <string name="privacy_policy_local_storage_heading">Данные, хранимые локально</string>
     <string name="privacy_policy_local_storage_body">Приложение сохраняет идентификатор сессии TMDB и ID аккаунта на вашем устройстве, чтобы сохранить вход в систему. Эти данные остаются на вашем устройстве и удаляются при выходе из аккаунта или очистке хранилища приложения.</string>
+    <string name="privacy_policy_voice_search_heading">Голосовой поиск</string>
+    <string name="privacy_policy_voice_search_body">Если вы используете голосовой поиск, приложение запрашивает разрешение на доступ к микрофону и слушает только после нажатия кнопки микрофона в поиске. Ваша речь обрабатывается службой распознавания речи вашего устройства (предоставляется Google), которая может передавать аудио на серверы Google. MMovies не записывает, не хранит и не получает аудио; приложение получает только распознанный текст и использует его как поисковый запрос. Вы можете отозвать разрешение в любой момент в настройках устройства.</string>
     <string name="privacy_policy_third_party_heading">Сторонние сервисы</string>
     <string name="privacy_policy_third_party_body">Данные о фильмах и сериалах, изображения и аутентификация аккаунта предоставляются The Movie Database (TMDB). Заголовки новостей предоставляются Guardian Open Platform. Рекомендации на основе ИИ, при включении, предоставляются Gemini API от Google с использованием ключа, который вы предоставляете. Использование этих сервисов регулируется собственной политикой конфиденциальности каждого поставщика.</string>
     <string name="privacy_policy_no_collection_heading">Без аналитики и отслеживания</string>

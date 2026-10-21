@@ -41,6 +41,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -48,12 +49,14 @@ import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.ui.input.key.type
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.bk.mmovies.core.R as CoreR
 import com.bk.mmovies.domain.model.CastMemberModel
 import com.bk.mmovies.domain.model.Category
 import com.bk.mmovies.domain.model.MovieCategory
@@ -197,7 +200,8 @@ fun MovieDetailsTvScreen(
                     onCastMemberClicked = { selectedCastMember = it },
                     favoriteFocusRequester = favoriteFocusRequester,
                     trailerFocusRequester = trailerFocusRequester,
-                    castFocusRequester = castFocusRequester
+                    castFocusRequester = castFocusRequester,
+                    onStopFocused = { focused -> stops.indexOf(focused).takeIf { it >= 0 }?.let { stopIndex = it } }
                                                                                  )
         }
     }
@@ -218,7 +222,8 @@ fun MovieDetailsTvScreenContent(
         onCastMemberClicked: (CastMemberModel) -> Unit = {},
         favoriteFocusRequester: FocusRequester? = null,
         trailerFocusRequester: FocusRequester? = null,
-        castFocusRequester: FocusRequester? = null
+        castFocusRequester: FocusRequester? = null,
+        onStopFocused: (FocusRequester) -> Unit = {}
                                 ) {
     Column(
             modifier = modifier
@@ -228,8 +233,11 @@ fun MovieDetailsTvScreenContent(
           ) {
         Row {
             Box(modifier = Modifier.size(width = posterWidth, height = posterHeight)) {
+                val posterPlaceholderPainter = painterResource(CoreR.drawable.placeholder)
                 AsyncImage(
-                        model = movieDetails.posterUrl,
+                        model = movieDetails.posterUrl.takeIf { it.isNotBlank() },
+                        error = posterPlaceholderPainter,
+                        fallback = posterPlaceholderPainter,
                         contentDescription = movieDetails.title,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier
@@ -243,7 +251,12 @@ fun MovieDetailsTvScreenContent(
                             modifier = Modifier
                                     .align(Alignment.TopEnd)
                                     .padding(8.dp)
-                                    .let { if (favoriteFocusRequester != null) it.focusRequester(favoriteFocusRequester) else it }
+                                    .let {
+                                        if (favoriteFocusRequester != null) {
+                                            it.onFocusChanged { state -> if (state.hasFocus) onStopFocused(favoriteFocusRequester) }
+                                                    .focusRequester(favoriteFocusRequester)
+                                        } else it
+                                    }
                                          )
                 }
             }
@@ -304,7 +317,12 @@ fun MovieDetailsTvScreenContent(
                     trailerUrl = trailerUrl,
                     modifier = Modifier
                             .padding(top = 32.dp)
-                            .let { if (trailerFocusRequester != null) it.focusRequester(trailerFocusRequester) else it }
+                            .let {
+                                if (trailerFocusRequester != null) {
+                                    it.onFocusChanged { state -> if (state.hasFocus) onStopFocused(trailerFocusRequester) }
+                                            .focusRequester(trailerFocusRequester)
+                                } else it
+                            }
                             )
         }
 
@@ -318,7 +336,9 @@ fun MovieDetailsTvScreenContent(
                     )
                 Column(modifier = Modifier.padding(top = 8.dp)) {
                     movieDetails.director?.let { CrewNameRow(it) }
-                    movieDetails.writers.forEach { CrewNameRow(it) }
+                    movieDetails.writers
+                            .filter { writer -> writer.id != movieDetails.director?.id }
+                            .forEach { CrewNameRow(it) }
                 }
             }
         }
@@ -332,7 +352,11 @@ fun MovieDetailsTvScreenContent(
                         fontWeight = FontWeight.Bold
                     )
                 LazyRow(
-                        modifier = Modifier.padding(top = 12.dp),
+                        modifier = Modifier
+                                .padding(top = 12.dp)
+                                .onFocusChanged { state ->
+                                    if (state.hasFocus && castFocusRequester != null) onStopFocused(castFocusRequester)
+                                },
                         horizontalArrangement = Arrangement.spacedBy(16.dp)
                        ) {
                     itemsIndexed(movieDetails.cast, key = { _, it -> it.id }) { index, it ->

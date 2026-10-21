@@ -38,7 +38,6 @@ val tvHeaderTextStyle: TextStyle
             lineHeight = 14.sp
                                                      )
 
-//blue-todo-remove-color
 val tvContentTextStyle: TextStyle
     @Composable
     get() = MaterialTheme.typography.bodyMedium.copy(

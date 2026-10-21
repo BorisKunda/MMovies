@@ -22,6 +22,8 @@ const val QUERY_PARAM_SORT_BY = "sort_by"
 const val POPULAR_MOVIES_LIST_ENDPOINT = "movie/popular"
 const val UPCOMING_MOVIES_LIST_ENDPOINT = "movie/upcoming"
 const val DISCOVER_MOVIES_LIST_ENDPOINT = "discover/movie"
+const val MIN_FEATURE_FILM_RUNTIME_MINUTES = 60
+const val UNKNOWN_RUNTIME_MINUTES = 0
 const val NOW_PLAYING_MOVIES_LIST_ENDPOINT = "movie/now_playing"
 const val TOP_RATED_MOVIES_LIST_ENDPOINT = "movie/top_rated"
 

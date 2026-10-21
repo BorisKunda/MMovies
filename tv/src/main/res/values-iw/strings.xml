@@ -23,8 +23,10 @@
     <string name="favorites_empty_tv_series">סדרות שתסמן/י כמועדפות יופיעו כאן.</string>
     <string name="search_placeholder">חיפוש סרטים וסדרות טלוויזיה</string>
     <string name="voice_search_action">חיפוש קולי</string>
+    <string name="search_field_clear_action">נקה חיפוש</string>
     <string name="voice_search_prompt">דברו כדי לחפש</string>
     <string name="voice_search_unavailable">חיפוש קולי אינו זמין במכשיר זה.</string>
+    <string name="voice_search_permission_denied">אפשרו גישה למיקרופון כדי להשתמש בחיפוש קולי.</string>
 
     <string name="details_overview_label">תקציר</string>
     <string name="details_cast_label">שחקנים</string>
@@ -81,6 +83,8 @@
     <string name="terms_guardian_attribution_body">מסך החדשות משתמש ב-Guardian Open Platform API להצגת כותרות בנושאי סרטים וסדרות. תוכן זה שייך ל-Guardian News &amp; Media Limited ואינו בבעלות MMovies.</string>
     <string name="terms_gemini_attribution_heading">קרדיט ל-Gemini</string>
     <string name="terms_gemini_attribution_body">המלצות מבוססות בינה מלאכותית, כאשר מופעלות באמצעות מפתח API של Gemini שסופק על ידי המשתמש, נוצרות באמצעות ה-API של Gemini מבית Google. תכונה זו אינה פעילה עד לאספקת מפתח API תקין.</string>
+    <string name="terms_voice_search_heading">חיפוש קולי</string>
+    <string name="terms_voice_search_body">חיפוש קולי הוא אופציונלי ומשתמש בשירות זיהוי הדיבור של המכשיר שלכם, המסופק על ידי Google וכפוף לתנאים של Google. הוא פעיל רק בזמן שימוש בכפתור המיקרופון בחיפוש, ורק אם העניקו הרשאת מיקרופון.</string>
     <string name="terms_data_accuracy_heading">דיוק הנתונים</string>
     <string name="terms_data_accuracy_body">התוכן מסופק על ידי TMDB \"כפי שהוא\". לא TMDB ולא מפתח האפליקציה מבטיחים שהמידע המוצג מדויק, שלם או מעודכן. פרטים מסוימים עשויים להיות חסרים, מיושנים או שגויים.</string>
     <string name="terms_no_warranty_heading">ללא אחריות</string>
@@ -97,6 +101,8 @@
     <string name="privacy_policy_account_body">בעת ההתחברות, שם המשתמש והסיסמה שלך ב-TMDB נשלחים ישירות לשרתי TMDB ליצירת הפעלה ואינם נשמרים או נראים לאף גורם מלבד TMDB. ניתן גם להשתמש באפליקציה כאורח ללא מסירת פרטי חשבון.</string>
     <string name="privacy_policy_local_storage_heading">נתונים המאוחסנים במכשיר</string>
     <string name="privacy_policy_local_storage_body">האפליקציה שומרת את מזהה ה-session ואת מזהה החשבון שלך ב-TMDB במכשיר שלך כדי לשמור אותך מחובר. נתונים אלה נשארים במכשיר שלך ונמחקים בעת התנתקות או ניקוי אחסון האפליקציה.</string>
+    <string name="privacy_policy_voice_search_heading">חיפוש קולי</string>
+    <string name="privacy_policy_voice_search_body">אם אתם משתמשים בחיפוש קולי, האפליקציה מבקשת הרשאת מיקרופון ומאזינה רק לאחר שלחצתם על כפתור המיקרופון בחיפוש. הדיבור שלכם מעובד על ידי שירות זיהוי הדיבור של המכשיר (המסופק על ידי Google), שעשוי לשלוח את האודיו לשרתי Google. MMovies אינה מקליטה, שומרת או מקבלת את האודיו; היא מקבלת רק את הטקסט שזוהה ומשתמשת בו כשאילתת חיפוש. אפשר לבטל את ההרשאה בכל עת בהגדרות המכשיר.</string>
     <string name="privacy_policy_third_party_heading">שירותי צד שלישי</string>
     <string name="privacy_policy_third_party_body">נתונים על סרטים וסדרות, תמונות ואימות חשבון מסופקים על ידי The Movie Database ‏(TMDB). כותרות חדשות מסופקות על ידי Guardian Open Platform. המלצות מבוססות בינה מלאכותית, כאשר מופעלות, מסופקות על ידי ה-API של Gemini מבית Google באמצעות מפתח שאתה מספק. השימוש בשירותים אלה כפוף למדיניות הפרטיות של כל ספק בנפרד.</string>
     <string name="privacy_policy_no_collection_heading">ללא אנליטיקס או מעקב</string>

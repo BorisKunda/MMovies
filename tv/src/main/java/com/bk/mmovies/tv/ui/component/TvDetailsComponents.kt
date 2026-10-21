@@ -163,14 +163,15 @@ fun TvCastMemberItem(
                                 }
                              )
            ) {
-            if (profileUrl.isNotBlank()) {
-                coil3.compose.AsyncImage(
-                        model = profileUrl,
-                        contentDescription = name,
-                        contentScale = androidx.compose.ui.layout.ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                                        )
-            }
+            val personPlaceholderPainter = androidx.compose.ui.res.painterResource(com.bk.mmovies.core.R.drawable.person_placeholder)
+            coil3.compose.AsyncImage(
+                    model = profileUrl.takeIf { it.isNotBlank() },
+                    error = personPlaceholderPainter,
+                    fallback = personPlaceholderPainter,
+                    contentDescription = name,
+                    contentScale = androidx.compose.ui.layout.ContentScale.Crop,
+                    modifier = Modifier.fillMaxSize()
+                                    )
         }
         Text(
                 text = name,

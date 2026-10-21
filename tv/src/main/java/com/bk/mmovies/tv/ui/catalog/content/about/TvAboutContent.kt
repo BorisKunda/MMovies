@@ -48,6 +48,10 @@ private val termsSections = listOf(
                 R.string.terms_gemini_attribution_body
                     ),
         LegalSection(
+                R.string.terms_voice_search_heading,
+                R.string.terms_voice_search_body
+                    ),
+        LegalSection(
                 R.string.terms_data_accuracy_heading,
                 R.string.terms_data_accuracy_body
                     ),
@@ -77,6 +81,10 @@ private val privacyPolicySections = listOf(
         LegalSection(
                 R.string.privacy_policy_local_storage_heading,
                 R.string.privacy_policy_local_storage_body
+                    ),
+        LegalSection(
+                R.string.privacy_policy_voice_search_heading,
+                R.string.privacy_policy_voice_search_body
                     ),
         LegalSection(
                 R.string.privacy_policy_third_party_heading,
