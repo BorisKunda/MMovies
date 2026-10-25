@@ -1,0 +1,33 @@
+package com.bk.mmovies.demomobile
+
+import android.os.Bundle
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.ui.Modifier
+import androidx.navigation.compose.rememberNavController
+import com.bk.mmovies.demomobile.ui.navigation.DemoNavigation
+import com.bk.mmovies.ui.theme.MMoviesTheme
+
+class MainActivity : ComponentActivity() {
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        enableEdgeToEdge()
+        setContent {
+            val navController = rememberNavController()
+            MMoviesTheme {
+                Scaffold(
+                        modifier = Modifier.fillMaxSize(),
+                        containerColor = MaterialTheme.colorScheme.background
+                        ) { innerPadding ->
+                    DemoNavigation(innerPadding, navController)
+                }
+            }
+        }
+    }
+}
