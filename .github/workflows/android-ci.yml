@@ -25,8 +25,8 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v4
 
-      - name: Install Android platform
-        run: sdkmanager "platforms;android-37"
+      - name: List available Android platforms
+        run: sdkmanager --list --channel=3 | grep "platforms;android-"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@v6
