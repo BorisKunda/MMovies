@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -57,7 +59,8 @@ fun InvalidApiKeyView(
         onApiKeyHelpClicked: () -> Unit,
         onSaveClicked: (apiKey: String) -> Unit,
         missingKey: Boolean,
-        openSettingsLabel: String = stringResource(CoreR.string.open_tmdb_api_settings)
+        openSettingsLabel: String = stringResource(CoreR.string.open_tmdb_api_settings),
+        isEmbedded: Boolean = false
                      ) {
     var apiKey by rememberSaveable {
         mutableStateOf("")
@@ -167,7 +170,15 @@ fun InvalidApiKeyView(
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                                 capitalization = KeyboardCapitalization.None,
-                                autoCorrectEnabled = false
+                                autoCorrectEnabled = false,
+                                imeAction = ImeAction.Done
+                                                         ),
+                        keyboardActions = KeyboardActions(
+                                onDone = {
+                                    if (apiKey.isNotBlank()) {
+                                        onSaveClicked(apiKey.trim())
+                                    }
+                                }
                                                          ),
                         shape = RoundedCornerShape(primaryButtonCornerSize),
                         colors = OutlinedTextFieldDefaults.colors(
@@ -201,7 +212,8 @@ fun InvalidApiKeyView(
                              )
             },
             useSpaceBetween = false,
-            tag = "InvalidApiKeyView"
+            tag = "InvalidApiKeyView",
+            isEmbedded = isEmbedded
              )
 }
 

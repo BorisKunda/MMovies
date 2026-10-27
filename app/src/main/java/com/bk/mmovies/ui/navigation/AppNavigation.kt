@@ -2,6 +2,7 @@ package com.bk.mmovies.ui.navigation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.consumeWindowInsets
 import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -60,7 +61,9 @@ fun AppNavigation(
     NavHost(
             navController,
             AppDestination.SplashDestination,
-            Modifier.padding(paddingValues = padding),
+            Modifier
+                    .padding(paddingValues = padding)
+                    .consumeWindowInsets(padding),
             builder = {
                 composable<AppDestination.SplashDestination>(content = {
                     SplashScreen(onNavigateToAuthScreen = {

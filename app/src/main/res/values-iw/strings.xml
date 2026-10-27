@@ -107,6 +107,7 @@
     <string name="details_overview_tba">יפורסם בקרוב</string>
     <string name="details_cast_label">שחקנים</string>
     <string name="details_seasons_label">עונות</string>
+    <string name="details_seasons_show_all">הצג את כל העונות (%1$d)</string>
     <string name="details_episodes_label">פרקים</string>
     <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">שחקנים: טרם נקבע</string>

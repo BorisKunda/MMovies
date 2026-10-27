@@ -27,11 +27,13 @@ import androidx.compose.material.icons.filled.Tv
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -83,7 +85,8 @@ private val metaIconTextSpacing = 8.dp
 private val userScoreRingSize = 32.dp
 private val userScoreRowSpacing = 12.dp
 
-private const val TITLE_MAX_LINES = 3
+private const val TITLE_MAX_LINES = 5
+private const val INITIAL_VISIBLE_SEASON_COUNT = 5
 
 private val chipSpacing = 8.dp
 
@@ -427,6 +430,7 @@ private fun SeasonsSection(
         modifier: Modifier = Modifier,
         onSeasonClicked: (seasonNumber: Int) -> Unit = {}
                           ) {
+    var isAllSeasonsShown by rememberSaveable { mutableStateOf(false) }
     Column(
             modifier = modifier.padding(
                     start = screenPadding,
@@ -447,8 +451,17 @@ private fun SeasonsSection(
                         .padding(top = spacingUnit),
                 verticalArrangement = Arrangement.spacedBy(seasonRowSpacing)
               ) {
-            seasons.forEach { season ->
+            val visibleSeasons = if (isAllSeasonsShown) seasons else seasons.take(INITIAL_VISIBLE_SEASON_COUNT)
+            visibleSeasons.forEach { season ->
                 SeasonRow(season, onClick = { onSeasonClicked(season.seasonNumber) })
+            }
+        }
+        if (!isAllSeasonsShown && seasons.size > INITIAL_VISIBLE_SEASON_COUNT) {
+            TextButton(
+                    onClick = { isAllSeasonsShown = true },
+                    modifier = Modifier.fillMaxWidth()
+                      ) {
+                Text(text = stringResource(R.string.details_seasons_show_all, seasons.size))
             }
         }
     }

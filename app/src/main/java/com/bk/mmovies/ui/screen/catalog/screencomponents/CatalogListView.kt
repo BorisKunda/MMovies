@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -102,6 +103,7 @@ private val catalogFavoriteStarIconSize = favoriteStarDefaultIconSize / 2
 
 // Styling for the score caption under the badge.
 private val scoreLabelTopSpacing = 6.dp
+private val scoreLabelMaxWidth = 56.dp
 private val scoreLabelFontSize = 8.sp
 private val scoreLabelLetterSpacing = 0.5.sp
 private const val SCORE_LABEL_ALPHA = 0.45f
@@ -323,7 +325,7 @@ fun CatalogItemRow(
                         if (hasRoomForScoreLabel) {
                             Spacer(modifier = Modifier.height(scoreLabelTopSpacing))
                             Text(
-                                    modifier = Modifier.width(ratingBadgeSize),
+                                    modifier = Modifier.widthIn(min = ratingBadgeSize, max = scoreLabelMaxWidth),
                                     text = stringResource(R.string.user_score_label),
                                     color = MaterialTheme.colorScheme.onSurface.copy(
                                             alpha = SCORE_LABEL_ALPHA

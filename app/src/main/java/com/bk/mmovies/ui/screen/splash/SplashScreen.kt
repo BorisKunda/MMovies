@@ -2,7 +2,9 @@ package com.bk.mmovies.ui.screen.splash
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -34,10 +36,13 @@ fun SplashScreen(
     val viewModel: SplashViewModel = hiltViewModel()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
-    Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center
-       ) {
+    Column(modifier = Modifier.fillMaxSize()) {
+        Box(
+                modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+           ) {
         when (screenState) {
             SplashScreenState.Loading                                           -> {
                 LoaderView()
@@ -64,15 +69,14 @@ fun SplashScreen(
                                     "onSaveClicked key present: ${key.isNotBlank()}, length: ${key.length}"
                                     )
                         },
-                        missingKey = true
+                        missingKey = true,
+                        isEmbedded = true
                                  )
             }
         }
+        }
 
-        PoweredByTmdbFooter(
-                modifier = Modifier.align(Alignment.BottomCenter),
-                onClick = onNavigateToTerms
-                           )
+        PoweredByTmdbFooter(onClick = onNavigateToTerms)
     }
 
     LaunchedEffect(Unit) {

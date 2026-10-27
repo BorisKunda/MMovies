@@ -1,11 +1,16 @@
 package com.bk.mmovies.data.mapper
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import com.bk.mmovies.data.source.remote.TMDB_IMAGE_BASE_URL
 import java.time.Instant
 import java.time.LocalDate
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeParseException
+import java.time.format.FormatStyle
+import java.util.Date
 import java.util.Locale
 import java.util.concurrent.ConcurrentHashMap
 
@@ -29,17 +34,11 @@ internal const val TMDB_GENDER_FEMALE = 1
 // app's locale.
 private val TMDB_DATE_FORMATTER: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd", Locale.ENGLISH)
 
-// DateTimeFormatter is immutable/thread-safe (unlike SimpleDateFormat), so a
-// per-locale instance can be built once and reused for every item mapped
-// instead of re-parsing the pattern/symbol tables on every call.
-private val displayDateFormatters = ConcurrentHashMap<Locale, DateTimeFormatter>()
-
 // Shared by every mapper that reformats a TMDB "yyyy-MM-dd" date into the
 // user-facing "MMMM d, yyyy" label for the current app locale.
 internal fun formatTmdbDate(rawDate: String, locale: Locale): String? = try {
     val date = LocalDate.parse(rawDate, TMDB_DATE_FORMATTER)
-    val formatter = displayDateFormatters.getOrPut(locale) { DateTimeFormatter.ofPattern("MMMM d, yyyy", locale) }
-    date.format(formatter)
+    formatLongDate(date.atStartOfDay(ZoneOffset.UTC).toInstant().toEpochMilli(), locale, ZoneOffset.UTC.id)
 } catch (e: DateTimeParseException) {
     null
 }
@@ -47,14 +46,38 @@ internal fun formatTmdbDate(rawDate: String, locale: Locale): String? = try {
 // NewsAPI sends publishedAt as a full ISO-8601 UTC instant
 // ("2024-01-15T13:45:00Z"), not a bare date like TMDB - a separate parser
 // from formatTmdbDate is needed rather than reusing it.
-private val newsDisplayDateFormatters = ConcurrentHashMap<Locale, DateTimeFormatter>()
-
 internal fun formatNewsApiDate(rawDate: String, locale: Locale): String? = try {
     val instant = Instant.parse(rawDate)
-    val formatter = newsDisplayDateFormatters.getOrPut(locale) {
-        DateTimeFormatter.ofPattern("MMMM d, yyyy", locale).withZone(ZoneId.systemDefault())
-    }
-    formatter.format(instant)
+    formatLongDate(instant.toEpochMilli(), locale, ZoneId.systemDefault().id)
 } catch (e: DateTimeParseException) {
     null
+}
+
+private val fallbackLongDateFormatters = ConcurrentHashMap<Locale, DateTimeFormatter>()
+
+private val icuLongDateFormats = ThreadLocal<HashMap<Pair<Locale, String>, android.icu.text.DateFormat>>()
+
+// java.time on Android lacks the genitive month names some languages need
+// in a full date (Russian "29 июля", not "29 июль"); ICU, available from
+// API 24, has them.
+private fun formatLongDate(epochMillis: Long, locale: Locale, zoneId: String): String =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            formatLongDateWithIcu(epochMillis, locale, zoneId)
+        } else {
+            val formatter = fallbackLongDateFormatters.getOrPut(locale) {
+                DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(locale)
+            }
+            formatter.withZone(ZoneId.of(zoneId)).format(Instant.ofEpochMilli(epochMillis))
+        }
+
+@RequiresApi(Build.VERSION_CODES.N)
+private fun formatLongDateWithIcu(epochMillis: Long, locale: Locale, zoneId: String): String {
+    val formatsByKey = icuLongDateFormats.get() ?: HashMap<Pair<Locale, String>, android.icu.text.DateFormat>()
+            .also { icuLongDateFormats.set(it) }
+    val format = formatsByKey.getOrPut(locale to zoneId) {
+        android.icu.text.DateFormat.getDateInstance(android.icu.text.DateFormat.LONG, locale).apply {
+            timeZone = android.icu.util.TimeZone.getTimeZone(zoneId)
+        }
+    }
+    return format.format(Date(epochMillis))
 }

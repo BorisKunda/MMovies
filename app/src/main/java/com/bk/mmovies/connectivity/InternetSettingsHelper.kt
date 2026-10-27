@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.provider.Settings
+import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.net.toUri
 
 fun openDeviceInternetSettings(context: Context) {
@@ -28,10 +29,10 @@ fun openWebPage(
         context: Context,
         url: String
                ) {
-    val intent = Intent(
-            Intent.ACTION_VIEW,
-            url.toUri()
-                       )
-
-    context.startActivity(intent)
+    val uri = url.toUri()
+    try {
+        CustomTabsIntent.Builder().build().launchUrl(context, uri)
+    } catch (exception: ActivityNotFoundException) {
+        context.startActivity(Intent(Intent.ACTION_VIEW, uri))
+    }
 }

@@ -107,6 +107,7 @@
     <string name="details_overview_tba">To be announced</string>
     <string name="details_cast_label">CAST</string>
     <string name="details_seasons_label">SEASONS</string>
+    <string name="details_seasons_show_all">Show all seasons (%1$d)</string>
     <string name="details_episodes_label">EPISODES</string>
     <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">Cast: To be announced</string>

@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.bk.mmovies.R
@@ -29,6 +31,7 @@ import com.bk.mmovies.ui.component.PoweredByTmdbFooter
 import com.bk.mmovies.ui.screen.details.tvseriesdetails.screencomponents.TvSeriesDetailsScreenContent
 
 private const val TAG = "TvSeriesDetailsScreen"
+private val detailsFooterTopPadding = 8.dp
 
 @Composable
 fun TvSeriesDetailsScreen(
@@ -84,7 +87,10 @@ fun TvSeriesDetailsScreen(
             }
         }
 
-        PoweredByTmdbFooter(onClick = onNavigateToTerms)
+        PoweredByTmdbFooter(
+                modifier = Modifier.padding(top = detailsFooterTopPadding),
+                onClick = onNavigateToTerms
+                           )
     }
 }
 

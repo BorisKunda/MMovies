@@ -32,6 +32,7 @@ googleFirebaseCrashlyticsVersion = "3.0.7"
 firebaseBomVersion = "34.15.0"
 desugarJdkLibsVersion = "2.1.5"
 webkitVersion = "1.16.0"
+browserVersion = "1.9.0"
 
 #testing
 junit_version = "4.13.2"
@@ -41,6 +42,7 @@ espressoCore_version = "3.7.0"
 [libraries]
 #kotlin
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx_version" }
+androidx-browser = { group = "androidx.browser", name = "browser", version.ref = "browserVersion" }
 androidx-lifecycle-runtime-ktx = { group = "androidx.lifecycle", name = "lifecycle-runtime-ktx", version.ref = "lifecycleRuntimeKtx_version" }
 kotlinx-serialization-json = { group = "org.jetbrains.kotlinx", name = "kotlinx-serialization-json", version.ref = "kotlinx_serialization_json_version" }
 

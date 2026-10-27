@@ -82,7 +82,7 @@ private val userScoreRowSpacing = 12.dp
 
 // A long title must not out-grow the poster it sits beside, or the Row's
 // CenterVertically ends up centring the poster against a wall of text.
-private const val TITLE_MAX_LINES = 3
+private const val TITLE_MAX_LINES = 5
 
 private val chipSpacing = 8.dp
 

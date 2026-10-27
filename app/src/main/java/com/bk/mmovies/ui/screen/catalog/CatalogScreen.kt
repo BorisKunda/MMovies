@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.safeDrawing
@@ -26,7 +27,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.saveable.rememberSaveableStateHolder
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.nestedscroll.nestedScroll
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
@@ -45,6 +48,8 @@ import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryListPopupView
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategorySelector
 import com.bk.mmovies.ui.screen.catalog.screencomponents.CategoryType
 import com.bk.mmovies.ui.screen.catalog.screencomponents.UserProfileBar
+import com.bk.mmovies.ui.screen.catalog.screencomponents.collapsingHeader
+import com.bk.mmovies.ui.screen.catalog.screencomponents.rememberCollapsingHeaderState
 import com.bk.mmovies.ui.screen.news.ArticleWebViewScreen
 import com.bk.mmovies.ui.screen.news.NewsScreen
 import kotlinx.coroutines.launch
@@ -84,7 +89,7 @@ fun CatalogScreen(
     // rotation, since that recreates the activity - which silently closed the
     // popup/article overlay out from under the user on a config change.
     var isCategoryPopupVisible by rememberSaveable { mutableStateOf(false) }
-    val categorySheetState = rememberModalBottomSheetState()
+    val categorySheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
     val coroutineScope = rememberCoroutineScope()
 
     // Hoisted here (rather than left inside NewsScreen) so the article reader
@@ -92,6 +97,12 @@ fun CatalogScreen(
     // composable's own Scaffold - otherwise its bottom tab bar/TMDB footer
     // would still show through underneath the WebView.
     var openArticleUrl by rememberSaveable { mutableStateOf<String?>(null) }
+
+    val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
+    val collapsingHeaderState = rememberCollapsingHeaderState()
+    LaunchedEffect(selectedTab) {
+        collapsingHeaderState.collapsedOffsetPx = 0f
+    }
 
     Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
@@ -105,25 +116,27 @@ fun CatalogScreen(
                     WindowInsetsSides.Bottom + WindowInsetsSides.Horizontal
                                                                 ),
             bottomBar = {
-                Column {
-                    CatalogBottomTabBar(
-                            selectedTab = selectedTab,
-                            onTabSelected = { tab ->
-                                // Otherwise the movie/TV category picker
-                                // (which has no meaning for News) could stay
-                                // open floating over the News tab if it was
-                                // still visible at the moment of switching.
-                                isCategoryPopupVisible = false
-                                catalogViewModel.onTabSelected(tab)
-                            }
-                                       )
-                    if (selectedTab == CatalogBottomTab.News) {
-                        PoweredByNewsApiFooter(modifier = Modifier.padding(top = tmdbFooterTopPadding))
-                    } else {
-                        PoweredByTmdbFooter(
-                                modifier = Modifier.padding(top = tmdbFooterTopPadding),
-                                onClick = onNavigateToTerms
+                if (!isKeyboardVisible) {
+                    Column {
+                        CatalogBottomTabBar(
+                                selectedTab = selectedTab,
+                                onTabSelected = { tab ->
+                                    // Otherwise the movie/TV category picker
+                                    // (which has no meaning for News) could stay
+                                    // open floating over the News tab if it was
+                                    // still visible at the moment of switching.
+                                    isCategoryPopupVisible = false
+                                    catalogViewModel.onTabSelected(tab)
+                                }
                                            )
+                        if (selectedTab == CatalogBottomTab.News) {
+                            PoweredByNewsApiFooter(modifier = Modifier.padding(top = tmdbFooterTopPadding))
+                        } else {
+                            PoweredByTmdbFooter(
+                                    modifier = Modifier.padding(top = tmdbFooterTopPadding),
+                                    onClick = onNavigateToTerms
+                                               )
+                        }
                     }
                 }
             }
@@ -133,24 +146,28 @@ fun CatalogScreen(
                         .fillMaxSize()
                         .padding(innerPadding)
               ) {
-            // The user profile chip sits at the very top-right of the
-            // screen, above the search bar. Shown on every tab, News included.
-            UserProfileBar(
-                    userProfileState = userProfileState,
-                    onLogout = { catalogViewModel.onLogoutClicked() }
-                          )
+            if (!isKeyboardVisible) {
+                Column(modifier = Modifier.collapsingHeader(collapsingHeaderState)) {
+                    // The user profile chip sits at the very top-right of the
+                    // screen, above the search bar. Shown on every tab, News included.
+                    UserProfileBar(
+                            userProfileState = userProfileState,
+                            onLogout = { catalogViewModel.onLogoutClicked() }
+                                  )
 
-            CatalogSearchBar(onClick = onNavigateToSearch)
+                    CatalogSearchBar(onClick = onNavigateToSearch)
 
-            // News isn't a catalog list, so the movie/TV category picker
-            // doesn't apply to it.
-            if (selectedTab != CatalogBottomTab.News) {
-                // Fixed above the tab content so switching tabs never resets
-                // the selected category.
-                CategorySelector(
-                        selectedCategory = selectedCategory,
-                        onClick = { isCategoryPopupVisible = true }
-                                 )
+                    // News isn't a catalog list, so the movie/TV category picker
+                    // doesn't apply to it.
+                    if (selectedTab != CatalogBottomTab.News) {
+                        // Fixed above the tab content so switching tabs never resets
+                        // the selected category.
+                        CategorySelector(
+                                selectedCategory = selectedCategory,
+                                onClick = { isCategoryPopupVisible = true }
+                                         )
+                    }
+                }
             }
 
             Box(
@@ -158,6 +175,7 @@ fun CatalogScreen(
                             .weight(1f)
                             .fillMaxWidth()
                             .padding(top = tabContentTopSpacing)
+                            .nestedScroll(collapsingHeaderState.nestedScrollConnection)
                ) {
                 tabStateHolder.SaveableStateProvider(selectedTab) {
                     if (selectedTab == CatalogBottomTab.News) {

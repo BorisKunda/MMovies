@@ -3,7 +3,9 @@ package com.bk.mmovies.ui.screen.news
 import android.widget.Toast
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.ime
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -17,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,22 +49,25 @@ import com.bk.mmovies.ui.screen.news.screencomponents.NewsListView
 fun NewsScreen(onOpenArticle: (String) -> Unit, viewModel: NewsViewModel = hiltViewModel()) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
     val context = LocalContext.current
+    val isKeyboardVisible = WindowInsets.ime.getBottom(LocalDensity.current) > 0
 
     Scaffold(
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
-                TopAppBar(
-                        title = {
-                            Text(
-                                    text = stringResource(R.string.news_screen_title),
-                                    color = MaterialTheme.colorScheme.onSurface,
-                                    style = MaterialTheme.typography.titleMedium
-                                )
-                        },
-                        colors = TopAppBarDefaults.topAppBarColors(
-                                containerColor = MaterialTheme.colorScheme.background
-                                                                  )
-                         )
+                if (!isKeyboardVisible) {
+                    TopAppBar(
+                            title = {
+                                Text(
+                                        text = stringResource(R.string.news_screen_title),
+                                        color = MaterialTheme.colorScheme.onSurface,
+                                        style = MaterialTheme.typography.titleMedium
+                                    )
+                            },
+                            colors = TopAppBarDefaults.topAppBarColors(
+                                    containerColor = MaterialTheme.colorScheme.background
+                                                                      )
+                             )
+                }
             }
             ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -106,7 +112,8 @@ internal fun NewsScreenBody(
                     onApiKeyHelpClicked = onApiKeyHelp,
                     onSaveClicked = onSaveApiKey,
                     missingKey = screenState.missingKey,
-                    openSettingsLabel = stringResource(CoreR.string.open_newsapi_account)
+                    openSettingsLabel = stringResource(CoreR.string.open_newsapi_account),
+                    isEmbedded = true
                              )
         }
 

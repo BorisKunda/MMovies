@@ -24,13 +24,16 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.dp
 import com.bk.mmovies.R
 
@@ -48,12 +51,19 @@ private const val TAB_DIVIDER_ALPHA = 0.18f
 // so adding a tab in the future doesn't squish the existing ones - it just
 // extends the row, which scrolls horizontally once the tabs no longer fit.
 private val tabItemWidth = 96.dp
+private const val MAX_TAB_BAR_FONT_SCALE = 1.3f
 
 @Composable
 fun CatalogBottomTabBar(
         selectedTab: CatalogBottomTab,
         onTabSelected: (CatalogBottomTab) -> Unit
                     ) {
+    val density = LocalDensity.current
+    val cappedDensity = Density(
+            density = density.density,
+            fontScale = density.fontScale.coerceAtMost(MAX_TAB_BAR_FONT_SCALE)
+                               )
+    CompositionLocalProvider(LocalDensity provides cappedDensity) {
     Surface(
             color = MaterialTheme.colorScheme.surfaceContainer,
             tonalElevation = NavigationBarDefaults.Elevation
@@ -118,6 +128,7 @@ fun CatalogBottomTabBar(
                 }
             }
         }
+    }
     }
 }
 
