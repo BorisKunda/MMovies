@@ -15,6 +15,7 @@ import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -53,6 +54,7 @@ class NewsApiTest {
                 .addTrustedCertificate(heldCertificate.certificate)
                 .build()
         mockWebServer = MockWebServer()
+        mockWebServer.protocols = listOf(Protocol.HTTP_1_1)
         mockWebServer.useHttps(
                 certificates.sslSocketFactory(),
                 false
