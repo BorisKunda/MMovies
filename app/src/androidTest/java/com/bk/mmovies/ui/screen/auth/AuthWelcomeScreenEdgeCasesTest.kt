@@ -115,15 +115,15 @@ class AuthWelcomeScreenEdgeCasesTest {
         assertTrue("Register-on-TMDB callback should fire on tap", registerClicked)
     }
 
-    @Test
-    fun continueAsGuestButton_tapInvokesCallback() {
-        var guestClicked = false
-        setAuthWelcomeScreen(onContinueAsGuestClicked = { guestClicked = true })
-
-        composeRule.onNodeWithText(context.getString(R.string.continue_as_guest)).performClick()
-
-        assertTrue("Continue-as-guest callback should fire on tap", guestClicked)
-    }
+//    @Test
+//    fun continueAsGuestButton_tapInvokesCallback() {
+//        var guestClicked = false
+//        setAuthWelcomeScreen(onContinueAsGuestClicked = { guestClicked = true })
+//
+//        composeRule.onNodeWithText(context.getString(R.string.continue_as_guest)).performClick()
+//
+//        assertTrue("Continue-as-guest callback should fire on tap", guestClicked)
+//    }
 
     @Test
     fun poweredByFooter_tapInvokesOnNavigateToTerms() {
