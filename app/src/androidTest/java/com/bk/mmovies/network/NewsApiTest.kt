@@ -55,6 +55,7 @@ class NewsApiTest {
                 .build()
         mockWebServer = MockWebServer()
         mockWebServer.protocols = listOf(Protocol.HTTP_1_1)
+        mockWebServer.protocolNegotiationEnabled = false
         mockWebServer.useHttps(
                 certificates.sslSocketFactory(),
                 false
@@ -64,6 +65,7 @@ class NewsApiTest {
 
     private fun setOkHttp() {
         okHttpClient = OkHttpClient.Builder()
+                .protocols(listOf(Protocol.HTTP_1_1))
                 .addInterceptor(HttpLoggingInterceptor(logger = {
                     logDebug(
                             TAG,
