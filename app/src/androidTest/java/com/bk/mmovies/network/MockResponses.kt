@@ -367,3 +367,113 @@ const val MOCK_BLADE_JSON_OBJ = """
     "vote_count": 6763
 }
 """
+const val MOCK_LOGIN_VALIDATION_TOKEN_RESPONSE = """
+    {
+      "success": true,
+      "expires_at": "2026-11-01 18:00:00 UTC",
+      "request_token": "dummy_request_token"
+    }
+    """
+
+const val MOCK_LOGIN_SESSION_ID_RESPONSE = """
+    {
+      "success": true,
+      "session_id": "dummy_session_id"
+    }
+    """
+
+const val MOCK_GUEST_SESSION_ID_RESPONSE = """
+    {
+      "success": true,
+      "guest_session_id": "dummy_guest_session_id",
+      "expires_at": "2026-11-02 18:00:00 UTC"
+    }
+    """
+
+const val MOCK_DELETE_SESSION_RESPONSE = """
+    {
+      "success": true
+    }
+    """
+
+const val MOCK_TOGGLE_FAVORITE_RESPONSE = """
+    {
+      "status_code": 1,
+      "status_message": "Success."
+    }
+    """
+
+const val MOCK_TMDB_INVALID_SESSION_RESPONSE = """
+    {
+      "status_code": 3,
+      "status_message": "Authentication failed: You do not have permissions to access the service.",
+      "success": false
+    }
+    """
+
+const val MOCK_EMPTY_JSON_OBJECT_RESPONSE = "{}"
+
+const val MOCK_GUARDIAN_SEARCH_SUCCESS_RESPONSE = """
+    {
+      "response": {
+        "status": "ok",
+        "currentPage": 1,
+        "pages": 5,
+        "results": [
+          {
+            "id": "film/2026/sep/16/dummy-film-review",
+            "webTitle": "Dummy Film Review",
+            "webUrl": "https://www.theguardian.com/film/2026/sep/16/dummy-film-review",
+            "webPublicationDate": "2026-09-16T10:00:00Z",
+            "sectionName": "Film",
+            "fields": {
+              "thumbnail": "https://media.guim.co.uk/dummy/thumbnail.jpg",
+              "trailText": "A short trail text.",
+              "byline": "Jane Doe"
+            }
+          }
+        ]
+      }
+    }
+    """
+
+const val MOCK_GUARDIAN_ARTICLE_SUCCESS_RESPONSE = """
+    {
+      "response": {
+        "status": "ok",
+        "content": {
+          "id": "film/2026/sep/16/dummy-film-review",
+          "webTitle": "Dummy Film Review",
+          "webUrl": "https://www.theguardian.com/film/2026/sep/16/dummy-film-review",
+          "webPublicationDate": "2026-09-16T10:00:00Z",
+          "sectionName": "Film",
+          "fields": {
+            "body": "<p>Full article body.</p>"
+          },
+          "elements": [
+            {
+              "type": "image",
+              "assets": [
+                {
+                  "file": "https://media.guim.co.uk/dummy/1000.jpg",
+                  "typeData": { "width": "1000" }
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+    """
+
+const val MOCK_GUARDIAN_ERROR_RESPONSE = """
+    {
+      "message": "Invalid authentication credentials"
+    }
+    """
+
+const val MOCK_GUARDIAN_MALFORMED_RESPONSE = """
+    {
+      "unexpected": true
+    }
+    """
