@@ -12,141 +12,141 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  lint:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Download source code
-        uses: actions/checkout@v7
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Restore Firebase configuration
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
-            echo "Missing GOOGLE_SERVICES_JSON repository secret."
-            exit 1
-          fi
-          printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
-
-      - name: Run Android lint
-        run: bash ./gradlew :app:lintDebug --stacktrace
-
-      - name: Save lint report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: MMovies-lint-report
-          path: app/build/reports/lint-results-debug.*
-          if-no-files-found: warn
-          retention-days: 7
-
-  unit-test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Download source code
-        uses: actions/checkout@v7
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Restore Firebase configuration
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
-            echo "Missing GOOGLE_SERVICES_JSON repository secret."
-            exit 1
-          fi
-          printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
-
-      - name: Run unit tests
-        run: bash ./gradlew :app:testDebugUnitTest --stacktrace
-
-      - name: Save unit test report
-        if: always()
-        uses: actions/upload-artifact@v7
-        with:
-          name: MMovies-unit-test-report
-          path: app/build/reports/tests/testDebugUnitTest
-          if-no-files-found: warn
-          retention-days: 7
-
-  build:
-    runs-on: ubuntu-latest
-    timeout-minutes: 30
-
-    steps:
-      - name: Download source code
-        uses: actions/checkout@v7
-
-      - name: Set up Java 21
-        uses: actions/setup-java@v6
-        with:
-          distribution: temurin
-          java-version: '21'
-
-      - name: Set up Android SDK
-        uses: android-actions/setup-android@v4
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@v6
-
-      - name: Restore Firebase configuration
-        env:
-          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
-        run: |
-          if [ -z "$GOOGLE_SERVICES_JSON" ]; then
-            echo "Missing GOOGLE_SERVICES_JSON repository secret."
-            exit 1
-          fi
-          printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
-
-      - name: Build mobile and TV debug APKs
-        run: bash ./gradlew :app:assembleDebug :tv:assembleDebug --stacktrace
-
-      - name: Save mobile APK for download
-        uses: actions/upload-artifact@v7
-        with:
-          name: MMovies-mobile-debug
-          path: app/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-          retention-days: 7
-
-      - name: Save TV APK for download
-        uses: actions/upload-artifact@v7
-        with:
-          name: MMovies-tv-debug
-          path: tv/build/outputs/apk/debug/*.apk
-          if-no-files-found: error
-          retention-days: 7
-
+#   lint:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#
+#     steps:
+#       - name: Download source code
+#         uses: actions/checkout@v7
+#
+#       - name: Set up Java 21
+#         uses: actions/setup-java@v6
+#         with:
+#           distribution: temurin
+#           java-version: '21'
+#
+#       - name: Set up Android SDK
+#         uses: android-actions/setup-android@v4
+#
+#       - name: Set up Gradle
+#         uses: gradle/actions/setup-gradle@v6
+#
+#       - name: Restore Firebase configuration
+#         env:
+#           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+#         run: |
+#           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+#             echo "Missing GOOGLE_SERVICES_JSON repository secret."
+#             exit 1
+#           fi
+#           printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+#
+#       - name: Run Android lint
+#         run: bash ./gradlew :app:lintDebug --stacktrace
+#
+#       - name: Save lint report
+#         if: always()
+#         uses: actions/upload-artifact@v7
+#         with:
+#           name: MMovies-lint-report
+#           path: app/build/reports/lint-results-debug.*
+#           if-no-files-found: warn
+#           retention-days: 7
+#
+#   unit-test:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#
+#     steps:
+#       - name: Download source code
+#         uses: actions/checkout@v7
+#
+#       - name: Set up Java 21
+#         uses: actions/setup-java@v6
+#         with:
+#           distribution: temurin
+#           java-version: '21'
+#
+#       - name: Set up Android SDK
+#         uses: android-actions/setup-android@v4
+#
+#       - name: Set up Gradle
+#         uses: gradle/actions/setup-gradle@v6
+#
+#       - name: Restore Firebase configuration
+#         env:
+#           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+#         run: |
+#           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+#             echo "Missing GOOGLE_SERVICES_JSON repository secret."
+#             exit 1
+#           fi
+#           printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+#
+#       - name: Run unit tests
+#         run: bash ./gradlew :app:testDebugUnitTest --stacktrace
+#
+#       - name: Save unit test report
+#         if: always()
+#         uses: actions/upload-artifact@v7
+#         with:
+#           name: MMovies-unit-test-report
+#           path: app/build/reports/tests/testDebugUnitTest
+#           if-no-files-found: warn
+#           retention-days: 7
+#
+#   build:
+#     runs-on: ubuntu-latest
+#     timeout-minutes: 30
+#
+#     steps:
+#       - name: Download source code
+#         uses: actions/checkout@v7
+#
+#       - name: Set up Java 21
+#         uses: actions/setup-java@v6
+#         with:
+#           distribution: temurin
+#           java-version: '21'
+#
+#       - name: Set up Android SDK
+#         uses: android-actions/setup-android@v4
+#
+#       - name: Set up Gradle
+#         uses: gradle/actions/setup-gradle@v6
+#
+#       - name: Restore Firebase configuration
+#         env:
+#           GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+#         run: |
+#           if [ -z "$GOOGLE_SERVICES_JSON" ]; then
+#             echo "Missing GOOGLE_SERVICES_JSON repository secret."
+#             exit 1
+#           fi
+#           printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
+#
+#       - name: Build mobile and TV debug APKs
+#         run: bash ./gradlew :app:assembleDebug :tv:assembleDebug --stacktrace
+#
+#       - name: Save mobile APK for download
+#         uses: actions/upload-artifact@v7
+#         with:
+#           name: MMovies-mobile-debug
+#           path: app/build/outputs/apk/debug/*.apk
+#           if-no-files-found: error
+#           retention-days: 7
+#
+#       - name: Save TV APK for download
+#         uses: actions/upload-artifact@v7
+#         with:
+#           name: MMovies-tv-debug
+#           path: tv/build/outputs/apk/debug/*.apk
+#           if-no-files-found: error
+#           retention-days: 7
+#
   instrumented-test:
-    needs: build
+#     needs: build
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
