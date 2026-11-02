@@ -189,6 +189,17 @@ jobs:
           fi
           printf '%s' "$GOOGLE_SERVICES_JSON" > app/google-services.json
 
+      # Save the downloaded Android SDK platform and emulator image so the next run can reuse them instead of downloading again.
+      # key = the cache's name, one per API level. If a cache with this name exists it is restored; otherwise it is saved when the job succeeds.
+      # A cache not used for 7 days is deleted, and the whole repo can hold about 10 GB.
+      - name: Cache Android SDK packages
+        uses: actions/cache@v4
+        with:
+          path: |
+            /usr/local/lib/android/sdk/platforms/android-${{ matrix.api-level }}
+            /usr/local/lib/android/sdk/system-images/android-${{ matrix.api-level }}
+          key: android-sdk-${{ runner.os }}-${{ matrix.api-level }}
+
       # Start an emulator and run the tests inside it.
       # ${{ matrix.api-level }} is replaced by the current value from the list above (23, then 24, ...).
       - name: Run instrumented tests on API ${{ matrix.api-level }}
