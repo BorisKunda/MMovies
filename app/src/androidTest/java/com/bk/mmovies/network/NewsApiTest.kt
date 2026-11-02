@@ -14,7 +14,9 @@ import junit.framework.TestCase.assertNotNull
 import junit.framework.TestCase.assertNull
 import junit.framework.TestCase.assertTrue
 import kotlinx.coroutines.runBlocking
+import okhttp3.Dns
 import okhttp3.OkHttpClient
+import okhttp3.Protocol
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.mockwebserver.MockResponse
 import okhttp3.mockwebserver.MockWebServer
@@ -26,6 +28,7 @@ import org.junit.Test
 import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
+import java.net.InetAddress
 
 class NewsApiTest {
     private lateinit var mockWebServer: MockWebServer
@@ -34,6 +37,7 @@ class NewsApiTest {
     private lateinit var retrofit: Retrofit
     private lateinit var api: NewsApi
     private val TAG = "NewsApiTest"
+    private val mockServerDottedHostName = "mock.news.test"
 
     @Before
     fun setup() {
@@ -47,12 +51,15 @@ class NewsApiTest {
         val heldCertificate = HeldCertificate.Builder()
                 .commonName("localhost")
                 .addSubjectAlternativeName("localhost")
+                .addSubjectAlternativeName(mockServerDottedHostName)
                 .build()
         certificates = HandshakeCertificates.Builder()
                 .heldCertificate(heldCertificate)
                 .addTrustedCertificate(heldCertificate.certificate)
                 .build()
         mockWebServer = MockWebServer()
+        mockWebServer.protocols = listOf(Protocol.HTTP_1_1)
+        mockWebServer.protocolNegotiationEnabled = false
         mockWebServer.useHttps(
                 certificates.sslSocketFactory(),
                 false
@@ -62,6 +69,7 @@ class NewsApiTest {
 
     private fun setOkHttp() {
         okHttpClient = OkHttpClient.Builder()
+                .protocols(listOf(Protocol.HTTP_1_1))
                 .addInterceptor(HttpLoggingInterceptor(logger = {
                     logDebug(
                             TAG,
@@ -69,6 +77,11 @@ class NewsApiTest {
                             )
                 }).apply {
                     level = HttpLoggingInterceptor.Level.BODY
+                })
+                .dns(object : Dns {
+                    override fun lookup(hostname: String): List<InetAddress> {
+                        return listOf(InetAddress.getByName(mockWebServer.hostName))
+                    }
                 })
                 .sslSocketFactory(
                         certificates.sslSocketFactory(),
@@ -79,7 +92,12 @@ class NewsApiTest {
 
     private fun setRetrofit() {
         retrofit = Retrofit.Builder()
-                .baseUrl(mockWebServer.url("/"))
+                .baseUrl(
+                        mockWebServer.url("/")
+                                .newBuilder()
+                                .host(mockServerDottedHostName)
+                                .build()
+                        )
                 .client(okHttpClient)
                 .addConverterFactory(GsonConverterFactory.create())
                 .build()
