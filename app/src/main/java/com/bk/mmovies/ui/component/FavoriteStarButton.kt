@@ -31,6 +31,7 @@ val favoriteStarDefaultIconSize = 32.dp
 // the star rather than an outline hugging its edges.
 private val scrimSizeMargin = 12.dp
 private val touchTargetSizeMargin = 24.dp
+private val minTouchTargetSize = 48.dp
 private const val SCRIM_ALPHA = 0.35f
 
 // Color.Gray (0xFF888888) darkened by 25% (136 * 0.75 ≈ 102 = 0x66).
@@ -53,7 +54,7 @@ fun FavoriteStarButton(
             if (isFavorite) R.string.favorite_remove_action else R.string.favorite_add_action
                                            )
     val scrimSize = starIconSize + scrimSizeMargin
-    val touchTargetSize = starIconSize + touchTargetSizeMargin
+    val touchTargetSize = maxOf(starIconSize + touchTargetSizeMargin, minTouchTargetSize)
 
     Box(
             modifier = modifier

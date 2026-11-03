@@ -107,6 +107,7 @@
     <string name="details_overview_tba">Будет объявлено</string>
     <string name="details_cast_label">В РОЛЯХ</string>
     <string name="details_seasons_label">СЕЗОНЫ</string>
+    <string name="details_seasons_show_all">Показать все сезоны (%1$d)</string>
     <string name="details_episodes_label">ЭПИЗОДЫ</string>
     <string name="details_episode_number_title">%1$d. %2$s</string>
     <string name="details_cast_tba">Актёрский состав: будет объявлен</string>

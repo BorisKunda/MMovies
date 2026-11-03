@@ -40,8 +40,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
@@ -143,7 +145,8 @@ fun AuthWelcomeScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
-                        autoCorrectEnabled = false
+                        autoCorrectEnabled = false,
+                        imeAction = ImeAction.Next
                                                   ),
                 shape = RoundedCornerShape(primaryButtonCornerSize),
                 colors = authOutlinedTextFieldColors()
@@ -167,7 +170,15 @@ fun AuthWelcomeScreen(
                 keyboardOptions = KeyboardOptions(
                         capitalization = KeyboardCapitalization.None,
                         autoCorrectEnabled = false,
-                        keyboardType = KeyboardType.Password
+                        keyboardType = KeyboardType.Password,
+                        imeAction = ImeAction.Done
+                                                  ),
+                keyboardActions = KeyboardActions(
+                        onDone = {
+                            if (username.isNotBlank() && password.isNotBlank()) {
+                                onLoginClicked(username, password)
+                            }
+                        }
                                                   ),
                 shape = RoundedCornerShape(primaryButtonCornerSize),
                 colors = authOutlinedTextFieldColors(),

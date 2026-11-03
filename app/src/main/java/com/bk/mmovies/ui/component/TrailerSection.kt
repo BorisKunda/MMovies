@@ -103,6 +103,13 @@ fun TrailerSection(trailerUrl: String, modifier: Modifier = Modifier, pause: Boo
     var embedFailed by rememberSaveable(trailerUrl) { mutableStateOf(false) }
     var started by rememberSaveable(trailerUrl) { mutableStateOf(false) }
     var resumeSecond by rememberSaveable(trailerUrl) { mutableStateOf(0f) }
+    var isFullscreenDismissed by rememberSaveable(trailerUrl) { mutableStateOf(false) }
+    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
+    LaunchedEffect(isLandscape) {
+        if (!isLandscape) {
+            isFullscreenDismissed = false
+        }
+    }
     // Not saveable: a live player handle can't survive process/activity
     // recreation anyway, and a fresh player always starts unpaused.
     var activePlayer by remember { mutableStateOf<YouTubePlayer?>(null) }
@@ -144,14 +151,14 @@ fun TrailerSection(trailerUrl: String, modifier: Modifier = Modifier, pause: Boo
         return
     }
 
-    val isLandscape = LocalConfiguration.current.orientation == Configuration.ORIENTATION_LANDSCAPE
-    if (isLandscape) {
+    if (isLandscape && !isFullscreenDismissed) {
         FullscreenYoutubePlayer(
                 videoId = videoId,
                 startSeconds = resumeSecond,
                 onError = { embedFailed = true },
                 onTimeUpdate = { resumeSecond = it },
-                onReady = { activePlayer = it }
+                onReady = { activePlayer = it },
+                onExitFullscreen = { isFullscreenDismissed = true }
                                )
     } else {
         EmbeddedYoutubePlayer(
@@ -282,13 +289,14 @@ private fun FullscreenYoutubePlayer(
         startSeconds: Float,
         onError: () -> Unit,
         onTimeUpdate: (Float) -> Unit,
-        onReady: (YouTubePlayer) -> Unit = {}
+        onReady: (YouTubePlayer) -> Unit = {},
+        onExitFullscreen: () -> Unit = {}
                                     ) {
     Dialog(
-            onDismissRequest = {},
+            onDismissRequest = onExitFullscreen,
             properties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    dismissOnBackPress = false,
+                    dismissOnBackPress = true,
                     dismissOnClickOutside = false
                                           )
           ) {

@@ -18,9 +18,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.bk.mmovies.R
 
 // Matches CatalogListView's cardPaddingHorizontal so the search bar's edges
@@ -44,6 +47,7 @@ private const val SEARCH_BAR_HINT_ALPHA = 0.6f
 fun CatalogSearchBar(onClick: () -> Unit) {
     val hint = stringResource(R.string.search_field_hint)
     val shape = RoundedCornerShape(searchBarCornerShape)
+    val scaledSearchIconSize = with(LocalDensity.current) { searchIconSize.value.sp.toDp() }
 
     Row(
             modifier = Modifier
@@ -69,14 +73,16 @@ fun CatalogSearchBar(onClick: () -> Unit) {
                 imageVector = Icons.Default.Search,
                 contentDescription = null,
                 tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = SEARCH_BAR_HINT_ALPHA),
-                modifier = Modifier.size(searchIconSize)
+                modifier = Modifier.size(scaledSearchIconSize)
             )
         Spacer(modifier = Modifier.width(searchIconEndPadding))
         Text(
                 text = hint,
                 modifier = Modifier.weight(1f),
                 color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = SEARCH_BAR_HINT_ALPHA),
-                style = MaterialTheme.typography.labelLarge
+                style = MaterialTheme.typography.labelLarge,
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis
             )
     }
 }

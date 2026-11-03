@@ -34,6 +34,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -159,15 +162,18 @@ fun NewsCard(
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
         Column(modifier = Modifier.padding(cardPadding)) {
-            if (newsItem.imageUrl.isNotBlank()) {
+            var hasImageFailed by remember(newsItem.imageUrl) { mutableStateOf(false) }
+            if (newsItem.imageUrl.isNotBlank() && !hasImageFailed) {
                 AsyncImage(
                         model = newsItem.imageUrl,
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
+                        onError = { hasImageFailed = true },
                         modifier = Modifier
                                 .fillMaxWidth()
                                 .height(imageHeight)
                                 .clip(cardCornerShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
                           )
                 Spacer(modifier = Modifier.height(8.dp))
             }

@@ -46,6 +46,7 @@ private val errorImageHeight = 88.dp
 private val errorTitlePaddingTop = 14.dp
 private val errorMessagePaddingTop: Dp = 20.dp
 private val noInternetTryAgainSpacing = 12.dp
+private val errorActionsTopPadding = 24.dp
 
 @Composable fun ErrorView(
         modifier: Modifier,
@@ -163,7 +164,9 @@ fun NoInternetView(
 @Composable
 private fun ErrorActions(actions: @Composable (ColumnScope.() -> Unit)) {
     Column(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = errorActionsTopPadding),
             horizontalAlignment = Alignment.CenterHorizontally,
             content = actions
           )
