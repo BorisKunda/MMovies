@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MMovies</string>
+    <string name="app_name">TvBishvili</string>
 
     <!--ERRORS-->
     <string name="error_no_internet_connection_title">אין חיבור לאינטרנט</string>
@@ -148,15 +148,15 @@
 
     <!--TERMS AND CONDITIONS-->
     <string name="terms_title">תנאי שימוש</string>
-    <string name="terms_intro">MMovies הינה אפליקציה חינמית ולא מסחרית, שנבנתה כפרויקט אישי. שימוש באפליקציה מהווה הסכמה לתנאים הבאים.</string>
+    <string name="terms_intro">TvBishvili הינה אפליקציה חינמית ולא מסחרית, שנבנתה כפרויקט אישי. שימוש באפליקציה מהווה הסכמה לתנאים הבאים.</string>
     <string name="terms_tmdb_attribution_heading">קרדיט ל-TMDB</string>
     <string name="terms_tmdb_attribution_body">מוצר זה משתמש ב-API של TMDB אך אינו מאושר או מוסמך על ידי TMDB.</string>
     <string name="terms_content_ownership_heading">בעלות על התוכן</string>
-    <string name="terms_content_ownership_body">כל הנתונים על סרטים וסדרות, התמונות והתוכן הקשור המוצגים באפליקציה זו מקורם ב-The Movie Database ‏(TMDB) ושייכים ל-TMDB ולספקי התוכן שלה. ל-MMovies אין בעלות על תוכן זה והיא אינה טוענת לזכויות עליו.</string>
+    <string name="terms_content_ownership_body">כל הנתונים על סרטים וסדרות, התמונות והתוכן הקשור המוצגים באפליקציה זו מקורם ב-The Movie Database ‏(TMDB) ושייכים ל-TMDB ולספקי התוכן שלה. ל-TvBishvili אין בעלות על תוכן זה והיא אינה טוענת לזכויות עליו.</string>
     <string name="terms_data_accuracy_heading">דיוק הנתונים</string>
     <string name="terms_data_accuracy_body">התוכן מסופק על ידי TMDB \"כפי שהוא\". לא TMDB ולא מפתח האפליקציה מבטיחים שהמידע המוצג מדויק, שלם או מעודכן. פרטים מסוימים עשויים להיות חסרים, מיושנים או שגויים.</string>
     <string name="terms_no_warranty_heading">ללא אחריות</string>
-    <string name="terms_no_warranty_body">MMovies מסופקת כפי שהיא וכפי שזמינה, ללא כל אחריות, מפורשת או משתמעת. השימוש באפליקציה הוא באחריותך הבלעדית. המפתח אינו נושא באחריות לכל נזק או הפסד הנובע משימוש באפליקציה.</string>
+    <string name="terms_no_warranty_body">TvBishvili מסופקת כפי שהיא וכפי שזמינה, ללא כל אחריות, מפורשת או משתמעת. השימוש באפליקציה הוא באחריותך הבלעדית. המפתח אינו נושא באחריות לכל נזק או הפסד הנובע משימוש באפליקציה.</string>
     <string name="terms_commercial_use_heading">שימוש לא מסחרי</string>
     <string name="terms_commercial_use_body">אפליקציה זו אינה ממומנת ואינה מייצרת הכנסה. מדובר בפרויקט אישי ולא מסחרי, שאינו מוכר, מעניק רישיון משנה או מפיץ מחדש תוכן או נתונים של TMDB.</string>
     <string name="terms_changes_heading">שינויים בתנאים</string>
@@ -165,7 +165,7 @@
 
     <!--PRIVACY POLICY-->
     <string name="privacy_policy_title">מדיניות פרטיות</string>
-    <string name="privacy_policy_intro">MMovies היא אפליקציה חינמית ולא מסחרית, פרויקט אישי. מדיניות זו מסבירה אילו נתונים האפליקציה מטפלת בהם וכיצד.</string>
+    <string name="privacy_policy_intro">TvBishvili היא אפליקציה חינמית ולא מסחרית, פרויקט אישי. מדיניות זו מסבירה אילו נתונים האפליקציה מטפלת בהם וכיצד.</string>
     <string name="privacy_policy_account_heading">פרטי חשבון</string>
     <string name="privacy_policy_account_body">בעת ההתחברות, שם המשתמש והסיסמה שלך ב-TMDB נשלחים ישירות לשרתי TMDB ליצירת הפעלה ואינם נשמרים או נראים לאף גורם מלבד TMDB. ניתן גם להשתמש באפליקציה כאורח ללא מסירת פרטי חשבון.</string>
     <string name="privacy_policy_local_storage_heading">נתונים המאוחסנים במכשיר</string>
@@ -173,7 +173,7 @@
     <string name="privacy_policy_third_party_heading">שירותי צד שלישי</string>
     <string name="privacy_policy_third_party_body">כל הנתונים על סרטים וסדרות, התמונות ואימות החשבון מסופקים על ידי The Movie Database ‏(TMDB). השימוש בשירותי TMDB כפוף למדיניות הפרטיות של TMDB עצמה.</string>
     <string name="privacy_policy_no_collection_heading">ללא אנליטיקס או מעקב</string>
-    <string name="privacy_policy_no_collection_body">MMovies אינה אוספת נתוני אנליטיקס, אינה משתמשת בפרסום ואינה משתפת נתונים עם צדדים שלישיים מעבר לבקשות ל-TMDB הנחוצות לפעולת האפליקציה.</string>
+    <string name="privacy_policy_no_collection_body">TvBishvili אינה אוספת נתוני אנליטיקס, אינה משתמשת בפרסום ואינה משתפת נתונים עם צדדים שלישיים מעבר לבקשות ל-TMDB הנחוצות לפעולת האפליקציה.</string>
     <string name="privacy_policy_children_heading">פרטיות ילדים</string>
     <string name="privacy_policy_children_body">אפליקציה זו אינה מיועדת לילדים ואינה אוספת ביודעין מידע מילדים.</string>
     <string name="privacy_policy_changes_heading">שינויים במדיניות זו</string>

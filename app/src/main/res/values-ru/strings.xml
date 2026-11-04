@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">MMovies</string>
+    <string name="app_name">TvBishvili</string>
 
     <!--ERRORS-->
     <string name="error_no_internet_connection_title">Нет подключения к интернету</string>
@@ -148,15 +148,15 @@
 
     <!--TERMS AND CONDITIONS-->
     <string name="terms_title">Условия использования</string>
-    <string name="terms_intro">MMovies — бесплатное некоммерческое приложение, созданное как личный проект. Используя его, вы соглашаетесь со следующими условиями.</string>
+    <string name="terms_intro">TvBishvili — бесплатное некоммерческое приложение, созданное как личный проект. Используя его, вы соглашаетесь со следующими условиями.</string>
     <string name="terms_tmdb_attribution_heading">Атрибуция TMDB</string>
     <string name="terms_tmdb_attribution_body">Этот продукт использует API TMDB, но не одобрен и не сертифицирован TMDB.</string>
     <string name="terms_content_ownership_heading">Права на контент</string>
-    <string name="terms_content_ownership_body">Все данные о фильмах и сериалах, изображения и связанный с ними контент, отображаемые в этом приложении, получены из The Movie Database (TMDB) и принадлежат TMDB и её поставщикам контента. MMovies не владеет этим контентом и не претендует на него.</string>
+    <string name="terms_content_ownership_body">Все данные о фильмах и сериалах, изображения и связанный с ними контент, отображаемые в этом приложении, получены из The Movie Database (TMDB) и принадлежат TMDB и её поставщикам контента. TvBishvili не владеет этим контентом и не претендует на него.</string>
     <string name="terms_data_accuracy_heading">Точность данных</string>
     <string name="terms_data_accuracy_body">Контент предоставляется TMDB «как есть». Ни TMDB, ни разработчик этого приложения не гарантируют точность, полноту или актуальность отображаемой информации. Данные могут отсутствовать, устаревать или быть неверными.</string>
     <string name="terms_no_warranty_heading">Отсутствие гарантий</string>
-    <string name="terms_no_warranty_body">MMovies предоставляется «как есть» и «по мере доступности», без каких-либо гарантий, явных или подразумеваемых. Использование приложения осуществляется на ваш собственный риск. Разработчик не несёт ответственности за любой ущерб или убытки, возникшие в результате использования приложения.</string>
+    <string name="terms_no_warranty_body">TvBishvili предоставляется «как есть» и «по мере доступности», без каких-либо гарантий, явных или подразумеваемых. Использование приложения осуществляется на ваш собственный риск. Разработчик не несёт ответственности за любой ущерб или убытки, возникшие в результате использования приложения.</string>
     <string name="terms_commercial_use_heading">Некоммерческое использование</string>
     <string name="terms_commercial_use_body">Это приложение не монетизировано и не приносит дохода. Это личный некоммерческий проект, который не продаёт, не сублицензирует и не распространяет данные или контент TMDB.</string>
     <string name="terms_changes_heading">Изменения условий</string>
@@ -165,7 +165,7 @@
 
     <!--PRIVACY POLICY-->
     <string name="privacy_policy_title">Политика конфиденциальности</string>
-    <string name="privacy_policy_intro">MMovies — бесплатный некоммерческий личный проект. Эта политика объясняет, какие данные обрабатывает приложение и как.</string>
+    <string name="privacy_policy_intro">TvBishvili — бесплатный некоммерческий личный проект. Эта политика объясняет, какие данные обрабатывает приложение и как.</string>
     <string name="privacy_policy_account_heading">Учётные данные</string>
     <string name="privacy_policy_account_body">При входе ваш логин и пароль TMDB отправляются напрямую на серверы TMDB для создания сессии и никогда не сохраняются и не видны никому, кроме TMDB. Вы также можете использовать приложение как гость, не указывая учётные данные.</string>
     <string name="privacy_policy_local_storage_heading">Данные, хранимые локально</string>
@@ -173,7 +173,7 @@
     <string name="privacy_policy_third_party_heading">Сторонние сервисы</string>
     <string name="privacy_policy_third_party_body">Все данные о фильмах и сериалах, изображения и аутентификация аккаунта предоставляются The Movie Database (TMDB). Использование сервисов TMDB регулируется собственной политикой конфиденциальности TMDB.</string>
     <string name="privacy_policy_no_collection_heading">Без аналитики и отслеживания</string>
-    <string name="privacy_policy_no_collection_body">MMovies не собирает аналитику, не использует рекламу и не передаёт никакие данные третьим лицам, за исключением запросов к TMDB, необходимых для работы приложения.</string>
+    <string name="privacy_policy_no_collection_body">TvBishvili не собирает аналитику, не использует рекламу и не передаёт никакие данные третьим лицам, за исключением запросов к TMDB, необходимых для работы приложения.</string>
     <string name="privacy_policy_children_heading">Конфиденциальность детей</string>
     <string name="privacy_policy_children_body">Это приложение не предназначено для детей и сознательно не собирает данные о детях.</string>
     <string name="privacy_policy_changes_heading">Изменения политики</string>
