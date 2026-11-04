@@ -1,10 +1,10 @@
-# MMovies
+# TvBishvili
 
 <p align="left">
-  <img src="docs/icons/mmovies-logo-aligned.png" alt="MMovies logo" height="200">
+  <img src="docs/icons/mmovies-logo-aligned.png" alt="TvBishvili logo" height="200">
 </p>
 
-#### MMovies is a movie, TV series, and entertainment news discovery app for Android phones and Android TV, built with Kotlin and Jetpack Compose
+#### TvBishvili is a movie, TV series, and entertainment news discovery app for Android phones and Android TV, built with Kotlin and Jetpack Compose
 
 [![Android](https://img.shields.io/badge/Android-555?logo=android&logoColor=3DDC84)](https://developer.android.com/) [![minSdk](https://img.shields.io/badge/minSdk-23-blue)](https://developer.android.com/about/versions/marshmallow/android-6.0) [![targetSdk](https://img.shields.io/badge/targetSdk-37-blue)](https://developer.android.com/about/versions/17/features)
 <br>
@@ -99,7 +99,7 @@
 
 ## Architecture
 
-MMovies uses MVVM with a layered architecture. Compose screens observe UI state exposed by ViewModels through StateFlow. ViewModels call repository interfaces defined in the domain layer, while the data layer implements those interfaces using Retrofit, Room, and SharedPreferences. Hilt provides dependency injection.
+TvBishvili uses MVVM with a layered architecture. Compose screens observe UI state exposed by ViewModels through StateFlow. ViewModels call repository interfaces defined in the domain layer, while the data layer implements those interfaces using Retrofit, Room, and SharedPreferences. Hilt provides dependency injection.
 
 The domain and data layers live in the shared `:core` module, allowing the mobile (`:app`) and Android TV (`:tv`) applications to share repository contracts and common data functionality while providing platform-specific screens and navigation.
 
@@ -556,7 +556,7 @@ The repository does not supply API keys. Local API-key configuration files are e
 
 ## License and Attribution
 
-MMovies is a free, non-commercial personal project with no advertising.
+TvBishvili is a free, non-commercial personal project with no advertising.
 
 ### License
 
@@ -576,13 +576,13 @@ Third-party libraries and content remain subject to their respective licenses an
 - **The Guardian · Android TV:** News content is provided through [The Guardian Open Platform](https://open-platform.theguardian.com)
 - **Google Gemini · Android TV:** Optional AI recommendations are generated using Google's Gemini API with a user-provided API key
 
-Third-party content, images, and trademarks belong to their respective rights holders. MMovies claims no ownership of them. Use of third-party services is subject to their applicable terms and privacy policies.
+Third-party content, images, and trademarks belong to their respective rights holders. TvBishvili claims no ownership of them. Use of third-party services is subject to their applicable terms and privacy policies.
 
 ### Privacy
 
 TMDB credentials are used to authenticate directly with TMDB. A session identifier and account ID are stored locally to keep users signed in. Guest access is also available.
 
-MMovies does not use advertising or collect usage analytics. Requests needed for enabled features are sent to the relevant service providers, including TMDB, news providers, and Google Gemini.
+TvBishvili does not use advertising or collect usage analytics. Requests needed for enabled features are sent to the relevant service providers, including TMDB, news providers, and Google Gemini.
 
 The mobile app uses Firebase Crashlytics for crash reporting. Crash reports and diagnostic information may be sent to Google Firebase to help identify and resolve stability issues.
 
@@ -592,4 +592,4 @@ See the in-app Terms and Conditions and Privacy Policy for further details.
 
 ### Disclaimer
 
-MMovies is provided “as is” and “as available,” without warranties to the extent permitted by applicable law. Third-party information and AI-generated recommendations may be incomplete, inaccurate, or outdated. Feature availability depends on external services and their usage limits.
+TvBishvili is provided “as is” and “as available,” without warranties to the extent permitted by applicable law. Third-party information and AI-generated recommendations may be incomplete, inaccurate, or outdated. Feature availability depends on external services and their usage limits.

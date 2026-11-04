@@ -74,13 +74,13 @@
     <string name="news_api_key_saved">Ключ API Guardian сохранён.</string>
 
     <string name="terms_title">Условия использования</string>
-    <string name="terms_intro">MMovies — бесплатное некоммерческое приложение, созданное как личный проект. Используя его, вы соглашаетесь со следующими условиями.</string>
+    <string name="terms_intro">TvBishvili — бесплатное некоммерческое приложение, созданное как личный проект. Используя его, вы соглашаетесь со следующими условиями.</string>
     <string name="terms_tmdb_attribution_heading">Атрибуция TMDB</string>
     <string name="terms_tmdb_attribution_body">Этот продукт использует API TMDB, но не одобрен и не сертифицирован TMDB.</string>
     <string name="terms_content_ownership_heading">Права на контент</string>
-    <string name="terms_content_ownership_body">Все данные о фильмах и сериалах, изображения и связанный с ними контент, отображаемые в этом приложении, получены из The Movie Database (TMDB) и принадлежат TMDB и её поставщикам контента. MMovies не владеет этим контентом и не претендует на него.</string>
+    <string name="terms_content_ownership_body">Все данные о фильмах и сериалах, изображения и связанный с ними контент, отображаемые в этом приложении, получены из The Movie Database (TMDB) и принадлежат TMDB и её поставщикам контента. TvBishvili не владеет этим контентом и не претендует на него.</string>
     <string name="terms_guardian_attribution_heading">Атрибуция Guardian</string>
-    <string name="terms_guardian_attribution_body">Раздел «Новости» использует Guardian Open Platform API для отображения заголовков о фильмах и сериалах. Этот контент принадлежит Guardian News &amp; Media Limited и не является собственностью MMovies.</string>
+    <string name="terms_guardian_attribution_body">Раздел «Новости» использует Guardian Open Platform API для отображения заголовков о фильмах и сериалах. Этот контент принадлежит Guardian News &amp; Media Limited и не является собственностью TvBishvili.</string>
     <string name="terms_gemini_attribution_heading">Атрибуция Gemini</string>
     <string name="terms_gemini_attribution_body">Рекомендации на основе ИИ, при включении с помощью предоставленного пользователем ключа API Gemini, создаются с использованием Gemini API от Google. Эта функция неактивна, пока не указан действительный ключ API.</string>
     <string name="terms_voice_search_heading">Голосовой поиск</string>
@@ -88,7 +88,7 @@
     <string name="terms_data_accuracy_heading">Точность данных</string>
     <string name="terms_data_accuracy_body">Контент предоставляется TMDB «как есть». Ни TMDB, ни разработчик этого приложения не гарантируют точность, полноту или актуальность отображаемой информации. Данные могут отсутствовать, устаревать или быть неверными.</string>
     <string name="terms_no_warranty_heading">Отсутствие гарантий</string>
-    <string name="terms_no_warranty_body">MMovies предоставляется «как есть» и «по мере доступности», без каких-либо гарантий, явных или подразумеваемых. Использование приложения осуществляется на ваш собственный риск. Разработчик не несёт ответственности за любой ущерб или убытки, возникшие в результате использования приложения.</string>
+    <string name="terms_no_warranty_body">TvBishvili предоставляется «как есть» и «по мере доступности», без каких-либо гарантий, явных или подразумеваемых. Использование приложения осуществляется на ваш собственный риск. Разработчик не несёт ответственности за любой ущерб или убытки, возникшие в результате использования приложения.</string>
     <string name="terms_commercial_use_heading">Некоммерческое использование</string>
     <string name="terms_commercial_use_body">Это приложение не монетизировано и не приносит дохода. Это личный некоммерческий проект, который не продаёт, не сублицензирует и не распространяет данные или контент TMDB, Guardian или Gemini.</string>
     <string name="terms_changes_heading">Изменения условий</string>
@@ -96,17 +96,17 @@
     <string name="terms_privacy_policy_link">Политика конфиденциальности</string>
 
     <string name="privacy_policy_title">Политика конфиденциальности</string>
-    <string name="privacy_policy_intro">MMovies — бесплатный некоммерческий личный проект. Эта политика объясняет, какие данные обрабатывает приложение и как.</string>
+    <string name="privacy_policy_intro">TvBishvili — бесплатный некоммерческий личный проект. Эта политика объясняет, какие данные обрабатывает приложение и как.</string>
     <string name="privacy_policy_account_heading">Учётные данные</string>
     <string name="privacy_policy_account_body">При входе ваш логин и пароль TMDB отправляются напрямую на серверы TMDB для создания сессии и никогда не сохраняются и не видны никому, кроме TMDB. Вы также можете использовать приложение как гость, не указывая учётные данные.</string>
     <string name="privacy_policy_local_storage_heading">Данные, хранимые локально</string>
     <string name="privacy_policy_local_storage_body">Приложение сохраняет идентификатор сессии TMDB и ID аккаунта на вашем устройстве, чтобы сохранить вход в систему. Эти данные остаются на вашем устройстве и удаляются при выходе из аккаунта или очистке хранилища приложения.</string>
     <string name="privacy_policy_voice_search_heading">Голосовой поиск</string>
-    <string name="privacy_policy_voice_search_body">Если вы используете голосовой поиск, приложение запрашивает разрешение на доступ к микрофону и слушает только после нажатия кнопки микрофона в поиске. Ваша речь обрабатывается службой распознавания речи вашего устройства (предоставляется Google), которая может передавать аудио на серверы Google. MMovies не записывает, не хранит и не получает аудио; приложение получает только распознанный текст и использует его как поисковый запрос. Вы можете отозвать разрешение в любой момент в настройках устройства.</string>
+    <string name="privacy_policy_voice_search_body">Если вы используете голосовой поиск, приложение запрашивает разрешение на доступ к микрофону и слушает только после нажатия кнопки микрофона в поиске. Ваша речь обрабатывается службой распознавания речи вашего устройства (предоставляется Google), которая может передавать аудио на серверы Google. TvBishvili не записывает, не хранит и не получает аудио; приложение получает только распознанный текст и использует его как поисковый запрос. Вы можете отозвать разрешение в любой момент в настройках устройства.</string>
     <string name="privacy_policy_third_party_heading">Сторонние сервисы</string>
     <string name="privacy_policy_third_party_body">Данные о фильмах и сериалах, изображения и аутентификация аккаунта предоставляются The Movie Database (TMDB). Заголовки новостей предоставляются Guardian Open Platform. Рекомендации на основе ИИ, при включении, предоставляются Gemini API от Google с использованием ключа, который вы предоставляете. Использование этих сервисов регулируется собственной политикой конфиденциальности каждого поставщика.</string>
     <string name="privacy_policy_no_collection_heading">Без аналитики и отслеживания</string>
-    <string name="privacy_policy_no_collection_body">MMovies не собирает аналитику, не использует рекламу и не передаёт никакие данные третьим лицам, за исключением запросов, необходимых для работы приложения.</string>
+    <string name="privacy_policy_no_collection_body">TvBishvili не собирает аналитику, не использует рекламу и не передаёт никакие данные третьим лицам, за исключением запросов, необходимых для работы приложения.</string>
     <string name="privacy_policy_children_heading">Конфиденциальность детей</string>
     <string name="privacy_policy_children_body">Это приложение не предназначено для детей и сознательно не собирает данные о детях.</string>
     <string name="privacy_policy_changes_heading">Изменения политики</string>
